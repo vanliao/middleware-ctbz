@@ -80,7 +80,7 @@ bool TcpSocket::accept(int &newSock, std::string &ipAddr, int &port)
         return false;
     }
     newSock = ret;
-    log_info("create fd " << newSock);
+    log_debug("create fd " << newSock);
 
     char buff[64];
     ::inet_ntop(AF_INET,(const void *)&peerAddr.sin_addr,buff, sizeof(buff));
@@ -117,6 +117,5 @@ bool TcpSocket::send(const std::string &buf)
 
     return true;
 }
-
 
 }

@@ -1,5 +1,5 @@
-#ifndef CGI_DEV_H
-#define CGI_DEV_H
+#ifndef END_POINT_H
+#define END_POINT_H
 
 #include "dev.h"
 
@@ -18,4 +18,4 @@ public:
 
 }
 
-#endif // CGI_DEV_H
+#endif // END_POINT_H

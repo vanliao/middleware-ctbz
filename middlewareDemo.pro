@@ -10,7 +10,7 @@ CONFIG -= app_bundle
 SOURCES += \
     db/cgi_db.cpp \
     db/sqlite_db.cpp \
-    dev/cgi_dev.cpp \
+    dev/end_point.cpp \
     dev/lte_dev_demo.cpp \
     dev/nr_dev_demo.cpp \
     inifile/inifile.cpp \
@@ -74,8 +74,8 @@ HEADERS += \
     db/db.h \
     db/db_data.h \
     db/sqlite_db.h \
-    dev/cgi_dev.h \
     dev/dev.h \
+    dev/end_point.h \
     dev/lte_dev_demo.h \
     dev/nr_dev_demo.h \
     inifile/inifile.h \
