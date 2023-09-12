@@ -16,7 +16,7 @@ void ServerDemoMsg::show(std::stringstream &ss, bool output)
 
     if (output)
     {
-        log_debug(ss.str());
+        log_info(ss.str());
         ss.str("");
     }
 

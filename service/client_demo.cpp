@@ -18,7 +18,7 @@ ClientDemo::~ClientDemo()
 
 void ClientDemo::connectNotify(unsigned int connID)
 {
-    log_debug("connectNotify:" << connID);
+    log_info("connectNotify:" << connID);
     dev::EndPoint *ep = svr.getDev(connID);
     if (NULL == ep)
     {
@@ -31,7 +31,7 @@ void ClientDemo::connectNotify(unsigned int connID)
 
 void ClientDemo::recvNotify(unsigned int connID, std::string &buf)
 {
-    log_debug("recvNotify:" << connID << "[" << buf.length() << "]" << buf);
+    log_info("recvNotify:" << connID << "[" << buf.length() << "]" << buf);
     dev::EndPoint *ep = svr.getDev(connID);
     if (NULL == ep)
     {
@@ -67,7 +67,7 @@ void ClientDemo::recvNotify(unsigned int connID, std::string &buf)
 
 void service::ClientDemo::closeNotify(unsigned int connID)
 {
-    log_debug("closeNotify:" << connID);
+    log_info("closeNotify:" << connID);
     return;
 }
 
@@ -149,7 +149,7 @@ void ClientDemo::procDevResult(dev::Dev::ProcResult pr,
     case dev::Dev::SENDTODEV:
     {
         ep->send(rspMsg->raw);
-        log_debug("send to client demo:" << rspMsg->raw);
+        log_info("send to client demo:" << rspMsg->raw);
         break;
     }
     default:

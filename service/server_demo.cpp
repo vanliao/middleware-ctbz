@@ -146,7 +146,7 @@ void ServerDemo::procDevResult(dev::Dev::ProcResult pr,
     case dev::Dev::SENDTODEV:
     {
         ep->send(rspMsg->raw);
-        log_debug("send to server demo:" << rspMsg->raw);
+        log_info("send to server demo:" << rspMsg->raw);
         break;
     }
     default:
