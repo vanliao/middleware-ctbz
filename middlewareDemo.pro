@@ -21,7 +21,7 @@ SOURCES += \
     main/oam_cgi_server_demo.cpp \
     msg/msg.cpp \
     msg/server_demo_msg.cpp \
-    network/communicator.cpp \
+    network/epollcommunicator.cpp \
     network/epollserver.cpp \
     network/socket.cpp \
     network/tcpclient.cpp \
@@ -169,7 +169,7 @@ HEADERS += \
     main/oam_cgi_server_demo.h \
     msg/msg.h \
     msg/server_demo_msg.h \
-    network/communicator.h \
+    network/epollcommunicator.h \
     network/epollserver.h \
     network/socket.h \
     network/tcpclient.h \

@@ -4,14 +4,14 @@
 #include <thread>
 #include <mutex>
 #include <list>
-#include "communicator.h"
+#include "epollcommunicator.h"
 
 namespace service {
 
-class CommonCommunicator : public network::CommunicatorIF
+class CommonCommunicator : public network::EpollCommunicatorIF
 {
 public:
-    CommonCommunicator(const std::string &serverIP, const int serverPort, const network::Communicator::ServerType type);
+    CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type);
     virtual ~CommonCommunicator();
     bool start(void);
     void stop(void);

@@ -1,5 +1,5 @@
-#ifndef COMMUNICATOR_H
-#define COMMUNICATOR_H
+#ifndef EPOLLCOMMUNICATOR_H
+#define EPOLLCOMMUNICATOR_H
 
 #include <map>
 #include <vector>
@@ -9,9 +9,9 @@
 
 namespace network {
 
-class CommunicatorIF;
+class EpollCommunicatorIF;
 
-class Communicator
+class EpollCommunicator
 {
 public:
     enum ServerType
@@ -19,10 +19,10 @@ public:
         UDP,
         TCP
     };
-    Communicator(const std::string &serverIP, const int serverPort, const ServerType svrtype);
-    virtual ~Communicator();
+    EpollCommunicator(const std::string &serverIP, const int serverPort, const ServerType svrtype);
+    virtual ~EpollCommunicator();
     bool open(void);
-    bool start(CommunicatorIF &obj);
+    bool start(EpollCommunicatorIF &obj);
     void stop(void);
     bool connect(void);
     void disconnect(const int connID);
@@ -34,9 +34,10 @@ public:
     dev::EndPoint *getFirstDev(void);
 
 private:
-    bool startTcpSvr(CommunicatorIF &obj);
-    bool startUdpSvr(CommunicatorIF &obj);
-private:
+    bool startTcpSvr(EpollCommunicatorIF &obj);
+    bool startUdpSvr(EpollCommunicatorIF &obj);
+
+protected:
     ServerType type;
     int port;
     std::string ip;
@@ -46,19 +47,19 @@ private:
     std::map<int, std::shared_ptr<network::Socket> > clients;
 };
 
-class CommunicatorIF: public network::EPollServerIF
+class EpollCommunicatorIF: public network::EpollServerIF
 {
 public:
-    CommunicatorIF(const std::string &serverIP, const int serverPort, const Communicator::ServerType svrtype):
+    EpollCommunicatorIF(const std::string &serverIP, const int serverPort, const EpollCommunicator::ServerType svrtype):
         svr(serverIP, serverPort, svrtype){};
-    virtual ~CommunicatorIF(){};
+    virtual ~EpollCommunicatorIF(){};
 
     virtual void eventtNotify(const int event) = 0;
 
 protected:
-    Communicator svr;
+    EpollCommunicator svr;
 };
 
 }
 
-#endif // COMMUNICATOR_H
+#endif // EPOLLCOMMUNICATOR_H

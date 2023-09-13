@@ -6,7 +6,7 @@
 namespace service {
 
 ServerDemo::ServerDemo(const std::string &serverIP, const int serverPort) :
-    Server(serverIP, serverPort, network::EPollServer::UDP)
+    Server(serverIP, serverPort, network::EpollServer::UDP)
 {
     registered = true;
     return;

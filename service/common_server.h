@@ -11,7 +11,7 @@ namespace service {
 
 class CommonServerIF;
 
-class CommonServer  : public network::EPollServer
+class CommonServer  : public network::EpollServer
 {
 public:
     CommonServer(const std::string &serverIP, const int serverPort, const ServerType type);
@@ -33,10 +33,10 @@ private:
     std::vector<int> eventFds;
 };
 
-class CommonServerIF: public network::EPollServerIF
+class CommonServerIF: public network::EpollServerIF
 {
 public:
-    CommonServerIF(const std::string serverIP, const int serverPort, const network::EPollServer::ServerType type):
+    CommonServerIF(const std::string serverIP, const int serverPort, const network::EpollServer::ServerType type):
         svr(serverIP, serverPort, type){};
     virtual ~CommonServerIF(){};
 
@@ -49,7 +49,7 @@ protected:
 class Server: public CommonServerIF
 {
 public:
-    Server(const std::string serverIP, const int serverPort, const network::EPollServer::ServerType type);
+    Server(const std::string serverIP, const int serverPort, const network::EpollServer::ServerType type);
     virtual ~Server();
     bool start(void);
     void stop(void);

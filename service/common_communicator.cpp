@@ -8,8 +8,8 @@
 
 namespace service {
 
-CommonCommunicator::CommonCommunicator(const std::string &serverIP, const int serverPort, const network::Communicator::ServerType type):
-        network::CommunicatorIF(serverIP, serverPort, type)
+CommonCommunicator::CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type):
+        network::EpollCommunicatorIF(serverIP, serverPort, type)
 {
     notifyEvt = -1;
     hbTimer = -1;

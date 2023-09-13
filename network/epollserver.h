@@ -5,17 +5,17 @@
 
 namespace network {
 
-class EPollServerIF
+class EpollServerIF
 {
 public:
-    EPollServerIF(){};
-    virtual ~EPollServerIF(){};
+    EpollServerIF(){};
+    virtual ~EpollServerIF(){};
     virtual void connectNotify(unsigned int connID) = 0;
     virtual void recvNotify(unsigned int connID, std::string &buf) = 0;
     virtual void closeNotify(unsigned int connID) = 0;
 };
 
-class EPollServer
+class EpollServer
 {
 public:
     enum ServerType
@@ -24,14 +24,14 @@ public:
         TCP
     };
 
-    EPollServer(const std::string &serverIP, const int serverPort, const ServerType type);
-    virtual ~EPollServer(void);
-    bool start(EPollServerIF &obj);
+    EpollServer(const std::string &serverIP, const int serverPort, const ServerType type);
+    virtual ~EpollServer(void);
+    bool start(EpollServerIF &obj);
     void stop(void);
 
 private:
-    bool startTcpSvr(EPollServerIF &obj);
-    bool startUdpSvr(EPollServerIF &/*obj*/);
+    bool startTcpSvr(EpollServerIF &obj);
+    bool startUdpSvr(EpollServerIF &obj);
 
 protected:
     int epollFd;

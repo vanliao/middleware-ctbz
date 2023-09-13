@@ -6,7 +6,7 @@
 namespace service {
 
 ClientDemo::ClientDemo(const std::string &serverIP, const int serverPort):
-    CommonCommunicator(serverIP, serverPort, network::Communicator::TCP)
+    CommonCommunicator(serverIP, serverPort, network::EpollCommunicator::UDP)
 {
     return;
 }
@@ -26,7 +26,7 @@ void ClientDemo::connectNotify(unsigned int connID)
         return;
     }
     ep->dev = std::make_shared<dev::LteDevDemo>();
-//    ep->send("{\"code\":20,\"data\":\"123456789\"}");
+    ep->send("{\"code\":20,\"data\":\"123456789\"}");
 }
 
 void ClientDemo::recvNotify(unsigned int connID, std::string &buf)

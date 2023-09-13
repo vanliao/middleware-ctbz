@@ -1,4 +1,4 @@
-#include "communicator.h"
+#include "epollcommunicator.h"
 
 #include <string.h>
 #include <thread>
@@ -9,13 +9,13 @@
 
 namespace network {
 
-Communicator::Communicator(const std::string &serverIP, const int serverPort, const ServerType svrtype)
+EpollCommunicator::EpollCommunicator(const std::string &serverIP, const int serverPort, const ServerType svrtype)
     :type(svrtype), port(serverPort), ip(serverIP), epollFd(-1), finish(false)
 {
     return;
 }
 
-Communicator::~Communicator()
+EpollCommunicator::~EpollCommunicator()
 {
     if (-1 != epollFd)
     {
@@ -25,7 +25,7 @@ Communicator::~Communicator()
     return;
 }
 
-bool Communicator::open()
+bool EpollCommunicator::open()
 {
     epollFd = epoll_create1(0);
     if (-1 == epollFd)
@@ -37,7 +37,7 @@ bool Communicator::open()
     return true;
 }
 
-bool Communicator::start(CommunicatorIF &obj)
+bool EpollCommunicator::start(EpollCommunicatorIF &obj)
 {
     if (-1 == epollFd)
     {
@@ -58,13 +58,13 @@ bool Communicator::start(CommunicatorIF &obj)
     return ret;
 }
 
-void Communicator::stop()
+void EpollCommunicator::stop()
 {
     finish = true;
     return;
 }
 
-bool Communicator::connect()
+bool EpollCommunicator::connect()
 {
     std::shared_ptr<network::Socket> clt;
     if (TCP == type)
@@ -152,7 +152,7 @@ bool Communicator::connect()
     return true;
 }
 
-network::TcpClient *Communicator::getTcpClient(const int connID)
+network::TcpClient *EpollCommunicator::getTcpClient(const int connID)
 {
     auto it = clients.find(connID);
     if (clients.end() != it)
@@ -166,7 +166,7 @@ network::TcpClient *Communicator::getTcpClient(const int connID)
     return NULL;
 }
 
-UdpClient *Communicator::getUdpClient(const int connID)
+UdpClient *EpollCommunicator::getUdpClient(const int connID)
 {
     auto it = clients.find(connID);
     if (clients.end() != it)
@@ -180,7 +180,7 @@ UdpClient *Communicator::getUdpClient(const int connID)
     return NULL;
 }
 
-bool Communicator::addExtenEvent(const int ev)
+bool EpollCommunicator::addExtenEvent(const int ev)
 {
     eventFds.push_back(ev);
 
@@ -197,7 +197,7 @@ bool Communicator::addExtenEvent(const int ev)
     return true;
 }
 
-bool Communicator::delExtenEvent(const int ev)
+bool EpollCommunicator::delExtenEvent(const int ev)
 {
     for(auto it = eventFds.begin(); eventFds.end() != it; it++)
     {
@@ -219,7 +219,7 @@ bool Communicator::delExtenEvent(const int ev)
     return true;
 }
 
-dev::EndPoint *Communicator::getDev(const int connID)
+dev::EndPoint *EpollCommunicator::getDev(const int connID)
 {
     if (TCP == type)
     {
@@ -235,7 +235,7 @@ dev::EndPoint *Communicator::getDev(const int connID)
     return NULL;
 }
 
-dev::EndPoint *Communicator::getFirstDev()
+dev::EndPoint *EpollCommunicator::getFirstDev()
 {
     auto it = clients.begin();
     if (clients.end() != it)
@@ -255,7 +255,7 @@ dev::EndPoint *Communicator::getFirstDev()
     return NULL;
 }
 
-void Communicator::disconnect(const int connID)
+void EpollCommunicator::disconnect(const int connID)
 {
     if (TCP == type)
     {
@@ -289,7 +289,7 @@ void Communicator::disconnect(const int connID)
     return;
 }
 
-bool Communicator::startTcpSvr(CommunicatorIF &obj)
+bool EpollCommunicator::startTcpSvr(EpollCommunicatorIF &obj)
 {
     bool exitflag = true;
     auto exitEpoll = [this, &exitflag]()
@@ -382,7 +382,7 @@ bool Communicator::startTcpSvr(CommunicatorIF &obj)
     return exitflag;
 }
 
-bool Communicator::startUdpSvr(CommunicatorIF &obj)
+bool EpollCommunicator::startUdpSvr(EpollCommunicatorIF &obj)
 {
     bool exitflag = true;
     auto exitEpoll = [this, &exitflag]()

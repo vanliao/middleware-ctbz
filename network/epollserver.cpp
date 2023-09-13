@@ -7,7 +7,7 @@
 
 namespace network {
 
-EPollServer::EPollServer(const std::string &serverIP, const int serverPort, const ServerType type)
+EpollServer::EpollServer(const std::string &serverIP, const int serverPort, const ServerType type)
 {
     epollFd = -1;
     svrType = type;
@@ -24,7 +24,7 @@ EPollServer::EPollServer(const std::string &serverIP, const int serverPort, cons
     return;
 }
 
-EPollServer::~EPollServer()
+EpollServer::~EpollServer()
 {
     if (-1 != epollFd)
     {
@@ -34,7 +34,7 @@ EPollServer::~EPollServer()
     return;
 }
 
-bool EPollServer::start(EPollServerIF &obj)
+bool EpollServer::start(EpollServerIF &obj)
 {
     epollFd = epoll_create1(0);
     if (-1 == epollFd)
@@ -56,12 +56,12 @@ bool EPollServer::start(EPollServerIF &obj)
     return ret;
 }
 
-void EPollServer::stop()
+void EpollServer::stop()
 {
     finish = true;
 }
 
-bool EPollServer::startTcpSvr(EPollServerIF &obj)
+bool EpollServer::startTcpSvr(EpollServerIF &obj)
 {
     TcpServer *svr = dynamic_cast<TcpServer*>(sock.get());
     if (NULL == svr)
@@ -170,9 +170,101 @@ bool EPollServer::startTcpSvr(EPollServerIF &obj)
     return exitflag;
 }
 
-bool EPollServer::startUdpSvr(EPollServerIF &)
+bool EpollServer::startUdpSvr(EpollServerIF &obj)
 {
-    return false;
+    network::UdpServer *svr = dynamic_cast<network::UdpServer*>(sock.get());
+    if (NULL == svr)
+    {
+        log_error("create udp server failed");
+        return false;
+    }
+
+    bool ret = true;
+    ret &= svr->create();
+    ret &= svr->bind();
+    if (!ret)
+    {
+        log_error("create udp server failed");
+        return false;
+    }
+
+    struct epoll_event epEvt;
+    epEvt.data.fd = svr->fd;
+    epEvt.events = EPOLLIN;
+
+    int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, svr->fd, &epEvt);
+    if (0 != rc)
+    {
+        log_error("add server fd to epoll failed:" << strerror(errno));
+        return false;
+    }
+
+    bool exitflag = true;
+    auto exitEpoll = [this, &exitflag]()
+    {
+        finish = true;
+        exitflag = false;
+    };
+
+    struct epoll_event waitEv[10];
+    memset(waitEv, 0, 10*sizeof(struct epoll_event));
+    while (!finish)
+    {
+        int num = epoll_wait(epollFd, waitEv, 10, 1000);
+        if (-1 == num)
+        {
+#ifndef MIPS
+            if (EINTR != errno)
+            {
+                log_error("epoll wait failed:" << strerror(errno));
+                exitEpoll();
+            }
+#else
+            ef_log_error("epoll wait failed on MIPS")
+#endif
+        }
+
+        for (int i = 0; i < num; i++)
+        {
+            if ((waitEv[i].events & EPOLLERR) ||
+                (waitEv[i].events & EPOLLHUP))
+            {
+                log_debug("epoll err");
+                if (svr->fd == waitEv[i].data.fd)
+                {
+                    log_error("udp server error:" << strerror(errno));
+                    exitEpoll();
+                    break;
+                }
+            }
+            else if (svr->fd == waitEv[i].data.fd)
+            {
+                log_debug("epoll in");
+                std::string buf;
+                unsigned int connID = 0;
+                if (svr->accept(buf, connID))
+                {
+                    obj.connectNotify(connID);
+                }
+
+                if (0 != buf.size())
+                {
+                    obj.recvNotify(connID, buf);
+                }
+                else
+                {
+                    log_warning("udp svr recv zero msg");
+                }
+
+            }
+            else
+            {
+                log_error("invalid udp fd");
+            }
+        }
+    }
+
+    return exitflag;
 }
 
 }

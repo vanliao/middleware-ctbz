@@ -10,7 +10,7 @@
 namespace service {
 
 CommonServer::CommonServer(const std::string &serverIP, const int serverPort, const ServerType type) :
-    network::EPollServer(serverIP, serverPort, type)
+    network::EpollServer(serverIP, serverPort, type)
 {
     return;
 }
@@ -443,7 +443,7 @@ bool CommonServer::startUdpSvr(CommonServerIF &obj)
     return exitflag;
 }
 
-Server::Server(const std::string serverIP, const int serverPort, const network::EPollServer::ServerType type):
+Server::Server(const std::string serverIP, const int serverPort, const network::EpollServer::ServerType type):
     CommonServerIF(serverIP, serverPort, type)
 {
     return;
