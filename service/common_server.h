@@ -59,7 +59,6 @@ private:
     void run(void);
 
 protected:
-    bool registered;
     std::thread th;
     int notifyEvt;
     std::mutex mu;

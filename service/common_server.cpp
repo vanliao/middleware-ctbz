@@ -472,17 +472,13 @@ void Server::stop()
 
 void Server::addEvent(std::shared_ptr<msg::Msg> &msg)
 {
-    if (registered)
     {
-        std::lock_guard<std::mutex> locker(mu);
-        msgList.push_back(msg);
-        uint64_t buf = 1;
-        write(notifyEvt, &buf, sizeof(uint64_t));
+    std::lock_guard<std::mutex> locker(mu);
+    msgList.push_back(msg);
     }
-    else
-    {
-        log_error("dev not register");
-    }
+    uint64_t buf = 1;
+    write(notifyEvt, &buf, sizeof(uint64_t));
+
     return;
 }
 

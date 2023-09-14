@@ -25,23 +25,12 @@ EpollCommunicator::~EpollCommunicator()
     return;
 }
 
-bool EpollCommunicator::open()
+bool EpollCommunicator::start(EpollCommunicatorIF &obj)
 {
     epollFd = epoll_create1(0);
     if (-1 == epollFd)
     {
-        log_error("create epoll failed");
-        return false;
-    }
-
-    return true;
-}
-
-bool EpollCommunicator::start(EpollCommunicatorIF &obj)
-{
-    if (-1 == epollFd)
-    {
-        log_error("invalid epolll fd");
+        log_error("create epoll fd failed");
         return false;
     }
 
@@ -180,81 +169,6 @@ UdpClient *EpollCommunicator::getUdpClient(const int connID)
     return NULL;
 }
 
-bool EpollCommunicator::addExtenEvent(const int ev)
-{
-    eventFds.push_back(ev);
-
-    struct epoll_event epEvt;
-    epEvt.data.fd = ev;
-    epEvt.events = EPOLLIN;
-    int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, ev, &epEvt);
-    if (0 != rc)
-    {
-        log_error("add event faild:" << strerror(errno));
-        return false;
-    }
-
-    return true;
-}
-
-bool EpollCommunicator::delExtenEvent(const int ev)
-{
-    for(auto it = eventFds.begin(); eventFds.end() != it; it++)
-    {
-        if (*it != ev)
-        {
-            continue;
-        }
-        eventFds.erase(it);
-
-        int rc = epoll_ctl(epollFd, EPOLL_CTL_DEL, ev, NULL);
-        if (0 != rc)
-        {
-            log_error("add event faild:" << strerror(errno));
-            return false;
-        }
-        break;
-    }
-
-    return true;
-}
-
-dev::EndPoint *EpollCommunicator::getDev(const int connID)
-{
-    if (TCP == type)
-    {
-        network::TcpClient *clt = getTcpClient(connID);
-        return dynamic_cast<dev::EndPoint *>(clt);
-    }
-    else //UDP
-    {
-        network::UdpClient *clt = getUdpClient(connID);
-        return dynamic_cast<dev::EndPoint *>(clt);
-    }
-
-    return NULL;
-}
-
-dev::EndPoint *EpollCommunicator::getFirstDev()
-{
-    auto it = clients.begin();
-    if (clients.end() != it)
-    {
-        if (TCP == type)
-        {
-            network::TcpClient *clt = dynamic_cast<network::TcpClient*>(it->second.get());
-            return dynamic_cast<dev::EndPoint *>(clt);
-        }
-        else
-        {
-            network::UdpClient *clt = dynamic_cast<network::UdpClient*>(it->second.get());
-            return dynamic_cast<dev::EndPoint *>(clt);
-        }
-    }
-
-    return NULL;
-}
-
 void EpollCommunicator::disconnect(const int connID)
 {
     if (TCP == type)
@@ -341,38 +255,21 @@ bool EpollCommunicator::startTcpSvr(EpollCommunicatorIF &obj)
             }
             else if (waitEv[i].events & EPOLLIN)
             {
-                log_debug("epoll in");
-                auto it = eventFds.begin();
-                while(eventFds.end() != it)
+                log_debug("tcp epoll in");
+                network::TcpClient *clt = getTcpClient(connID);
+                if (NULL != clt)
                 {
-                    if (*it == waitEv[i].data.fd)
+                    std::string buf;
+                    clt->recv(buf);
+                    if (0 != buf.size())
                     {
-                        break;
+                        obj.recvNotify(connID, buf);
                     }
-                    ++it;
-                }
-
-                if (it == eventFds.end())
-                {
-                    network::TcpClient *clt = getTcpClient(connID);
-                    if (NULL != clt)
+                    else
                     {
-                        std::string buf;
-                        clt->recv(buf);
-                        if (0 != buf.size())
-                        {
-                            obj.recvNotify(connID, buf);
-                        }
-                        else
-                        {
-                            obj.closeNotify(connID);
-                            disconnect(connID);
-                        }
+                        obj.closeNotify(connID);
+                        disconnect(connID);
                     }
-                }
-                else
-                {
-                    obj.eventtNotify(*it);
                 }
             }
         }
@@ -434,38 +331,21 @@ bool EpollCommunicator::startUdpSvr(EpollCommunicatorIF &obj)
             }
             else if (waitEv[i].events & EPOLLIN)
             {
-                log_debug("epoll in");
-                auto it = eventFds.begin();
-                while(eventFds.end() != it)
+                log_debug("udp epoll in");
+                network::UdpClient *clt = getUdpClient(connID);
+                if (NULL != clt)
                 {
-                    if (*it == waitEv[i].data.fd)
+                    std::string buf;
+                    clt->recv(buf);
+                    if (0 != buf.size())
                     {
-                        break;
+                        obj.recvNotify(connID, buf);
                     }
-                    ++it;
-                }
-
-                if (it == eventFds.end())
-                {
-                    network::UdpClient *clt = getUdpClient(connID);
-                    if (NULL != clt)
+                    else
                     {
-                        std::string buf;
-                        clt->recv(buf);
-                        if (0 != buf.size())
-                        {
-                            obj.recvNotify(connID, buf);
-                        }
-                        else
-                        {
-                            obj.closeNotify(connID);
-                            disconnect(connID);
-                        }
+                        obj.closeNotify(connID);
+                        disconnect(connID);
                     }
-                }
-                else
-                {
-                    obj.eventtNotify(*it);
                 }
             }
         }

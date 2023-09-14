@@ -6,7 +6,7 @@
 namespace service {
 
 ClientDemo::ClientDemo(const std::string &serverIP, const int serverPort):
-    CommonCommunicator(serverIP, serverPort, network::EpollCommunicator::UDP)
+    Communicator(serverIP, serverPort, network::EpollCommunicator::UDP)
 {
     return;
 }
@@ -91,12 +91,13 @@ void service::ClientDemo::eventtNotify(const int event)
 
 void ClientDemo::procEvent()
 {
-    std::list<std::shared_ptr<msg::Msg> > msgs;
-    {
-    std::lock_guard<std::mutex> locker(mu);
     uint64_t buf;
     read(notifyEvt, &buf, sizeof(uint64_t));
     log_debug("eventtNotify:" << notifyEvt << " " << buf);
+
+    std::list<std::shared_ptr<msg::Msg> > msgs;
+    {
+    std::lock_guard<std::mutex> locker(mu);
     msgList.swap(msgs);
     }
 

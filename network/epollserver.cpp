@@ -159,6 +159,7 @@ bool EpollServer::startTcpSvr(EpollServerIF &obj)
                 TcpClient *clt = svr->getClient(connID);
                 if (NULL != clt)
                 {
+                    log_debug("tcp epoll in");
                     std::string buf;
                     clt->recv(buf);
                     obj.recvNotify(connID, buf);
@@ -239,7 +240,7 @@ bool EpollServer::startUdpSvr(EpollServerIF &obj)
             }
             else if (svr->fd == waitEv[i].data.fd)
             {
-                log_debug("epoll in");
+                log_debug("udp epoll in");
                 std::string buf;
                 unsigned int connID = 0;
                 if (svr->accept(buf, connID))

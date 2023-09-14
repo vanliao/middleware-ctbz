@@ -8,8 +8,8 @@ fi
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/buildroot-gcc463/usr/lib32:/opt/buildroot-gcc463/usr/mipsel-buildroot-linux-uclibc/sysroot/lib/
 
-#make clean && make platform=${platform}
-make platform=${platform}
+make clean && make platform=${platform}
+#make platform=${platform}
 
 #valgrind --track-fds=yes  --leak-check=full ./electricfence
 #nginx

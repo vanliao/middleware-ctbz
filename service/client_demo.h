@@ -5,7 +5,7 @@
 
 namespace service {
 
-class ClientDemo : public CommonCommunicator
+class ClientDemo : public Communicator
 {
 public:
     ClientDemo(const std::string &serverIP, const int serverPort);
