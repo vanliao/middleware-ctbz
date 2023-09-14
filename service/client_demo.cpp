@@ -89,6 +89,12 @@ void service::ClientDemo::eventtNotify(const int event)
     return;
 }
 
+void ClientDemo::initExternEvent()
+{
+    Communicator::initExternEvent();
+    return;
+}
+
 void ClientDemo::procEvent()
 {
     uint64_t buf;

@@ -411,6 +411,13 @@ void service::Communicator::disconnectSvr(const int connID)
     svr.disconnect(connID);
 }
 
+void service::Communicator::initExternEvent()
+{
+    svr.addExtenEvent(notifyEvt);
+    svr.addExtenEvent(hbTimer);
+    return;
+}
+
 void service::Communicator::run()
 {
     notifyEvt = eventfd(0, 0);
@@ -445,8 +452,7 @@ void service::Communicator::run()
     bool ret = svr.open();
     if (ret)
     {
-        svr.addExtenEvent(notifyEvt);
-        svr.addExtenEvent(hbTimer);
+        initExternEvent();
         svr.start(*this);
     }
 

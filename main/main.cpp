@@ -15,8 +15,8 @@
 
 void signalHandler(int /*signum*/)
 {
-    OamCgiServerDemo::instance()->stop();
-//    OamCgiClientDemo::instance()->stop();
+//    OamCgiServerDemo::instance()->stop();
+    OamCgiClientDemo::instance()->stop();
     return;
 }
 
@@ -133,27 +133,27 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (OamCgiServerDemo::instance()->readConfig(cfg))
-    {
-        OamCgiServerDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "server demo read config failed" << std::endl;
-        log_debug("server demo read config failed");
-        return -1;
-    }
-
-//    if (OamCgiClientDemo::instance()->readConfig(cfg))
+//    if (OamCgiServerDemo::instance()->readConfig(cfg))
 //    {
-//        OamCgiClientDemo::instance()->start();
+//        OamCgiServerDemo::instance()->start();
 //    }
 //    else
 //    {
-//        std::cout << "client demo read config failed" << std::endl;
-//        log_debug("client demo read config failed");
+//        std::cout << "server demo read config failed" << std::endl;
+//        log_debug("server demo read config failed");
 //        return -1;
 //    }
+
+    if (OamCgiClientDemo::instance()->readConfig(cfg))
+    {
+        OamCgiClientDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "client demo read config failed" << std::endl;
+        log_debug("client demo read config failed");
+        return -1;
+    }
 
     jsonTest();
 
@@ -180,11 +180,11 @@ int main(int argc, char *argv[])
     ev->cmdType = 2;
     ev->result = 3;
     sleep(2);
-    OamCgiServerDemo::instance()->addEvent(msg);
-//    OamCgiClientDemo::instance()->addEvent(msg);
+//    OamCgiServerDemo::instance()->addEvent(msg);
+    OamCgiClientDemo::instance()->addEvent(msg);
 
-    OamCgiServerDemo::instance()->loop();
-//    OamCgiClientDemo::instance()->loop();
+//    OamCgiServerDemo::instance()->loop();
+    OamCgiClientDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

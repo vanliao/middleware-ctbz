@@ -56,6 +56,7 @@ public:
     void loop(void);
     void connectSvr(void);
     void disconnectSvr(const int connID);
+    virtual void initExternEvent(void);
 
 private:
     void run(void);

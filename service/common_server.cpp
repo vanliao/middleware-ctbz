@@ -492,6 +492,11 @@ void Server::loop()
     return;
 }
 
+void Server::initExternEvent()
+{
+    svr.addExtenEvent(notifyEvt);
+}
+
 void Server::run()
 {
     notifyEvt = eventfd(0, 0);
@@ -504,7 +509,7 @@ void Server::run()
     bool ret = svr.open();
     if (ret)
     {
-        svr.addExtenEvent(notifyEvt);
+        initExternEvent();
         svr.start(*this);
     }
 

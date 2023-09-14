@@ -85,6 +85,12 @@ void ServerDemo::eventtNotify(const int event)
     return;
 }
 
+void ServerDemo::initExternEvent()
+{
+    Server::initExternEvent();
+    return;
+}
+
 void ServerDemo::procEvent()
 {
     uint64_t buf;

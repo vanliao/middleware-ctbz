@@ -55,6 +55,8 @@ public:
     void stop(void);
     void addEvent(std::shared_ptr<msg::Msg> &msg);
     void loop(void);
+    virtual void initExternEvent(void);
+
 private:
     void run(void);
 
