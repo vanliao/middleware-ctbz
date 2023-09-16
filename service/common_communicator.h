@@ -35,13 +35,13 @@ class CommonCommunicatorIF: public network::EpollCommunicatorIF
 {
 public:
     CommonCommunicatorIF(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType svrtype):
-        svr(serverIP, serverPort, svrtype){};
+        model(serverIP, serverPort, svrtype){};
     virtual ~CommonCommunicatorIF(){};
 
     virtual void eventtNotify(const int event) = 0;
 
 public:
-    CommonCommunicator svr;
+    CommonCommunicator model; //框架模型
 };
 
 class Communicator : public CommonCommunicatorIF

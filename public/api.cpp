@@ -8,6 +8,7 @@
 #include <sys/statfs.h>
 #include <chrono>
 #include <fcntl.h>
+#include <atomic>
 #include "api.h"
 #include <openssl/aes.h>
 #include <openssl/sha.h>
@@ -469,12 +470,13 @@ uint64_t get_current_timestamp()
 
 unsigned int getClientID()
 {
-    static unsigned int clientID = 100001;
-    ++clientID;
-    if (100000 > clientID)	/* 翻转 */
-    {
-        clientID = 100001;
-    }
+    static unsigned int zero = 0;
+    static unsigned int init = 100001;
+    static std::atomic<unsigned int> clientID(init);    //多线程访问需要原子操作
+
+    clientID.fetch_add(1);
+    clientID.compare_exchange_strong(zero, init);   //翻转
+
     return clientID;
 }
 

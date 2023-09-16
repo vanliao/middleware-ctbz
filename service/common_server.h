@@ -37,13 +37,13 @@ class CommonServerIF: public network::EpollServerIF
 {
 public:
     CommonServerIF(const std::string serverIP, const int serverPort, const network::EpollServer::ServerType type):
-        svr(serverIP, serverPort, type){};
+        model(serverIP, serverPort, type){};
     virtual ~CommonServerIF(){};
 
     virtual void eventtNotify(const int event) = 0;
 
 protected:
-    CommonServer svr;
+    CommonServer model; //框架模型
 };
 
 class Server: public CommonServerIF

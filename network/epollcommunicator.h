@@ -41,7 +41,7 @@ protected:
     std::map<int, std::shared_ptr<network::Socket> > clients;
 };
 
-class EpollCommunicatorIF: public network::EpollServerIF{};
+class EpollCommunicatorIF: public EpollServerIF{};
 
 }
 

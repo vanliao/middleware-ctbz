@@ -91,7 +91,7 @@ bool CommonCommunicator::delExtenEvent(const int ev)
     return true;
 }
 
-dev::EndPoint *service::CommonCommunicator::getDev(const int connID)
+dev::EndPoint *CommonCommunicator::getDev(const int connID)
 {
     if (TCP == type)
     {
@@ -107,7 +107,7 @@ dev::EndPoint *service::CommonCommunicator::getDev(const int connID)
     return NULL;
 }
 
-dev::EndPoint *service::CommonCommunicator::getFirstDev()
+dev::EndPoint *CommonCommunicator::getFirstDev()
 {
     auto it = clients.begin();
     if (clients.end() != it)
@@ -137,7 +137,7 @@ void CommonCommunicator::getAllDev(std::vector<unsigned int> &vec)
 
 }
 
-bool service::CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
+bool CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
 {
     bool exitflag = true;
     auto exitEpoll = [this, &exitflag]()
@@ -230,7 +230,7 @@ bool service::CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
     return exitflag;
 }
 
-bool service::CommonCommunicator::startUdpSvr(CommonCommunicatorIF &obj)
+bool CommonCommunicator::startUdpSvr(CommonCommunicatorIF &obj)
 {
     bool exitflag = true;
     auto exitEpoll = [this, &exitflag]()
@@ -330,7 +330,7 @@ Communicator::Communicator(const std::string &serverIP, const int serverPort, co
     hbTimer = -1;
 }
 
-service::Communicator::~Communicator()
+Communicator::~Communicator()
 {
     if (-1 != notifyEvt)
     {
@@ -345,13 +345,13 @@ service::Communicator::~Communicator()
     return;
 }
 
-void service::Communicator::procHbTimer()
+void Communicator::procHbTimer()
 {
     uint64_t buf;
     read(hbTimer, &buf, sizeof(uint64_t));
     log_debug("heartbeat timerNotify:" << hbTimer << " " << buf);
 
-    dev::EndPoint *ep = svr.getFirstDev();
+    dev::EndPoint *ep = model.getFirstDev();
     if (NULL == ep)
     {
         log_warning("reconnect server");
@@ -369,12 +369,12 @@ bool Communicator::start()
     return true;
 }
 
-void service::Communicator::stop()
+void Communicator::stop()
 {
-    return svr.stop();
+    return model.stop();
 }
 
-void service::Communicator::addEvent(std::shared_ptr<msg::Msg> &msg)
+void Communicator::addEvent(std::shared_ptr<msg::Msg> &msg)
 {
     {
     std::lock_guard<std::mutex> locker(mu);
@@ -385,7 +385,7 @@ void service::Communicator::addEvent(std::shared_ptr<msg::Msg> &msg)
 
 }
 
-void service::Communicator::loop()
+void Communicator::loop()
 {
     if (th.joinable())
     {
@@ -397,7 +397,7 @@ void service::Communicator::loop()
 
 void Communicator::connectSvr()
 {
-    bool ret = svr.connect();
+    bool ret = model.connect();
     if (!ret)
     {
         log_error("connect server failed");
@@ -406,19 +406,19 @@ void Communicator::connectSvr()
     return;
 }
 
-void service::Communicator::disconnectSvr(const int connID)
+void Communicator::disconnectSvr(const int connID)
 {
-    svr.disconnect(connID);
+    model.disconnect(connID);
 }
 
-void service::Communicator::initExternEvent()
+void Communicator::initExternEvent()
 {
-    svr.addExtenEvent(notifyEvt);
-    svr.addExtenEvent(hbTimer);
+    model.addExtenEvent(notifyEvt);
+    model.addExtenEvent(hbTimer);
     return;
 }
 
-void service::Communicator::run()
+void Communicator::run()
 {
     notifyEvt = eventfd(0, 0);
     if (-1 == notifyEvt)
@@ -449,11 +449,11 @@ void service::Communicator::run()
         return;
     }
 
-    bool ret = svr.open();
+    bool ret = model.open();
     if (ret)
     {
         initExternEvent();
-        svr.start(*this);
+        model.start(*this);
     }
 
     return;

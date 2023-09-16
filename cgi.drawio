@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="2">
     <diagram id="CaLQMcqELtkLmFKi7LH4" name="Class">
-        <mxGraphModel dx="5521" dy="745" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFFFFF" math="0" shadow="0">
+        <mxGraphModel dx="5158" dy="746" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFFFFF" math="0" shadow="0">
             <root>
                 <mxCell id="7oyMfcrtrYP2oRAm5wUV-0"/>
                 <mxCell id="7oyMfcrtrYP2oRAm5wUV-1" parent="7oyMfcrtrYP2oRAm5wUV-0"/>
@@ -507,7 +507,7 @@
                 <mxCell id="179" value="+ sock: Socket *" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="177" vertex="1">
                     <mxGeometry y="48" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="593" value="+ svrType: enum {TCP, UDP}" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="177">
+                <mxCell id="593" value="+ svrType: enum {TCP, UDP}" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="177" vertex="1">
                     <mxGeometry y="74" width="440" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="180" value="+ finish: bool&#10;" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="177" vertex="1">
@@ -528,7 +528,7 @@
                 <mxCell id="185" value="+  stop(void): void" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="177" vertex="1">
                     <mxGeometry y="212" width="440" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="594" value="+  startTcpSvr(EPollServerIF &amp;obj): bool" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="177">
+                <mxCell id="594" value="+  startTcpSvr(EPollServerIF &amp;obj): bool" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="177" vertex="1">
                     <mxGeometry y="238" width="440" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="186" value="+  startUdpSvr(EPollServerIF &amp;obj): bool" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="177" vertex="1">
@@ -635,7 +635,7 @@
                 <mxCell id="219" value="+ accept(void): bool" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="210" vertex="1">
                     <mxGeometry y="216" width="320" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="592" value="+ getClient(const unsigned int connID): TcpClient *" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="210">
+                <mxCell id="592" value="+ getClient(const unsigned int connID): TcpClient *" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="210" vertex="1">
                     <mxGeometry y="242" width="320" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="220" value="+ getClient(void): TcpClient *" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="210" vertex="1">
@@ -1552,99 +1552,99 @@
                         <mxRectangle width="140" height="80" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="595" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: Helvetica;&quot;&gt;EPollServer&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" vertex="1" parent="7oyMfcrtrYP2oRAm5wUV-1">
+                <mxCell id="595" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: Helvetica;&quot;&gt;EPollServer&amp;nbsp;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
                     <mxGeometry x="-560" y="1400" width="180" height="177" as="geometry"/>
                 </mxCell>
-                <mxCell id="596" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="595">
+                <mxCell id="596" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="595" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="597" value="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="596">
+                <mxCell id="597" value="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="596" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="598" value="封装UDP服务端和TCP服务端的EPOLL操作" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="596">
+                <mxCell id="598" value="封装UDP服务端和TCP服务端的EPOLL操作" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="596" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="599" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="595">
+                <mxCell id="599" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="595" vertex="1">
                     <mxGeometry y="79" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="600" value="2" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="599">
+                <mxCell id="600" value="2" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="599" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="601" value="&lt;span style=&quot;font-weight: 700; background-color: initial;&quot;&gt;startTcpSvr&amp;nbsp;&lt;/span&gt;实现针对TCP服务端的EPOLL操作" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" vertex="1" parent="599">
+                <mxCell id="601" value="&lt;span style=&quot;font-weight: 700; background-color: initial;&quot;&gt;startTcpSvr&amp;nbsp;&lt;/span&gt;实现针对TCP服务端的EPOLL操作" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" parent="599" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="602" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="595">
+                <mxCell id="602" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="595" vertex="1">
                     <mxGeometry y="128" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="603" value="3" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="602">
+                <mxCell id="603" value="3" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="602" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="604" value="&lt;span style=&quot;font-weight: 700; background-color: initial;&quot;&gt;startUdpSvr&amp;nbsp;&lt;/span&gt;实现针对UDP服务端的EPOLL操作" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" vertex="1" parent="602">
+                <mxCell id="604" value="&lt;span style=&quot;font-weight: 700; background-color: initial;&quot;&gt;startUdpSvr&amp;nbsp;&lt;/span&gt;实现针对UDP服务端的EPOLL操作" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" parent="602" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="605" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: Helvetica;&quot;&gt;EPollServerIF&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" vertex="1" parent="7oyMfcrtrYP2oRAm5wUV-1">
+                <mxCell id="605" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: Helvetica;&quot;&gt;EPollServerIF&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
                     <mxGeometry x="-320" y="1400" width="180" height="226" as="geometry"/>
                 </mxCell>
-                <mxCell id="606" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="605">
+                <mxCell id="606" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="605" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="607" value="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="606">
+                <mxCell id="607" value="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="606" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="608" value="封装EPOLL回调" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="606">
+                <mxCell id="608" value="封装EPOLL回调" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="606" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="609" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="605">
+                <mxCell id="609" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="605" vertex="1">
                     <mxGeometry y="79" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="610" value="2" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="609">
+                <mxCell id="610" value="2" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="609" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="611" value="&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;closeNotify 通知socket关闭事件&lt;/span&gt;" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" vertex="1" parent="609">
+                <mxCell id="611" value="&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;closeNotify 通知socket关闭事件&lt;/span&gt;" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" parent="609" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="612" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="605">
+                <mxCell id="612" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="605" vertex="1">
                     <mxGeometry y="128" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="613" value="3" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="612">
+                <mxCell id="613" value="3" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="612" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="614" value="&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;connectNotify 通知socket连接事件&lt;/span&gt;" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" vertex="1" parent="612">
+                <mxCell id="614" value="&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;connectNotify 通知socket连接事件&lt;/span&gt;" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" parent="612" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="615" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="605">
+                <mxCell id="615" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="605" vertex="1">
                     <mxGeometry y="177" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="616" value="4" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="615">
+                <mxCell id="616" value="4" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="615" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="617" value="&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;recvNotify&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;通知socket接收数据事件&lt;/span&gt;" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" vertex="1" parent="615">
+                <mxCell id="617" value="&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;recvNotify&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51);&quot;&gt;通知socket接收数据事件&lt;/span&gt;" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" parent="615" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>

@@ -4,8 +4,6 @@
 
 namespace network {
 
-unsigned int TcpClient::clientID = 1000;
-
 TcpClient::TcpClient(const std::string serverIP, const int serverPort): TcpSocket()
 {
     ip = serverIP;

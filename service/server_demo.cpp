@@ -19,7 +19,7 @@ ServerDemo::~ServerDemo()
 void ServerDemo::connectNotify(unsigned int connID)
 {
     log_info("connectNotify:" << connID);
-    dev::EndPoint *ep = svr.getDev(connID);
+    dev::EndPoint *ep = model.getDev(connID);
     if (NULL == ep)
     {
         log_fatal("DEV invalid ptr");
@@ -32,7 +32,7 @@ void ServerDemo::connectNotify(unsigned int connID)
 void ServerDemo::recvNotify(unsigned int connID, std::string &buf)
 {
     log_info("recvNotify:" << connID << "[" << buf.length() << "]" << buf);
-    dev::EndPoint *ep = svr.getDev(connID);
+    dev::EndPoint *ep = model.getDev(connID);
     if (NULL == ep)
     {
         log_fatal("invalid ptr");
@@ -117,7 +117,7 @@ void ServerDemo::procEvent()
         std::stringstream ss;
         reqMsg->show(ss);
 
-        dev::EndPoint *ep = svr.getFirstDev();
+        dev::EndPoint *ep = model.getFirstDev();
         if (NULL != ep)
         {
             if (NULL != ep->dev)

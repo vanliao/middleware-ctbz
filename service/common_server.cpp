@@ -467,7 +467,7 @@ bool Server::start()
 
 void Server::stop()
 {
-    return svr.stop();
+    return model.stop();
 }
 
 void Server::addEvent(std::shared_ptr<msg::Msg> &msg)
@@ -494,7 +494,7 @@ void Server::loop()
 
 void Server::initExternEvent()
 {
-    svr.addExtenEvent(notifyEvt);
+    model.addExtenEvent(notifyEvt);
 }
 
 void Server::run()
@@ -506,11 +506,11 @@ void Server::run()
         return;
     }
 
-    bool ret = svr.open();
+    bool ret = model.open();
     if (ret)
     {
         initExternEvent();
-        svr.start(*this);
+        model.start(*this);
     }
 
     return;

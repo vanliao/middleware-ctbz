@@ -23,7 +23,6 @@ public:
     Do doing;
 
 private:
-    static unsigned int clientID;
     bool isPeer;
 };
 
