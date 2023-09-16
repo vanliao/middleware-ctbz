@@ -6,7 +6,7 @@
 namespace service {
 
 ServerDemo::ServerDemo(const std::string &serverIP, const int serverPort) :
-    Server(serverIP, serverPort, network::EpollServer::UDP)
+    Server(serverIP, serverPort, network::EpollServer::TCP)
 {
     return;
 }
@@ -151,7 +151,7 @@ void ServerDemo::procDevResult(dev::Dev::ProcResult pr,
     }
     case dev::Dev::SENDTODEV:
     {
-        ep->send(rspMsg->raw);
+        model.send(ep->connID, rspMsg->raw);
         log_info("send to server demo:" << rspMsg->raw);
         break;
     }

@@ -52,6 +52,7 @@ bool TcpServer::accept(unsigned int &connID)
     if (it.second)
     {
         connID = it.first->first;
+        clt->connID = connID;
         clt->ip = ip;
         clt->port = port;
         log_debug("create connection success:" << connID);

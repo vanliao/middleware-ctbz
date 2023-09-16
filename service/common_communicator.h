@@ -16,6 +16,7 @@ public:
     CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type);
     virtual ~CommonCommunicator();
     bool open(void);
+    bool send(const int connID, const std::string &buf);
     bool start(CommonCommunicatorIF &obj);
     bool addExtenEvent(const int ev);
     bool delExtenEvent(const int ev);

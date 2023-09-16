@@ -14,13 +14,14 @@ public:
     bool connect();
 
 public:
-    enum Do
+    enum Status
     {
         NONE,
         CONNECTING,
-        SENDING
+        CONNECTED,
     };
-    Do doing;
+    Status status;
+    std::string sendBuf;
 
 private:
     bool isPeer;

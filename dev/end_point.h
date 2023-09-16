@@ -10,10 +10,10 @@ class EndPoint
 public:
     EndPoint();
     virtual ~EndPoint();
-    virtual bool send(const std::string &buf) = 0;
 
 public:
     std::shared_ptr<Dev> dev;
+    unsigned int connID;
 };
 
 }

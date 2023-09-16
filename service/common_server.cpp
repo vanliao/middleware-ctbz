@@ -32,6 +32,72 @@ bool CommonServer::open()
     return true;
 }
 
+bool CommonServer::send(const int connID, const std::string &buf)
+{
+    if (TCP == svrType)
+    {
+        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
+        if (NULL != svr)
+        {
+            network::TcpClient *clt = svr->getClient(connID);
+            if (NULL != clt)
+            {
+                clt->sendBuf.append(buf);
+                struct epoll_event epEvt;
+                epEvt.data.fd = connID;
+                epEvt.events = EPOLLOUT|EPOLLIN;
+                int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                if (0 != rc)
+                {
+                    log_error("mod event faild:" << strerror(errno));
+                }
+            }
+            else
+            {
+                log_error("invalid ptr");
+                return false;
+            }
+        }
+        else
+        {
+            log_error("get tcp server failed");
+            return false;
+        }
+    }
+    else
+    {
+        network::UdpServer *svr = dynamic_cast<network::UdpServer*>(sock.get());
+        if (NULL != svr)
+        {
+            network::UdpClient *clt = svr->getClient(connID);
+            if (NULL != clt)
+            {
+                clt->sendBuf.push_back(buf);
+                struct epoll_event epEvt;
+                epEvt.data.fd = connID;
+                epEvt.events = EPOLLOUT|EPOLLIN;
+                int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                if (0 != rc)
+                {
+                    log_error("mod event faild:" << strerror(errno));
+                }
+            }
+            else
+            {
+                log_error("invalid ptr");
+                return false;
+            }
+        }
+        else
+        {
+            log_error("get tcp server failed");
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void CommonServer::closeDev(const unsigned int connID)
 {
     if (TCP == svrType)
@@ -268,6 +334,22 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
                     }
                 }
             }
+            else if (waitEv[i].events & EPOLLOUT)
+            {
+                log_debug("epoll out");
+                unsigned int connID = waitEv[i].data.fd;
+                network::TcpClient *clt = svr->getClient(connID);
+                if (NULL != clt)
+                {
+                    if (clt->send(clt->sendBuf))
+                    {
+                        struct epoll_event epEvt;
+                        epEvt.data.fd = connID;
+                        epEvt.events = EPOLLIN;
+                        epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                    }
+                }
+            }
             else if (svr->fd == waitEv[i].data.fd)
             {
                 log_debug("epoll accept");
@@ -418,6 +500,37 @@ bool CommonServer::startUdpSvr(CommonServerIF &obj)
                     log_warning("udp svr recv zero msg");
                 }
 
+            }
+            else if (waitEv[i].events & EPOLLOUT)
+            {
+                log_debug("epoll out");
+                unsigned int connID = waitEv[i].data.fd;
+                network::UdpClient *clt = svr->getClient(connID);
+                if (NULL != clt)
+                {
+                    while (!clt->sendBuf.empty())
+                    {
+                        std::string &s = clt->sendBuf.front();
+                        if (clt->send(s))
+                        {
+                            clt->sendBuf.pop_front();
+                            if (clt->sendBuf.empty())
+                            {
+                                struct epoll_event epEvt;
+                                epEvt.data.fd = clt->fd;    //EPOLLIN的时候只能设置UDP服务器的FD
+                                epEvt.events = EPOLLIN;
+                                epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                                break;
+                            }
+                            //else {} 继续发送
+                        }
+                        else
+                        {
+                            /* 发送失败,下次发送 */
+                            break;
+                        }
+                    }// while (!clt->sendBuf.empty())
+                }
             }
             else
             {

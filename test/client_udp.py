@@ -12,4 +12,12 @@ sock.sendto(b"{\"code\":1,\"data\":\"abcdefg\"}", address)
 recvData = sock.recv(8192).decode()
 print(recvData)
 
+sock.sendto(b"{\"code\":1,\"data\":\"abcdefg\"}", address)
+recvData = sock.recv(8192).decode()
+print(recvData)
+
+sock.sendto(b"{\"code\":1,\"data\":\"abcdefg\"}", address)
+recvData = sock.recv(8192).decode()
+print(recvData)
+
 sock.close()

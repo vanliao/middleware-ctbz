@@ -59,17 +59,38 @@ bool UdpSocket::recv(std::string &buf, std::string &remoteAddr, int &remotePort)
     memset(&raddr, 0, sizeof(raddr));
     socklen_t len = sizeof(raddr);
 
+    buf = "";
     char buffer[8192];
-    int ret = ::recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&raddr, &len);
-    if (0 > ret)
+    while (1)
     {
-        log_error("recv failed:" << strerror(errno))
-        return false;
-    }
-    remoteAddr = inet_ntoa(raddr.sin_addr);
-    remotePort = ntohs(raddr.sin_port);
+        /* UDP必须一次性吧数据读取完,否则会丢弃 */
+        int ret = ::recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&raddr, &len);
+        if (0 > ret)
+        {
+            if(EAGAIN == errno)
+            {
+                log_debug("upd socket recv eagain");
+                break;
+            }
+            log_error("recv failed:" << strerror(errno))
+            return false;
+        }
+        else
+        {
+            if (buf.empty())
+            {
+                remoteAddr = inet_ntoa(raddr.sin_addr);
+                remotePort = ntohs(raddr.sin_port);
+            }
 
-    buf.append(buffer, ret);
+            buf.append(buffer, ret);
+            if ((unsigned int)ret < sizeof(buffer))
+            {
+                /* 接收的数据长度小于缓冲区长度说明接收完了 */
+                break;
+            }
+        }
+    }
 
     return true;
 }
@@ -99,15 +120,32 @@ bool UdpSocket::recv(std::string &buf)
     memset(&raddr, 0, sizeof(raddr));
     socklen_t len = sizeof(raddr);
 
+    buf = "";
     char buffer[8192];
-    int ret = ::recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&raddr, &len);
-    if (0 > ret)
+    while (1)
     {
-        log_error("recv failed:" << strerror(errno))
-        return false;
+        /* UDP必须一次性吧数据读取完,否则会丢弃 */
+        int ret = ::recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&raddr, &len);
+        if (0 > ret)
+        {
+            if(EAGAIN == errno)
+            {
+                log_debug("upd socket recv eagain");
+                break;
+            }
+            log_error("recv failed:" << strerror(errno))
+            return false;
+        }
+        else
+        {
+            buf.append(buffer, ret);
+            if ((unsigned int)ret < sizeof(buffer))
+            {
+                /* 接收的数据长度小于缓冲区长度说明接收完了 */
+                break;
+            }
+        }
     }
-
-    buf.append(buffer, ret);
 
     return true;
 }

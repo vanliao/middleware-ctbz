@@ -16,7 +16,7 @@ public:
     bool connect(void);
     bool accept(int &newSock, std::string &ipAddr, int &port);
     bool recv(std::string &buf);
-    bool send(const std::string &buf);
+    bool send(std::string &buf);
 };
 
 }

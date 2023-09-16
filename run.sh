@@ -11,6 +11,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/buildroot-gcc463/usr/lib32:/opt/bui
 make clean && make platform=${platform}
 #make platform=${platform}
 
-#valgrind --track-fds=yes  --leak-check=full ./electricfence
+#valgrind --track-fds=yes  --leak-check=full ./middleware
 #nginx
 #spawn-fcgi -p 8088 -f ./oamCGI

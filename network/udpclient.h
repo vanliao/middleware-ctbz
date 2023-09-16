@@ -1,6 +1,7 @@
 #ifndef UDPCLIENT_H
 #define UDPCLIENT_H
 
+#include <deque>
 #include "udpsocket.h"
 
 namespace network {
@@ -15,6 +16,16 @@ public:
     bool connect(void);
     bool recv(std::string &buf);
     bool send(const std::string &buf);
+
+public:
+    enum Status
+    {
+        NONE,
+        CONNECTING,
+        CONNECTED,
+    };
+    Status status;
+    std::deque<std::string> sendBuf;
 
 private:
     bool isPeer;

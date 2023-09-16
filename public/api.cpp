@@ -474,10 +474,18 @@ unsigned int getClientID()
     static unsigned int init = 100001;
     static std::atomic<unsigned int> clientID(init);    //多线程访问需要原子操作
 
-    clientID.fetch_add(1);
-    clientID.compare_exchange_strong(zero, init);   //翻转
+    unsigned int value1;
+    unsigned int value2;
 
-    return clientID;
+    do
+    {
+        value1 = clientID.load();
+        clientID.fetch_add(1);
+        clientID.compare_exchange_strong(zero, init);   //翻转
+        value2 = clientID.load();
+    }while ((value1 + 1) != value2);
+
+    return value1;
 }
 
 static void hex_print(const void* pv, size_t len)

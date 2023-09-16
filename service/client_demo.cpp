@@ -26,7 +26,7 @@ void ClientDemo::connectNotify(unsigned int connID)
         return;
     }
     ep->dev = std::make_shared<dev::LteDevDemo>();
-    ep->send("{\"code\":20,\"data\":\"123456789\"}");
+    model.send(connID, "{\"code\":20,\"data\":\"123456789\"}");
 }
 
 void ClientDemo::recvNotify(unsigned int connID, std::string &buf)
@@ -155,7 +155,7 @@ void ClientDemo::procDevResult(dev::Dev::ProcResult pr,
     }
     case dev::Dev::SENDTODEV:
     {
-        ep->send(rspMsg->raw);
+        model.send(ep->connID, rspMsg->raw);
         log_info("send to client demo:" << rspMsg->raw);
         break;
     }

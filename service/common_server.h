@@ -17,6 +17,7 @@ public:
     CommonServer(const std::string &serverIP, const int serverPort, const ServerType type);
     virtual ~CommonServer();
     bool open(void);
+    bool send(const int connID, const std::string &buf);
     void closeDev(const unsigned int connID);
     bool start(CommonServerIF &obj);
     bool addExtenEvent(const int ev);

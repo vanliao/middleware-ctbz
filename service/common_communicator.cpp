@@ -31,6 +31,50 @@ bool CommonCommunicator::open()
     return true;
 }
 
+bool CommonCommunicator::send(const int connID, const std::string &buf)
+{
+    if (TCP == type)
+    {
+        network::TcpClient *clt = getTcpClient(connID);
+        if (NULL == clt)
+        {
+            log_error("invalid ptr");
+            return false;
+        }
+        clt->sendBuf.append(buf);
+
+        struct epoll_event epEvt;
+        epEvt.data.fd = connID;
+        epEvt.events = EPOLLOUT|EPOLLIN;
+        int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+        if (0 != rc)
+        {
+            log_error("mod event faild:" << strerror(errno));
+        }
+    }
+    else
+    {
+        network::UdpClient *clt = getUdpClient(connID);
+        if (NULL == clt)
+        {
+            log_error("invalid ptr");
+            return false;
+        }
+        clt->sendBuf.push_back(buf);
+
+        struct epoll_event epEvt;
+        epEvt.data.fd = connID;
+        epEvt.events = EPOLLOUT|EPOLLIN;
+        int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+        if (0 != rc)
+        {
+            log_error("mod event faild:" << strerror(errno));
+        }
+    }
+
+    return true;
+}
+
 bool CommonCommunicator::start(CommonCommunicatorIF &obj)
 {
     if (-1 == epollFd)
@@ -180,11 +224,26 @@ bool CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
                 network::TcpClient *clt = getTcpClient(connID);
                 if (NULL != clt)
                 {
-                    struct epoll_event epEvt;
-                    epEvt.data.fd = connID;
-                    epEvt.events = EPOLLIN;
-                    epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
-                    obj.connectNotify(connID);
+                    if (network::TcpClient::CONNECTING == clt->status)
+                    {
+                        struct epoll_event epEvt;
+                        epEvt.data.fd = connID;
+                        epEvt.events = EPOLLIN;
+                        epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                        clt->status = network::TcpClient::CONNECTED;
+                        clt->connID = connID;
+                        obj.connectNotify(connID);
+                    }
+                    else
+                    {
+                        if (clt->send(clt->sendBuf))
+                        {
+                            struct epoll_event epEvt;
+                            epEvt.data.fd = connID;
+                            epEvt.events = EPOLLIN;
+                            epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                        }
+                    }
                 }
             }
             else if (waitEv[i].events & EPOLLIN)
@@ -273,11 +332,41 @@ bool CommonCommunicator::startUdpSvr(CommonCommunicatorIF &obj)
                 network::UdpClient *clt = getUdpClient(connID);
                 if (NULL != clt)
                 {
-                    struct epoll_event epEvt;
-                    epEvt.data.fd = connID;
-                    epEvt.events = EPOLLIN;
-                    epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
-                    obj.connectNotify(connID);
+                    if (network::UdpClient::CONNECTING == clt->status)
+                    {
+                        struct epoll_event epEvt;
+                        epEvt.data.fd = connID;
+                        epEvt.events = EPOLLIN;
+                        epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                        clt->status = network::UdpClient::CONNECTED;
+                        clt->connID = connID;
+                        obj.connectNotify(connID);
+                    }
+                    else
+                    {
+                        while (!clt->sendBuf.empty())
+                        {
+                            std::string &s = clt->sendBuf.front();
+                            if (clt->send(s))
+                            {
+                                clt->sendBuf.pop_front();
+                                if (clt->sendBuf.empty())
+                                {
+                                    struct epoll_event epEvt;
+                                    epEvt.data.fd = connID;
+                                    epEvt.events = EPOLLIN;
+                                    epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                                    break;
+                                }
+                                //else {} 继续发送
+                            }
+                            else
+                            {
+                                /* 发送失败,下次发送 */
+                                break;
+                            }
+                        }// while (!clt->sendBuf.empty())
+                    }
                 }
             }
             else if (waitEv[i].events & EPOLLIN)

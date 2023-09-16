@@ -7,6 +7,7 @@ UdpClient::UdpClient(const std::string servrIP, const int serverPort): UdpSocket
     ip = servrIP;
     port = serverPort;
     isPeer = false;
+    status = Status::NONE;
     return;
 }
 
@@ -43,6 +44,7 @@ bool UdpClient::connect()
         return false;
     }
 
+    status = Status::CONNECTING;
     return UdpSocket::connect();
 }
 

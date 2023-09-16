@@ -10,10 +10,18 @@ server.bind(('0.0.0.0', 3335))
 server.listen(10)
 # 等待消息
 clientsocket, address = server.accept()
+# 接收消息
+data = clientsocket.recv(1024).decode()
+print(data)
 clientsocket.send(b"{\"code\":1,\"data\":\"hijklmn\"}")
 # 接收消息
 data = clientsocket.recv(1024).decode()
 print(data)
+
+# 接收消息
+data = clientsocket.recv(1024).decode()
+print(data)
+
 # 关闭socket
 clientsocket.close()
 server.close()

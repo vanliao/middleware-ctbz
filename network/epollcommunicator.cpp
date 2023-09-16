@@ -81,7 +81,7 @@ bool EpollCommunicator::connect()
                     return false;
                 }
             }
-            else if (!ret && network::TcpClient::CONNECTING == sock->doing)
+            else if (!ret && network::TcpClient::CONNECTING == sock->status)
             {
                 log_debug("connecting");
                 struct epoll_event epEvt;

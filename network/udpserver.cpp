@@ -45,6 +45,7 @@ bool UdpServer::accept(std::string &buf, unsigned int &connID)
         if (it.second)
         {
             connID = cltID;
+            clt->connID = cltID;
             log_debug("create connection success:" << connID);
         }
 

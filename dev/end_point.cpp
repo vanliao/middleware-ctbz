@@ -2,7 +2,7 @@
 
 namespace dev {
 
-EndPoint::EndPoint()
+EndPoint::EndPoint() : connID(0)
 {
 
 }

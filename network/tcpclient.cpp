@@ -9,7 +9,8 @@ TcpClient::TcpClient(const std::string serverIP, const int serverPort): TcpSocke
     ip = serverIP;
     port = serverPort;
     isPeer = false;
-    doing = Do::NONE;
+    status = Status::NONE;
+    sendBuf = "";
     return;
 }
 
@@ -42,7 +43,7 @@ bool TcpClient::connect()
         if (EAGAIN == errno || EINPROGRESS == errno)
 #endif
         {
-            doing = CONNECTING;
+            status = CONNECTING;
         }
     }
 

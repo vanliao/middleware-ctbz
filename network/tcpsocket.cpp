@@ -93,25 +93,48 @@ bool TcpSocket::accept(int &newSock, std::string &ipAddr, int &port)
 bool TcpSocket::recv(std::string &buf)
 {
     char buffer[8192];
-    int ret = ::recv(fd, buffer, 8192, 0);
-    if (0 > ret)
+    while (1)
     {
-        log_error("recv failed:" << strerror(errno))
-        return false;
+        int ret = ::recv(fd, buffer, sizeof(buffer), 0);
+        if (0 > ret)
+        {
+            if(EAGAIN == errno)
+            {
+                log_debug("tcp socket recv eagain");
+                break;
+            }
+            log_error("recv failed:" << strerror(errno))
+            return false;
+        }
+        else
+        {
+            buf.append(buffer, ret);
+            if ((unsigned int)ret < sizeof(buffer))
+            {
+                /* 接收的数据长度小于缓冲区长度说明接收完了 */
+                break;
+            }
+        }
     }
 
-    buf.append(buffer, ret);
 
     return true;
 }
 
-bool TcpSocket::send(const std::string &buf)
+bool TcpSocket::send(std::string &buf)
 {
     std::string::size_type len = buf.length();
     int ret = ::send(fd, buf.c_str(), len, 0);
     if (0 > ret)
     {
         log_error("send failed:" << strerror(errno))
+        return false;
+    }
+
+    buf.erase(0, ret);
+
+    if ((unsigned int)ret != len)
+    {
         return false;
     }
 
