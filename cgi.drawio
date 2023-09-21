@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="2">
     <diagram id="CaLQMcqELtkLmFKi7LH4" name="Class">
-        <mxGraphModel dx="5158" dy="746" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFFFFF" math="0" shadow="0">
+        <mxGraphModel dx="5521" dy="746" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFFFFF" math="0" shadow="0">
             <root>
                 <mxCell id="7oyMfcrtrYP2oRAm5wUV-0"/>
                 <mxCell id="7oyMfcrtrYP2oRAm5wUV-1" parent="7oyMfcrtrYP2oRAm5wUV-0"/>
@@ -376,10 +376,10 @@
                 <mxCell id="133" value="- isPeer: bool" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="132" vertex="1">
                     <mxGeometry y="26" width="320" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="134" value="- serverIP: std::string" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="132" vertex="1">
+                <mxCell id="134" value="- sendBuf: std::string" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="132" vertex="1">
                     <mxGeometry y="52" width="320" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="135" value="- serverPort: int" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="132" vertex="1">
+                <mxCell id="135" value="- status: enum{NONE, CONNECTING, CONNECTED}" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="132" vertex="1">
                     <mxGeometry y="78" width="320" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="136" value="" style="line;strokeWidth=1;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="132" vertex="1">
@@ -1274,8 +1274,8 @@
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="491" value="TcpSocket" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-1670" y="410" width="180" height="177" as="geometry"/>
+                <mxCell id="491" value="4" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
+                    <mxGeometry x="-1670" y="410" width="180" height="226" as="geometry"/>
                 </mxCell>
                 <mxCell id="492" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="491" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
@@ -1306,12 +1306,25 @@
                 <mxCell id="519" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="491" vertex="1">
                     <mxGeometry y="128" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="520" value="2" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="519" vertex="1">
+                <mxCell id="520" value="3" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="519" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="521" value="recv接口中缓冲区长度是8192" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="519" vertex="1">
+                <mxCell id="521" value="接收缓冲区长度是8192，但是会循环接收直到系统recv返回错误" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="519" vertex="1">
+                    <mxGeometry x="40" width="140" height="49" as="geometry">
+                        <mxRectangle width="140" height="49" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="618" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="491">
+                    <mxGeometry y="177" width="180" height="49" as="geometry"/>
+                </mxCell>
+                <mxCell id="619" value="4" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="618">
+                    <mxGeometry width="40" height="49" as="geometry">
+                        <mxRectangle width="40" height="49" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="620" value="发送接口会清除已发送的数据" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="618">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
@@ -1379,13 +1392,13 @@
                         <mxRectangle width="40" height="80" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="504" value="recv接口中缓冲区长度是8192" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="502" vertex="1">
+                <mxCell id="504" value="recv接口中缓冲区长度是8192，如果UDP长度超过该值需要手动修改，应为UDP不能多次接收" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="502" vertex="1">
                     <mxGeometry x="40" width="140" height="80" as="geometry">
                         <mxRectangle width="140" height="80" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="525" value="TcpClient" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-860" y="1398" width="180" height="330" as="geometry"/>
+                    <mxGeometry x="-860" y="1398" width="180" height="392" as="geometry"/>
                 </mxCell>
                 <mxCell id="535" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="525" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
@@ -1452,6 +1465,19 @@
                         <mxRectangle width="140" height="90" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
+                <mxCell id="621" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="525">
+                    <mxGeometry y="330" width="180" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="622" value="6" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="621">
+                    <mxGeometry width="40" height="62" as="geometry">
+                        <mxRectangle width="40" height="62" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="623" value="sendBuf用于存储需要发送的数据，通过EPOLLOUT事件发送到对端" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="621">
+                    <mxGeometry x="40" width="140" height="62" as="geometry">
+                        <mxRectangle width="140" height="62" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
                 <mxCell id="547" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-family: Helvetica;&quot;&gt;TcpServer&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
                     <mxGeometry x="-1120" y="1398" width="180" height="177" as="geometry"/>
                 </mxCell>
@@ -1495,7 +1521,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="572" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;font color=&quot;#1d1b1d&quot;&gt;UdpClient&lt;/font&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-860" y="1770" width="180" height="79" as="geometry"/>
+                    <mxGeometry x="-860" y="1840" width="180" height="79" as="geometry"/>
                 </mxCell>
                 <mxCell id="573" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="572" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
@@ -1511,7 +1537,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="582" value="&lt;pre style=&quot;margin-top: 0px; margin-bottom: 0px;&quot;&gt;&lt;font color=&quot;#1d1b1d&quot;&gt;UdpServer&lt;/font&gt;&lt;/pre&gt;" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-1120" y="1770" width="180" height="270" as="geometry"/>
+                    <mxGeometry x="-1120" y="1840" width="180" height="270" as="geometry"/>
                 </mxCell>
                 <mxCell id="586" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="582" vertex="1">
                     <mxGeometry y="30" width="180" height="80" as="geometry"/>

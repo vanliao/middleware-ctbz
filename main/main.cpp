@@ -172,6 +172,15 @@ int main(int argc, char *argv[])
 
     std::string md5Pwd = api::getMd5Str(before.c_str(), before.length());
 
+    int total;
+    int free;
+    api::calc_cpuoccupy(total, free);
+    log_debug("cpu:" << total << " " << free);
+    api::calc_memoccupy(total, free);
+    log_debug("mem:" << total << " " << free);
+    api::calc_diskoccupy(total, free);
+    log_debug("disk:" << total << " " << free);
+
     log_debug("app start");
 
     std::shared_ptr<msg::Msg> msg = std::make_shared<msg::type::cgi::ServerDemoMsg>();
