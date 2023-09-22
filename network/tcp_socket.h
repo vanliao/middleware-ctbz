@@ -1,5 +1,5 @@
-#ifndef TCPSOCKET_H
-#define TCPSOCKET_H
+#ifndef TCP_SOCKET_H
+#define TCP_SOCKET_H
 
 #include "socket.h"
 
@@ -20,4 +20,4 @@ public:
 };
 
 }
-#endif // TCPSOCKET_H
+#endif // TCP_SOCKET_H

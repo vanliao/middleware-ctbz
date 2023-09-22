@@ -21,15 +21,15 @@ SOURCES += \
     main/oam_cgi_server_demo.cpp \
     msg/msg.cpp \
     msg/server_demo_msg.cpp \
-    network/epollcommunicator.cpp \
-    network/epollserver.cpp \
+    network/epoll_communicator.cpp \
+    network/epoll_server.cpp \
     network/socket.cpp \
-    network/tcpclient.cpp \
-    network/tcpserver.cpp \
-    network/tcpsocket.cpp \
-    network/udpclient.cpp \
-    network/udpserver.cpp \
-    network/udpsocket.cpp \
+    network/tcp_client.cpp \
+    network/tcp_server.cpp \
+    network/tcp_socket.cpp \
+    network/udp_client.cpp \
+    network/udp_server.cpp \
+    network/udp_socket.cpp \
     public/api.cpp \
     service/client_demo.cpp \
     service/common_communicator.cpp \
@@ -169,15 +169,15 @@ HEADERS += \
     main/oam_cgi_server_demo.h \
     msg/msg.h \
     msg/server_demo_msg.h \
-    network/epollcommunicator.h \
-    network/epollserver.h \
+    network/epoll_communicator.h \
+    network/epoll_server.h \
     network/socket.h \
-    network/tcpclient.h \
-    network/tcpserver.h \
-    network/tcpsocket.h \
-    network/udpclient.h \
-    network/udpserver.h \
-    network/udpsocket.h \
+    network/tcp_client.h \
+    network/tcp_server.h \
+    network/tcp_socket.h \
+    network/udp_client.h \
+    network/udp_server.h \
+    network/udp_socket.h \
     public/api.h \
     rapidjson/allocators.h \
     rapidjson/cursorstreamwrapper.h \

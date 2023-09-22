@@ -1,5 +1,5 @@
-#ifndef UDPSOCKET_H
-#define UDPSOCKET_H
+#ifndef UDP_SOCKET_H
+#define UDP_SOCKET_H
 
 #include "socket.h"
 
@@ -20,4 +20,4 @@ public:
 
 }
 
-#endif // UDPSOCKET_H
+#endif // UDP_SOCKET_H

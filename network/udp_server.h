@@ -1,9 +1,9 @@
-#ifndef UDPSERVER_H
-#define UDPSERVER_H
+#ifndef UDP_SERVER_H
+#define UDP_SERVER_H
 
 #include <map>
-#include "udpsocket.h"
-#include "udpclient.h"
+#include "udp_socket.h"
+#include "udp_client.h"
 
 namespace network {
 
@@ -24,4 +24,4 @@ public:
 };
 
 }
-#endif // UDPSERVER_H
+#endif // UDP_SERVER_H

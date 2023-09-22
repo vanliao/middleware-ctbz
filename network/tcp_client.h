@@ -1,7 +1,7 @@
-#ifndef TCPCLIENT_H
-#define TCPCLIENT_H
+#ifndef TCP_CLIENT_H
+#define TCP_CLIENT_H
 
-#include "tcpsocket.h"
+#include "tcp_socket.h"
 
 namespace network {
 
@@ -28,4 +28,4 @@ private:
 };
 
 }
-#endif // TCPCLIENT_H
+#endif // TCP_CLIENT_H

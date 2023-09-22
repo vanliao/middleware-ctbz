@@ -1,7 +1,7 @@
-#ifndef EPOLLSERVER_H
-#define EPOLLSERVER_H
-#include "tcpserver.h"
-#include "udpserver.h"
+#ifndef EPOLL_SERVER_H
+#define EPOLL_SERVER_H
+#include "tcp_server.h"
+#include "udp_server.h"
 
 namespace network {
 
@@ -41,4 +41,4 @@ protected:
 };
 
 }
-#endif // EPOLLSERVER_H
+#endif // EPOLL_SERVER_H

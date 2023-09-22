@@ -1,8 +1,8 @@
-#ifndef UDPCLIENT_H
-#define UDPCLIENT_H
+#ifndef UDP_CLIENT_H
+#define UDP_CLIENT_H
 
 #include <deque>
-#include "udpsocket.h"
+#include "udp_socket.h"
 
 namespace network {
 
@@ -32,4 +32,4 @@ private:
 };
 
 }
-#endif // UDPCLIENT_H
+#endif // UDP_CLIENT_H

@@ -1185,7 +1185,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="451" value="内部事件源" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-3560" y="721" width="180" height="79" as="geometry"/>
+                    <mxGeometry x="-3520" y="722" width="180" height="79" as="geometry"/>
                 </mxCell>
                 <mxCell id="455" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="451" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
@@ -1201,7 +1201,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="461" value="内部事件类型" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-3560" y="916" width="180" height="79" as="geometry"/>
+                    <mxGeometry x="-3520" y="916" width="180" height="79" as="geometry"/>
                 </mxCell>
                 <mxCell id="465" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="461" vertex="1">
                     <mxGeometry y="30" width="180" height="49" as="geometry"/>
@@ -1217,7 +1217,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="468" value="内部事件结构" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=none;html=1;" parent="7oyMfcrtrYP2oRAm5wUV-1" vertex="1">
-                    <mxGeometry x="-3560" y="1119" width="180" height="60" as="geometry"/>
+                    <mxGeometry x="-3520" y="1119" width="180" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="481" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="468" vertex="1">
                     <mxGeometry y="30" width="180" height="30" as="geometry"/>
@@ -1316,15 +1316,15 @@
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="618" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="491">
+                <mxCell id="618" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="491" vertex="1">
                     <mxGeometry y="177" width="180" height="49" as="geometry"/>
                 </mxCell>
-                <mxCell id="619" value="4" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="618">
+                <mxCell id="619" value="4" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="618" vertex="1">
                     <mxGeometry width="40" height="49" as="geometry">
                         <mxRectangle width="40" height="49" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="620" value="发送接口会清除已发送的数据" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="618">
+                <mxCell id="620" value="发送接口会清除已发送的数据" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="618" vertex="1">
                     <mxGeometry x="40" width="140" height="49" as="geometry">
                         <mxRectangle width="140" height="49" as="alternateBounds"/>
                     </mxGeometry>
@@ -1465,15 +1465,15 @@
                         <mxRectangle width="140" height="90" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="621" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" vertex="1" parent="525">
+                <mxCell id="621" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;html=1;" parent="525" vertex="1">
                     <mxGeometry y="330" width="180" height="62" as="geometry"/>
                 </mxCell>
-                <mxCell id="622" value="6" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="621">
+                <mxCell id="622" value="6" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="621" vertex="1">
                     <mxGeometry width="40" height="62" as="geometry">
                         <mxRectangle width="40" height="62" as="alternateBounds"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="623" value="sendBuf用于存储需要发送的数据，通过EPOLLOUT事件发送到对端" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="621">
+                <mxCell id="623" value="sendBuf用于存储需要发送的数据，通过EPOLLOUT事件发送到对端" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontColor=default;" parent="621" vertex="1">
                     <mxGeometry x="40" width="140" height="62" as="geometry">
                         <mxRectangle width="140" height="62" as="alternateBounds"/>
                     </mxGeometry>

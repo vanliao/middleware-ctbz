@@ -1,9 +1,9 @@
-#ifndef TCPSERVER_H
-#define TCPSERVER_H
+#ifndef TCP_SERVER_H
+#define TCP_SERVER_H
 
 #include <map>
-#include "tcpsocket.h"
-#include "tcpclient.h"
+#include "tcp_socket.h"
+#include "tcp_client.h"
 
 namespace network {
 
@@ -25,4 +25,4 @@ public:
 };
 
 }
-#endif // TCPSERVER_H
+#endif // TCP_SERVER_H

@@ -2,7 +2,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include "tcpsocket.h"
+#include "tcp_socket.h"
 #include "tinylog.h"
 
 namespace network {

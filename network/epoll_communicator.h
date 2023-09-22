@@ -1,11 +1,11 @@
-#ifndef EPOLLCOMMUNICATOR_H
-#define EPOLLCOMMUNICATOR_H
+#ifndef EPOLL_COMMUNICATOR_H
+#define EPOLL_COMMUNICATOR_H
 
 #include <map>
 #include <vector>
-#include "tcpclient.h"
-#include "udpclient.h"
-#include "epollserver.h"
+#include "tcp_client.h"
+#include "udp_client.h"
+#include "epoll_server.h"
 
 namespace network {
 
@@ -45,4 +45,4 @@ class EpollCommunicatorIF: public EpollServerIF{};
 
 }
 
-#endif // EPOLLCOMMUNICATOR_H
+#endif // EPOLL_COMMUNICATOR_H
