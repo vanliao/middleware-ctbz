@@ -1,9 +1,9 @@
 CC := g++
-CFLAGS := -std=c++11 -g -I log/ -I msg/ -I network/ -I service/ -I xml/ -I inifile/ -I rapidjson/ -I db/ -I dev/ -I main/ -I public/ -I lib/fcgi -I lib/sqlite3 -I lib
+CFLAGS := -std=c++11 -g -I log/ -I msg/ -I network/ -I service/ -I lib/xml/ -I lib/inifile/ -I lib/rapidjson/ -I db/ -I dev/ -I main/ -I public/ -I lib/fcgi -I lib/sqlite3 -I lib
 
 ifeq ($(platform), arm)
 CC := aarch64-linux-gnu-g++
-CFLAGS := -std=c++11 -DARM -g -Wno-psabi -I log/ -I msg/ -I network/ -I service/ -I xml/ -I inifile/ -I rapidjson/ -I db/ -I dev/ -I main/ -I public/ -I lib/fcgi -I lib/sqlite3 -I lib
+CFLAGS := -std=c++11 -DARM -g -Wno-psabi -I log/ -I msg/ -I network/ -I service/ -I lib/xml/ -I lib/inifile/ -I lib/rapidjson/ -I db/ -I dev/ -I main/ -I public/ -I lib/fcgi -I lib/sqlite3 -I lib
 endif
 
 # define source path
@@ -15,13 +15,13 @@ OUTPUT_OBJ_DIR := ${OUTPUT_DIR}/obj
 
 SOURCE := $(wildcard ./main/*.cpp) \
 		$(wildcard ./dev/*.cpp) \
-		$(wildcard ./inifile/*.cpp) \
+		$(wildcard ./lib/inifile/*.cpp) \
 		$(wildcard ./log/*.c) \
 		$(wildcard ./log/*.cpp) \
 		$(wildcard ./msg/*.cpp) \
 		$(wildcard ./network/*.cpp) \
 		$(wildcard ./service/*.cpp) \
-		$(wildcard ./xml/*.cpp) \
+		$(wildcard ./lib/xml/*.cpp) \
 		$(wildcard ./public/*.cpp) \
 		$(wildcard ./db/*.cpp)
 
@@ -100,6 +100,14 @@ ${OUTPUT_OBJ_DIR}/%.o : ./public/%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
 
 ${OUTPUT_OBJ_DIR}/%.o : ./db/%.cpp
+	@mkdir -p ${OUTPUT_OBJ_DIR}
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
+
+${OUTPUT_OBJ_DIR}/%.o : ./lib/xml/%.cpp
+	@mkdir -p ${OUTPUT_OBJ_DIR}
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
+
+${OUTPUT_OBJ_DIR}/%.o : ./lib/inifile/%.cpp
 	@mkdir -p ${OUTPUT_OBJ_DIR}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
 

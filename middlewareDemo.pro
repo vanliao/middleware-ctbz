@@ -6,6 +6,8 @@ CONFIG -= app_bundle
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+INCLUDEPATH += dev  log msg network  main service public db \
+               lib lib/inifile lib/xml lib/rapidjson d:/project/include/
 
 SOURCES += \
     db/cgi_db.cpp \
@@ -13,7 +15,7 @@ SOURCES += \
     dev/end_point.cpp \
     dev/lte_dev_demo.cpp \
     dev/nr_dev_demo.cpp \
-    inifile/inifile.cpp \
+    lib/inifile/inifile.cpp \
     log/tinylog.cpp \
     log/tlog.c \
     main/main.cpp \
@@ -35,14 +37,12 @@ SOURCES += \
     service/common_communicator.cpp \
     service/common_server.cpp \
     service/server_demo.cpp \
-    xml/tinyxml2.cpp
+    lib/xml/tinyxml2.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-INCLUDEPATH += dev inifile log msg network xml rapidjson main service \
-               public db lib d:/project/include/
 
 DISTFILES += \
     cgi.drawio \
@@ -78,7 +78,7 @@ HEADERS += \
     dev/end_point.h \
     dev/lte_dev_demo.h \
     dev/nr_dev_demo.h \
-    inifile/inifile.h \
+    lib/inifile/inifile.h \
     lib/fcgi/fastcgi.h \
     lib/fcgi/fcgi_config.h \
     lib/fcgi/fcgi_stdio.h \
@@ -179,44 +179,44 @@ HEADERS += \
     network/udp_server.h \
     network/udp_socket.h \
     public/api.h \
-    rapidjson/allocators.h \
-    rapidjson/cursorstreamwrapper.h \
-    rapidjson/document.h \
-    rapidjson/encodedstream.h \
-    rapidjson/encodings.h \
-    rapidjson/error/en.h \
-    rapidjson/error/error.h \
-    rapidjson/filereadstream.h \
-    rapidjson/filewritestream.h \
-    rapidjson/fwd.h \
-    rapidjson/internal/biginteger.h \
-    rapidjson/internal/diyfp.h \
-    rapidjson/internal/dtoa.h \
-    rapidjson/internal/ieee754.h \
-    rapidjson/internal/itoa.h \
-    rapidjson/internal/meta.h \
-    rapidjson/internal/pow10.h \
-    rapidjson/internal/regex.h \
-    rapidjson/internal/stack.h \
-    rapidjson/internal/strfunc.h \
-    rapidjson/internal/strtod.h \
-    rapidjson/internal/swap.h \
-    rapidjson/istreamwrapper.h \
-    rapidjson/memorybuffer.h \
-    rapidjson/memorystream.h \
-    rapidjson/msinttypes/inttypes.h \
-    rapidjson/msinttypes/stdint.h \
-    rapidjson/ostreamwrapper.h \
-    rapidjson/pointer.h \
-    rapidjson/prettywriter.h \
-    rapidjson/rapidjson.h \
-    rapidjson/reader.h \
-    rapidjson/schema.h \
-    rapidjson/stream.h \
-    rapidjson/stringbuffer.h \
-    rapidjson/writer.h \
+    lib/rapidjson/allocators.h \
+    lib/rapidjson/cursorstreamwrapper.h \
+    lib/rapidjson/document.h \
+    lib/rapidjson/encodedstream.h \
+    lib/rapidjson/encodings.h \
+    lib/rapidjson/error/en.h \
+    lib/rapidjson/error/error.h \
+    lib/rapidjson/filereadstream.h \
+    lib/rapidjson/filewritestream.h \
+    lib/rapidjson/fwd.h \
+    lib/rapidjson/internal/biginteger.h \
+    lib/rapidjson/internal/diyfp.h \
+    lib/rapidjson/internal/dtoa.h \
+    lib/rapidjson/internal/ieee754.h \
+    lib/rapidjson/internal/itoa.h \
+    lib/rapidjson/internal/meta.h \
+    lib/rapidjson/internal/pow10.h \
+    lib/rapidjson/internal/regex.h \
+    lib/rapidjson/internal/stack.h \
+    lib/rapidjson/internal/strfunc.h \
+    lib/rapidjson/internal/strtod.h \
+    lib/rapidjson/internal/swap.h \
+    lib/rapidjson/istreamwrapper.h \
+    lib/rapidjson/memorybuffer.h \
+    lib/rapidjson/memorystream.h \
+    lib/rapidjson/msinttypes/inttypes.h \
+    lib/rapidjson/msinttypes/stdint.h \
+    lib/rapidjson/ostreamwrapper.h \
+    lib/rapidjson/pointer.h \
+    lib/rapidjson/prettywriter.h \
+    lib/rapidjson/rapidjson.h \
+    lib/rapidjson/reader.h \
+    lib/rapidjson/schema.h \
+    lib/rapidjson/stream.h \
+    lib/rapidjson/stringbuffer.h \
+    lib/rapidjson/writer.h \
     service/client_demo.h \
     service/common_communicator.h \
     service/common_server.h \
     service/server_demo.h \
-    xml/tinyxml2.h
+    lib/xml/tinyxml2.h
