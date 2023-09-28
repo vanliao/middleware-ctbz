@@ -1,0 +1,76 @@
+#include "tinylog.h"
+#include "main_ws_server_demo.h"
+
+MainWSServerDemo::MainWSServerDemo()
+{
+
+}
+
+MainWSServerDemo::~MainWSServerDemo()
+{
+
+}
+
+MainWSServerDemo *MainWSServerDemo::instance()
+{
+    static MainWSServerDemo inst;
+    return &inst;
+}
+
+bool MainWSServerDemo::start()
+{
+    bool ret = svr->start();
+    if (!ret)
+    {
+        log_error("start server demo failed");
+        svr->stop();
+        return false;
+    }
+
+    log_info("start server demo succ");
+
+    return true;
+}
+
+void MainWSServerDemo::stop()
+{
+    log_info("stop server demo");
+    svr->stop();
+    return;
+}
+
+void MainWSServerDemo::loop()
+{
+    svr->loop();
+
+    log_notice("server demo exit");
+    return;
+}
+
+bool MainWSServerDemo::readConfig(inifile::IniFileHelper &cfg)
+{
+    int ret = cfg.GetIntValue("ServerDemo", "port", &port);
+    ret |= cfg.GetStringValue("ServerDemo", "local_ip", &localIP);
+
+    if (0 != ret)
+    {
+        log_error("read server demo config failed");
+        return false;
+    }
+
+    svr = std::make_shared<service::WSServerDemo>(localIP, port);
+
+    if (NULL == svr)
+    {
+        log_error("create server demo failed");
+        return false;
+    }
+
+    return true;
+}
+
+void MainWSServerDemo::addEvent(std::shared_ptr<msg::Msg> &msg)
+{
+    svr->addEvent(msg);
+    return;
+}

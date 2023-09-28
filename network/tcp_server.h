@@ -10,7 +10,7 @@ namespace network {
 class TcpServer: public TcpSocket
 {
 public:
-    TcpServer(const std::string servrIP, const int serverPort);
+    TcpServer(const std::string serverIP, const int serverPort);
     virtual ~TcpServer(void);
     bool bind(void);
     bool listen(void);

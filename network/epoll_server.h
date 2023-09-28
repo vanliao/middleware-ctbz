@@ -2,6 +2,7 @@
 #define EPOLL_SERVER_H
 #include "tcp_server.h"
 #include "udp_server.h"
+#include "websocket_server.h"
 
 namespace network {
 
@@ -21,7 +22,8 @@ public:
     enum ServerType
     {
         UDP,
-        TCP
+        TCP,
+        TCPWS,
     };
 
     EpollServer(const std::string &serverIP, const int serverPort, const ServerType type);
@@ -31,6 +33,7 @@ public:
 
 private:
     bool startTcpSvr(EpollServerIF &obj);
+    bool startWSSvr(EpollServerIF &obj);
     bool startUdpSvr(EpollServerIF &obj);
 
 protected:

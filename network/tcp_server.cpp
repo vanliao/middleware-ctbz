@@ -6,9 +6,9 @@
 
 namespace network {
 
-TcpServer::TcpServer(const std::string servrIP, const int serverPort): TcpSocket()
+TcpServer::TcpServer(const std::string serverIP, const int serverPort): TcpSocket()
 {
-    ip = servrIP;
+    ip = serverIP;
     port = serverPort;
     return;
 }

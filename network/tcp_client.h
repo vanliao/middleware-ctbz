@@ -23,7 +23,7 @@ public:
     Status status;
     std::string sendBuf;
 
-private:
+protected:
     bool isPeer;
 };
 

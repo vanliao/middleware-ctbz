@@ -5,6 +5,7 @@
 #include "tinylog.h"
 #include "oam_cgi_server_demo.h"
 #include "oam_cgi_client_demo.h"
+#include "main_ws_server_demo.h"
 #include "rapidjson.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -15,8 +16,9 @@
 
 void signalHandler(int /*signum*/)
 {
-    OamCgiServerDemo::instance()->stop();
+//    OamCgiServerDemo::instance()->stop();
 //    OamCgiClientDemo::instance()->stop();
+    MainWSServerDemo::instance()->stop();
     return;
 }
 
@@ -133,16 +135,16 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (OamCgiServerDemo::instance()->readConfig(cfg))
-    {
-        OamCgiServerDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "server demo read config failed" << std::endl;
-        log_debug("server demo read config failed");
-        return -1;
-    }
+//    if (OamCgiServerDemo::instance()->readConfig(cfg))
+//    {
+//        OamCgiServerDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "server demo read config failed" << std::endl;
+//        log_debug("server demo read config failed");
+//        return -1;
+//    }
 
 //    if (OamCgiClientDemo::instance()->readConfig(cfg))
 //    {
@@ -155,6 +157,16 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
+    if (MainWSServerDemo::instance()->readConfig(cfg))
+    {
+        MainWSServerDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "ws server demo read config failed" << std::endl;
+        log_debug("ws server demo read config failed");
+        return -1;
+    }
     jsonTest();
 
 //    std::string before = "123<>?:?!@#$%^&*(\"{}4adsfds,./adsa56789";
@@ -189,11 +201,13 @@ int main(int argc, char *argv[])
     ev->cmdType = 2;
     ev->result = 3;
     sleep(2);
-    OamCgiServerDemo::instance()->addEvent(msg);
+//    OamCgiServerDemo::instance()->addEvent(msg);
 //    OamCgiClientDemo::instance()->addEvent(msg);
+    MainWSServerDemo::instance()->addEvent(msg);
 
-    OamCgiServerDemo::instance()->loop();
+//    OamCgiServerDemo::instance()->loop();
 //    OamCgiClientDemo::instance()->loop();
+    MainWSServerDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

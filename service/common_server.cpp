@@ -60,6 +60,39 @@ bool CommonServer::send(const int connID, const std::string &buf)
         }
         else
         {
+            log_error("get tcp/ws server failed");
+            return false;
+        }
+    }
+    else if (TCPWS == svrType)
+    {
+        network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
+        if (NULL != svr)
+        {
+            network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
+            if (NULL != clt)
+            {
+                std::string header = clt->creatWSHeader(buf.length(), network::WebSocket::TEXT, true);
+                std::string wsMsg = header;
+                wsMsg.append(buf.c_str(), buf.length());
+                clt->sendBuf.push_back(wsMsg);
+                struct epoll_event epEvt;
+                epEvt.data.fd = connID;
+                epEvt.events = EPOLLOUT|EPOLLIN;
+                int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                if (0 != rc)
+                {
+                    log_error("mod event faild:" << strerror(errno));
+                }
+            }
+            else
+            {
+                log_error("invalid ptr");
+                return false;
+            }
+        }
+        else
+        {
             log_error("get tcp server failed");
             return false;
         }
@@ -98,6 +131,50 @@ bool CommonServer::send(const int connID, const std::string &buf)
     return true;
 }
 
+bool service::CommonServer::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode, const bool fin)
+{
+    if (TCPWS == svrType)
+    {
+        network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
+        if (NULL != svr)
+        {
+            network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
+            if (NULL != clt)
+            {
+                std::string header = clt->creatWSHeader(buf.length(), wsOpCode, fin);
+                std::string wsMsg = header;
+                wsMsg.append(buf.c_str(), buf.length());
+                clt->sendBuf.push_back(wsMsg);
+                struct epoll_event epEvt;
+                epEvt.data.fd = connID;
+                epEvt.events = EPOLLOUT|EPOLLIN;
+                int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                if (0 != rc)
+                {
+                    log_error("mod event faild:" << strerror(errno));
+                }
+            }
+            else
+            {
+                log_error("invalid ptr");
+                return false;
+            }
+        }
+        else
+        {
+            log_error("get tcp server failed");
+            return false;
+        }
+    }
+    else
+    {
+        log_error("only send websocket msg");
+        return false;
+    }
+
+    return true;
+}
+
 void CommonServer::closeDev(const unsigned int connID)
 {
     if (TCP == svrType)
@@ -114,7 +191,28 @@ void CommonServer::closeDev(const unsigned int connID)
         }
         else
         {
-            log_error("get tcp server failed");
+            log_error("get tcp/ws server failed");
+        }
+    }
+    else if (TCPWS == svrType)
+    {
+        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
+        if (NULL != svr)
+        {
+            network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
+            if (NULL != clt)
+            {
+                /* 发送 ws close 消息 */
+                unsigned short closeCode = htobe16(1000);
+                std::string buf = "";
+                buf.append((char *)(&closeCode), sizeof(closeCode));
+                sendWS(connID, buf, network::WebSocket::CLOSE);
+                clt->closeSend();
+            }
+        }
+        else
+        {
+            log_error("get tcp/ws server failed");
         }
     }
     else
@@ -149,6 +247,10 @@ bool CommonServer::start(CommonServerIF &obj)
     if (TCP == svrType)
     {
         ret = startTcpSvr(obj);
+    }
+    else if (TCPWS == svrType)
+    {
+        ret = startWSSvr(obj);
     }
     else
     {
@@ -199,7 +301,7 @@ bool CommonServer::delExtenEvent(const int ev)
 
 dev::EndPoint *CommonServer::getDev(const int connID)
 {
-    if (TCP == svrType)
+    if (TCP == svrType || TCPWS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         network::TcpClient *clt = svr->getClient(connID);
@@ -217,7 +319,7 @@ dev::EndPoint *CommonServer::getDev(const int connID)
 
 dev::EndPoint *CommonServer::getFirstDev()
 {
-    if (TCP == svrType)
+    if (TCP == svrType || TCPWS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         network::TcpClient *clt = svr->getClient();
@@ -235,7 +337,7 @@ dev::EndPoint *CommonServer::getFirstDev()
 
 void CommonServer::getAllDev(std::vector<unsigned int> &vec)
 {
-    if (TCP == svrType)
+    if (TCP == svrType || TCPWS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         for (const auto &it : svr->clients)
@@ -400,6 +502,235 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
                             obj.closeNotify(connID);
                             epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
                             svr->close(connID);
+                        }
+                    }
+                }
+                else
+                {
+                    obj.eventtNotify(*it);
+                }
+            }
+        }
+    }
+
+    return exitflag;
+}
+
+bool CommonServer::startWSSvr(CommonServerIF &obj)
+{
+    network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
+    if (NULL == svr)
+    {
+        log_error("create ws server failed");
+        return false;
+    }
+
+    bool ret = true;
+    ret &= svr->create();
+    ret &= svr->bind();
+    ret &= svr->listen();
+    if (!ret)
+    {
+        log_error("create ws server failed");
+        return false;
+    }
+
+    struct epoll_event epEvt;
+    epEvt.data.fd = svr->fd;
+    epEvt.events = EPOLLIN;
+
+    int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, svr->fd, &epEvt);
+    if (0 != rc)
+    {
+        log_error("add ws server fd to epoll failed:" << strerror(errno));
+        return false;
+    }
+
+    bool exitflag = true;
+    auto exitEpoll = [this, &exitflag]()
+    {
+        finish = true;
+        exitflag = false;
+    };
+
+    struct epoll_event waitEv[10];
+    memset(waitEv, 0, 10*sizeof(struct epoll_event));
+    while (!finish)
+    {
+        int num = epoll_wait(epollFd, waitEv, 10, 1000);
+        if (-1 == num)
+        {
+#ifndef MIPS
+            if (EINTR != errno)
+            {
+                log_error("epoll wait failed:" << strerror(errno));
+                exitEpoll();
+            }
+#else
+            ef_log_error("epoll wait failed on MIPS")
+#endif
+        }
+
+        for (int i = 0; i < num; i++)
+        {
+            if ((waitEv[i].events & EPOLLERR) ||
+                (waitEv[i].events & EPOLLHUP))
+            {
+                log_debug("ws epoll err");
+                if (svr->fd == waitEv[i].data.fd)
+                {
+                    log_error("ws server error:" << strerror(errno));
+                    exitEpoll();
+                    break;
+                }
+                else
+                {
+                    unsigned int connID = waitEv[i].data.fd;
+                    network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
+                    if (NULL != clt)
+                    {
+                        obj.closeNotify(connID);
+                        epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                        svr->close(connID);
+                    }
+                }
+            }
+            else if (waitEv[i].events & EPOLLOUT)
+            {
+                log_debug("ws epoll out");
+                unsigned int connID = waitEv[i].data.fd;
+                network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
+                if (NULL != clt)
+                {
+                    while (!clt->sendBuf.empty())
+                    {
+                        std::string &s = clt->sendBuf.front();
+                        log_debug("ws send len " << s.length());
+                        if (clt->send(s))
+                        {
+                            clt->sendBuf.pop_front();
+                            if (clt->sendBuf.empty())
+                            {
+                                if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
+                                {
+                                    log_debug("epoll out send ws close msg and close ws");
+                                    obj.closeNotify(connID);
+                                    epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                                    svr->close(connID);
+                                }
+                                else
+                                {
+                                    struct epoll_event epEvt;
+                                    epEvt.data.fd = connID;
+                                    epEvt.events = EPOLLIN;
+                                    epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                                }
+                                break;
+                            }
+                            //else {} 继续发送
+                        }
+                        else
+                        {
+                            /* 发送失败,下次发送 */
+                            break;
+                        }
+                    }// while (!clt->sendBuf.empty())
+                }
+            }
+            else if (svr->fd == waitEv[i].data.fd)
+            {
+                log_debug("ws epoll accept");
+                unsigned int connID = 0;
+                ret = svr->accept(connID);
+                if (ret)
+                {
+                    epEvt.data.fd = connID;
+                    epEvt.events = EPOLLIN;
+                    int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, svr->getClient(connID)->fd, &epEvt);
+                    if (0 != rc)
+                    {
+                        log_error("add tcp client fd to epoll failed:" << strerror(errno));
+                    }
+                    else
+                    {
+                        obj.connectNotify(connID);
+                    }
+                }
+            }
+            else
+            {
+                log_debug("ws epoll in");
+                auto it = eventFds.begin();
+                while(eventFds.end() != it)
+                {
+                    if (*it == waitEv[i].data.fd)
+                    {
+                        break;
+                    }
+                    ++it;
+                }
+
+                if (it == eventFds.end())
+                {
+                    unsigned int connID = waitEv[i].data.fd;
+                    network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
+                    if (NULL != clt)
+                    {
+                        std::string buf = "";
+                        if (clt->recv(buf))
+                        {
+                            if (!buf.empty())
+                            {
+                                if (network::WebSocket::CLOSE_RECV == clt->closeStatus)
+                                {
+                                    log_debug("recv ws close and will send close rsp");
+                                    /* 发送 ws close 消息 */
+                                    sendWS(connID, buf, network::WebSocket::CLOSE);
+                                    clt->closeSend();
+                                }
+                                else if (network::WebSocket::PING == clt->wsOpCode)
+                                {
+                                    /* 发送 ws pong 消息 */
+                                    log_debug("recv ws ping and will send pong");
+                                    sendWS(connID, buf, network::WebSocket::PONG);
+                                }
+                                else
+                                {
+                                    obj.recvNotify(connID, buf);
+                                }
+                            }
+                            else
+                            {
+                                switch (clt->closeStatus)
+                                {
+                                    case network::WebSocket::CLOSE_FORCE:
+                                    case network::WebSocket::CLOSE_COMPLETE:
+                                    {
+                                        log_debug("epoll in recv empty or recv close msg should close");
+                                        /* 收到 close 或者对端强制关闭 TCP */
+                                        obj.closeNotify(connID);
+                                        epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                                        svr->close(connID);
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        log_error("epoll in recv empty ws close status " << clt->closeStatus);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            /* 握手失败 */
+                            if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
+                            {
+                                log_debug("epoll in recv fail should close ws");
+                                obj.closeNotify(connID);
+                                epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                                svr->close(connID);
+                            }
                         }
                     }
                 }

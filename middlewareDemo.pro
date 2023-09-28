@@ -15,10 +15,12 @@ SOURCES += \
     dev/end_point.cpp \
     dev/lte_dev_demo.cpp \
     dev/nr_dev_demo.cpp \
+    dev/ws_dev_demo.cpp \
     lib/inifile/inifile.cpp \
     log/tinylog.cpp \
     log/tlog.c \
     main/main.cpp \
+    main/main_ws_server_demo.cpp \
     main/oam_cgi_client_demo.cpp \
     main/oam_cgi_server_demo.cpp \
     msg/msg.cpp \
@@ -32,12 +34,15 @@ SOURCES += \
     network/udp_client.cpp \
     network/udp_server.cpp \
     network/udp_socket.cpp \
+    network/websocket_client.cpp \
+    network/websocket_server.cpp \
     public/api.cpp \
     service/client_demo.cpp \
     service/common_communicator.cpp \
     service/common_server.cpp \
     service/server_demo.cpp \
-    lib/xml/tinyxml2.cpp
+    lib/xml/tinyxml2.cpp \
+    service/ws_server_demo.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -78,6 +83,7 @@ HEADERS += \
     dev/end_point.h \
     dev/lte_dev_demo.h \
     dev/nr_dev_demo.h \
+    dev/ws_dev_demo.h \
     lib/inifile/inifile.h \
     lib/fcgi/fastcgi.h \
     lib/fcgi/fcgi_config.h \
@@ -165,6 +171,7 @@ HEADERS += \
     lib/sqlite3/sqlite3ext.h \
     log/tinylog.h \
     log/tlog.h \
+    main/main_ws_server_demo.h \
     main/oam_cgi_client_demo.h \
     main/oam_cgi_server_demo.h \
     msg/msg.h \
@@ -178,6 +185,9 @@ HEADERS += \
     network/udp_client.h \
     network/udp_server.h \
     network/udp_socket.h \
+    network/websocket.h \
+    network/websocket_client.h \
+    network/websocket_server.h \
     public/api.h \
     lib/rapidjson/allocators.h \
     lib/rapidjson/cursorstreamwrapper.h \
@@ -219,4 +229,5 @@ HEADERS += \
     service/common_communicator.h \
     service/common_server.h \
     service/server_demo.h \
-    lib/xml/tinyxml2.h
+    lib/xml/tinyxml2.h \
+    service/ws_server_demo.h

@@ -17,6 +17,10 @@ EpollServer::EpollServer(const std::string &serverIP, const int serverPort, cons
         sock = std::make_shared<TcpServer>(serverIP, serverPort);
 //        TcpServer *cvt = dynamic_cast<TcpServer*>(sock.get());
     }
+    else if (TCPWS == type)
+    {
+        sock = std::make_shared<WebsocketServer>(serverIP, serverPort);
+    }
     else
     {
         sock = std::make_shared<UdpServer>(serverIP, serverPort);
@@ -47,6 +51,10 @@ bool EpollServer::start(EpollServerIF &obj)
     if (TCP == svrType)
     {
         ret = startTcpSvr(obj);
+    }
+    else if (TCPWS == svrType)
+    {
+        ret = startWSSvr(obj);
     }
     else
     {
@@ -163,6 +171,118 @@ bool EpollServer::startTcpSvr(EpollServerIF &obj)
                     std::string buf;
                     clt->recv(buf);
                     obj.recvNotify(connID, buf);
+                }
+            }
+        }
+    }
+
+    return exitflag;
+}
+
+bool EpollServer::startWSSvr(EpollServerIF &obj)
+{
+    WebsocketServer *svr = dynamic_cast<WebsocketServer*>(sock.get());
+    if (NULL == svr)
+    {
+        log_error("create ws server failed");
+        return false;
+    }
+
+    bool ret = true;
+    ret &= svr->create();
+    ret &= svr->bind();
+    ret &= svr->listen();
+    if (!ret)
+    {
+        log_error("create ws server failed");
+        return false;
+    }
+
+    struct epoll_event epEvt;
+    epEvt.data.fd = svr->fd;
+    epEvt.events = EPOLLIN;
+
+    int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, svr->fd, &epEvt);
+    if (0 != rc)
+    {
+        log_error("add ws server fd to epoll failed:" << strerror(errno));
+        return false;
+    }
+
+    bool exitflag = true;
+    auto exitEpoll = [this, &exitflag]()
+    {
+        finish = true;
+        exitflag = false;
+    };
+
+    struct epoll_event waitEv[10];
+    memset(waitEv, 0, 10*sizeof(struct epoll_event));
+    while (!finish)
+    {
+        int num = epoll_wait(epollFd, waitEv, 10, 1000);
+#ifndef MIPS
+        if (-1 == num)
+        {
+            if (EINTR != errno)
+            {
+                log_error("epoll wait failed:" << strerror(errno));
+                exitEpoll();
+            }
+        }
+#else
+            ef_log_error("epoll wait failed on MIPS")
+#endif
+
+        for (int i = 0; i < num; i++)
+        {
+            if ((waitEv[i].events & EPOLLERR) ||
+                (waitEv[i].events & EPOLLHUP))
+            {
+                if (svr->fd == waitEv[i].data.fd)
+                {
+                    log_error("ws server error:" << strerror(errno));
+                    exitEpoll();
+                    break;
+                }
+                else
+                {
+                    unsigned int connID = waitEv[i].data.fd;
+                    obj.closeNotify(connID);
+                    epoll_ctl(epollFd, EPOLL_CTL_DEL, connID, NULL);
+                    svr->close(connID);
+                }
+            }
+            else if (svr->fd == waitEv[i].data.fd)
+            {
+                unsigned int connID = 0;
+                ret = svr->accept(connID);
+                if (ret)
+                {
+                    epEvt.data.fd = connID;
+                    epEvt.events = EPOLLIN;
+                    rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, connID, &epEvt);
+                    if (0 != rc)
+                    {
+                        log_error("add ws fd to epoll failed:" << strerror(errno));
+                        exitEpoll();
+                        break;
+                    }
+                    obj.connectNotify(connID);
+                }
+            }
+            else
+            {
+                unsigned int connID = waitEv[i].data.fd;
+                WebsocketClient *clt = dynamic_cast<WebsocketClient *>(svr->getClient(connID));
+                if (NULL != clt)
+                {
+                    log_debug("ws epoll in");
+                    std::string buf;
+                    if (clt->recv(buf))
+                    {
+                        obj.recvNotify(connID, buf);
+                    }
                 }
             }
         }

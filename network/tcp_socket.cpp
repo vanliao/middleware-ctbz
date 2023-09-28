@@ -135,6 +135,7 @@ bool TcpSocket::send(std::string &buf)
 
     if ((unsigned int)ret != len)
     {
+        log_debug("tcp send incomplete");
         return false;
     }
 
