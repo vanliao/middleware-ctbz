@@ -688,6 +688,11 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
                                     sendWS(connID, buf, network::WebSocket::CLOSE);
                                     clt->closeSend();
                                 }
+                                else if (network::WebSocket::PONG == clt->wsOpCode)
+                                {
+                                    /* 收到 ws pong 消息 不需要处理 */
+                                    log_debug("recv ws pong");
+                                }
                                 else if (network::WebSocket::PING == clt->wsOpCode)
                                 {
                                     /* 发送 ws pong 消息 */
@@ -701,23 +706,23 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
                             }
                             else
                             {
-                                switch (clt->closeStatus)
+                                if (network::WebSocket::PONG == clt->wsOpCode)
                                 {
-                                    case network::WebSocket::CLOSE_FORCE:
-                                    case network::WebSocket::CLOSE_COMPLETE:
-                                    {
-                                        log_debug("epoll in recv empty or recv close msg should close");
-                                        /* 收到 close 或者对端强制关闭 TCP */
-                                        obj.closeNotify(connID);
-                                        epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
-                                        svr->close(connID);
-                                        break;
-                                    }
-                                    default:
-                                    {
-                                        log_error("epoll in recv empty ws close status " << clt->closeStatus);
-                                        break;
-                                    }
+                                    /* 收到 ws pong 消息 不需要处理 */
+                                    log_debug("recv ws pong");
+                                }
+                                else if(network::WebSocket::CLOSE_FORCE    == clt->closeStatus ||
+                                        network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
+                                {
+                                    log_debug("epoll in recv empty or recv close msg should close");
+                                    /* 收到 close 或者对端强制关闭 TCP */
+                                    obj.closeNotify(connID);
+                                    epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                                    svr->close(connID);
+                                }
+                                else
+                                {
+                                    log_error("epoll in recv empty ws close status " << clt->closeStatus);
                                 }
                             }
                         }

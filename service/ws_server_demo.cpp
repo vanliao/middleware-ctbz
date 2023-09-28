@@ -39,6 +39,9 @@ void WSServerDemo::recvNotify(unsigned int connID, std::string &buf)
         return;
     }
 
+    model.sendWS(connID, "", network::WebSocket::PING);
+//    model.closeDev(connID);
+
     dev::WSDevDemo *dev = dynamic_cast<dev::WSDevDemo *>(ep->dev.get());
     if (dev)
     {

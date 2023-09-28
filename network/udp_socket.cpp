@@ -60,7 +60,7 @@ bool UdpSocket::recv(std::string &buf, std::string &remoteAddr, int &remotePort)
     socklen_t len = sizeof(raddr);
 
     buf = "";
-    char buffer[8192];
+    char buffer[8192];  //缓冲区长度根据需要修改
     while (1)
     {
         /* UDP必须一次性吧数据读取完,否则会丢弃 */
