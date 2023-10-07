@@ -55,41 +55,37 @@ bool WebsocketClient::recv(std::string &buf)
     return ret;
 }
 
-std::string WebsocketClient::creatWSHeader(const uint64_t payloadLen, const uint8_t opcode, const bool fin)
+bool WebsocketClient::sendPrepare(const std::string &buf, const uint8_t opcode, const bool fin)
 {
-    uint8_t header[14] = {0};
-    uint32_t headerLen = 2;
-    header[0] = (opcode & 15) | ((uint8_t)fin << 7);
-//    header[1] = (uint8_t)SendMask << 7;
-    if (payloadLen < 126)
+    uint8_t op = opcode;
+    std::string::size_type totalLen = buf.length();
+    if (WebSocket::maxSendPayload < totalLen)
     {
-        header[1] |= (uint8_t)payloadLen;
-    }
-    else if (payloadLen < 65536)
-    {
-        header[1] |= 126;
-        *(uint16_t*)(header + 2) = htobe16((unsigned short)payloadLen);
-        headerLen += 2;
+        /* 发送分片 */
+        std::string::size_type offset = 0;
+        std::string::size_type leftLen = totalLen;
+        while (0 < leftLen)
+        {
+            std::string::size_type sendLen = leftLen < WebSocket::maxSendPayload?leftLen:WebSocket::maxSendPayload;
+            std::string header = creatWSHeader(sendLen, op, ((leftLen - sendLen) == 0));
+            std::string wsMsg = header;
+            wsMsg.append(buf.c_str() + offset, sendLen);
+            sendBuf.push_back(wsMsg);
+
+            leftLen -= sendLen;
+            offset += sendLen;
+            op = WebSocket::CONT;
+        }
     }
     else
     {
-        header[1] |= 127;
-        *(uint64_t*)(header + 2) = htobe64(payloadLen);
-        headerLen += 8;
+        std::string header = creatWSHeader(buf.length(), opcode, fin);
+        std::string wsMsg = header;
+        wsMsg.append(buf.c_str(), buf.length());
+        sendBuf.push_back(wsMsg);
     }
 
-//    if (SendMask)
-//    {
-//        // for efficency and simplicity masking-key is always set to 0
-//        *(uint32_t*)(header + headerLen) = 0;
-//        headerLen += 4;
-//    }
-
-//    log_debug("head len:" << headerLen << " " << (uint)header[0] << " " << (uint)header[1] << " " << wsMsg.length());
-
-    std::string wsMsgHeader = "";
-    wsMsgHeader.append((char *)header, headerLen);
-    return wsMsgHeader;
+    return true;
 }
 
 void WebsocketClient::closeSend()
@@ -130,6 +126,43 @@ void WebsocketClient::closeSend()
     }
 
     return;
+}
+
+std::string WebsocketClient::creatWSHeader(const uint64_t payloadLen, const uint8_t opcode, const bool fin)
+{
+    uint8_t header[14] = {0};
+    uint32_t headerLen = 2;
+    header[0] = (opcode & 15) | ((uint8_t)fin << 7);
+//    header[1] = (uint8_t)SendMask << 7;
+    if (payloadLen < 126)
+    {
+        header[1] |= (uint8_t)payloadLen;
+    }
+    else if (payloadLen < 65536)
+    {
+        header[1] |= 126;
+        *(uint16_t*)(header + 2) = htobe16((unsigned short)payloadLen);
+        headerLen += 2;
+    }
+    else
+    {
+        header[1] |= 127;
+        *(uint64_t*)(header + 2) = htobe64(payloadLen);
+        headerLen += 8;
+    }
+
+//    if (SendMask)
+//    {
+//        // for efficency and simplicity masking-key is always set to 0
+//        *(uint32_t*)(header + headerLen) = 0;
+//        headerLen += 4;
+//    }
+
+//    log_debug("head len:" << headerLen << " " << (uint)header[0] << " " << (uint)header[1] << " " << wsMsg.length());
+
+    std::string wsMsgHeader = "";
+    wsMsgHeader.append((char *)header, headerLen);
+    return wsMsgHeader;
 }
 
 uint32_t WebsocketClient::rol(uint32_t value, uint32_t bits)

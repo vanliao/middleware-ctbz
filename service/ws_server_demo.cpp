@@ -6,7 +6,7 @@
 namespace service {
 
 WSServerDemo::WSServerDemo(const std::string &serverIP, const int serverPort) :
-    Server(serverIP, serverPort, network::EpollServer::TCPWS)
+    Server(serverIP, serverPort, network::EpollServer::WS)
 {
     return;
 }

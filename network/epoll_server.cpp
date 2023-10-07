@@ -17,7 +17,7 @@ EpollServer::EpollServer(const std::string &serverIP, const int serverPort, cons
         sock = std::make_shared<TcpServer>(serverIP, serverPort);
 //        TcpServer *cvt = dynamic_cast<TcpServer*>(sock.get());
     }
-    else if (TCPWS == type)
+    else if (WS == type)
     {
         sock = std::make_shared<WebsocketServer>(serverIP, serverPort);
     }
@@ -52,7 +52,7 @@ bool EpollServer::start(EpollServerIF &obj)
     {
         ret = startTcpSvr(obj);
     }
-    else if (TCPWS == svrType)
+    else if (WS == svrType)
     {
         ret = startWSSvr(obj);
     }

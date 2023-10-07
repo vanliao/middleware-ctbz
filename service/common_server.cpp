@@ -64,7 +64,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
             return false;
         }
     }
-    else if (TCPWS == svrType)
+    else if (WS == svrType)
     {
         network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
         if (NULL != svr)
@@ -72,10 +72,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
             network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
             if (NULL != clt)
             {
-                std::string header = clt->creatWSHeader(buf.length(), network::WebSocket::TEXT, true);
-                std::string wsMsg = header;
-                wsMsg.append(buf.c_str(), buf.length());
-                clt->sendBuf.push_back(wsMsg);
+                clt->sendPrepare(buf, network::WebSocket::BINARY, true);
                 struct epoll_event epEvt;
                 epEvt.data.fd = connID;
                 epEvt.events = EPOLLOUT|EPOLLIN;
@@ -133,7 +130,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
 
 bool service::CommonServer::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode, const bool fin)
 {
-    if (TCPWS == svrType)
+    if (WS == svrType)
     {
         network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
         if (NULL != svr)
@@ -141,10 +138,7 @@ bool service::CommonServer::sendWS(const int connID, const std::string &buf, con
             network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
             if (NULL != clt)
             {
-                std::string header = clt->creatWSHeader(buf.length(), wsOpCode, fin);
-                std::string wsMsg = header;
-                wsMsg.append(buf.c_str(), buf.length());
-                clt->sendBuf.push_back(wsMsg);
+                clt->sendPrepare(buf, wsOpCode, true);
                 struct epoll_event epEvt;
                 epEvt.data.fd = connID;
                 epEvt.events = EPOLLOUT|EPOLLIN;
@@ -194,7 +188,7 @@ void CommonServer::closeDev(const unsigned int connID)
             log_error("get tcp/ws server failed");
         }
     }
-    else if (TCPWS == svrType)
+    else if (WS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         if (NULL != svr)
@@ -248,7 +242,7 @@ bool CommonServer::start(CommonServerIF &obj)
     {
         ret = startTcpSvr(obj);
     }
-    else if (TCPWS == svrType)
+    else if (WS == svrType)
     {
         ret = startWSSvr(obj);
     }
@@ -301,7 +295,7 @@ bool CommonServer::delExtenEvent(const int ev)
 
 dev::EndPoint *CommonServer::getDev(const int connID)
 {
-    if (TCP == svrType || TCPWS == svrType)
+    if (TCP == svrType || WS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         network::TcpClient *clt = svr->getClient(connID);
@@ -319,7 +313,7 @@ dev::EndPoint *CommonServer::getDev(const int connID)
 
 dev::EndPoint *CommonServer::getFirstDev()
 {
-    if (TCP == svrType || TCPWS == svrType)
+    if (TCP == svrType || WS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         network::TcpClient *clt = svr->getClient();
@@ -337,7 +331,7 @@ dev::EndPoint *CommonServer::getFirstDev()
 
 void CommonServer::getAllDev(std::vector<unsigned int> &vec)
 {
-    if (TCP == svrType || TCPWS == svrType)
+    if (TCP == svrType || WS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         for (const auto &it : svr->clients)
@@ -605,7 +599,6 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
                     while (!clt->sendBuf.empty())
                     {
                         std::string &s = clt->sendBuf.front();
-                        log_debug("ws send len " << s.length());
                         if (clt->send(s))
                         {
                             clt->sendBuf.pop_front();

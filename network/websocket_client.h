@@ -14,10 +14,11 @@ public:
     WebsocketClient(const int clientFd);
     virtual ~WebsocketClient();
     bool recv(std::string &buf);
-    std::string creatWSHeader(const uint64_t payloadLen, const uint8_t opcode, const bool fin = true);
+    bool sendPrepare(const std::string &buf, const uint8_t opcode, const bool fin = true);
     void closeSend();
 
 private:
+    std::string creatWSHeader(const uint64_t payloadLen, const uint8_t opcode, const bool fin = true);
     static uint32_t rol(uint32_t value, uint32_t bits);
     uint32_t sha1base64(uint8_t* in, uint64_t in_len, char* out);
     uint32_t handleHttpRequest(std::string &wsMsg);

@@ -23,7 +23,7 @@ public:
     {
         UDP,
         TCP,
-        TCPWS,
+        WS,
     };
 
     EpollServer(const std::string &serverIP, const int serverPort, const ServerType type);

@@ -29,6 +29,9 @@ public:
         CLOSE_FORCE,
         CLOSE_COMPLETE,
     };
+
+public:
+    static constexpr unsigned int maxSendPayload = 8192;
 };
 
 }
