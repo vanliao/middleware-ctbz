@@ -49,8 +49,8 @@ void MainWSServerDemo::loop()
 
 bool MainWSServerDemo::readConfig(inifile::IniFileHelper &cfg)
 {
-    int ret = cfg.GetIntValue("ServerDemo", "port", &port);
-    ret |= cfg.GetStringValue("ServerDemo", "local_ip", &localIP);
+    int ret = cfg.GetIntValue("WSServerDemo", "port", &port);
+    ret |= cfg.GetStringValue("WSServerDemo", "local_ip", &localIP);
 
     if (0 != ret)
     {
