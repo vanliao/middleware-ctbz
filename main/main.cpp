@@ -6,6 +6,7 @@
 #include "oam_cgi_server_demo.h"
 #include "oam_cgi_client_demo.h"
 #include "main_ws_server_demo.h"
+#include "main_ws_client_demo.h"
 #include "rapidjson.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -18,7 +19,8 @@ void signalHandler(int /*signum*/)
 {
 //    OamCgiServerDemo::instance()->stop();
 //    OamCgiClientDemo::instance()->stop();
-    MainWSServerDemo::instance()->stop();
+//    MainWSServerDemo::instance()->stop();
+    MainWSClientDemo::instance()->stop();
     return;
 }
 
@@ -157,14 +159,26 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-    if (MainWSServerDemo::instance()->readConfig(cfg))
+//    if (MainWSServerDemo::instance()->readConfig(cfg))
+//    {
+//        MainWSServerDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "ws server demo read config failed" << std::endl;
+//        log_debug("ws server demo read config failed");
+//        return -1;
+//    }
+
+    sleep(2);
+    if (MainWSClientDemo::instance()->readConfig(cfg))
     {
-        MainWSServerDemo::instance()->start();
+        MainWSClientDemo::instance()->start();
     }
     else
     {
-        std::cout << "ws server demo read config failed" << std::endl;
-        log_debug("ws server demo read config failed");
+        std::cout << "ws client demo read config failed" << std::endl;
+        log_debug("ws client demo read config failed");
         return -1;
     }
     jsonTest();
@@ -203,11 +217,13 @@ int main(int argc, char *argv[])
     sleep(2);
 //    OamCgiServerDemo::instance()->addEvent(msg);
 //    OamCgiClientDemo::instance()->addEvent(msg);
-    MainWSServerDemo::instance()->addEvent(msg);
+//    MainWSServerDemo::instance()->addEvent(msg);
+    MainWSClientDemo::instance()->addEvent(msg);
 
 //    OamCgiServerDemo::instance()->loop();
 //    OamCgiClientDemo::instance()->loop();
-    MainWSServerDemo::instance()->loop();
+//    MainWSServerDemo::instance()->loop();
+    MainWSClientDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

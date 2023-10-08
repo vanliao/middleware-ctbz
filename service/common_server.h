@@ -18,7 +18,7 @@ public:
     virtual ~CommonServer();
     bool open(void);
     bool send(const int connID, const std::string &buf);
-    bool sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode, const bool fin = true);
+    bool sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode);
     void closeDev(const unsigned int connID);
     bool start(CommonServerIF &obj);
     bool addExtenEvent(const int ev);

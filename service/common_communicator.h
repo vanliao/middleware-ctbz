@@ -26,6 +26,7 @@ public:
 
 private:
     bool startTcpSvr(CommonCommunicatorIF &obj);
+    bool startWSSvr(CommonCommunicatorIF &obj);
     bool startUdpSvr(CommonCommunicatorIF &obj);
 
 protected:

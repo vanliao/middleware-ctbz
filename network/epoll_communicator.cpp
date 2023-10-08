@@ -56,9 +56,16 @@ void EpollCommunicator::stop()
 bool EpollCommunicator::connect()
 {
     std::shared_ptr<network::Socket> clt;
-    if (TCP == type)
+    if (TCP == type || WS == type)
     {
-        clt = std::make_shared<network::TcpClient>(ip, port);
+        if (TCP == type)
+        {
+            clt = std::make_shared<network::TcpClient>(ip, port);
+        }
+        else
+        {
+            clt = std::make_shared<network::WebsocketClient>(ip, port);
+        }
         auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<network::Socket> >
                                  (api::getClientID(), clt));
         if (it.second)
@@ -141,12 +148,44 @@ bool EpollCommunicator::connect()
     return true;
 }
 
+bool EpollCommunicator::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode)
+{
+    if (WS == type)
+    {
+        network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
+        if (NULL != clt)
+        {
+            clt->sendPrepare(buf, wsOpCode);
+            struct epoll_event epEvt;
+            epEvt.data.fd = connID;
+            epEvt.events = EPOLLOUT|EPOLLIN;
+            int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+            if (0 != rc)
+            {
+                log_error("mod event faild:" << strerror(errno));
+            }
+        }
+        else
+        {
+            log_error("invalid ptr");
+            return false;
+        }
+    }
+    else
+    {
+        log_error("only send websocket msg");
+        return false;
+    }
+
+    return true;
+}
+
 network::TcpClient *EpollCommunicator::getTcpClient(const int connID)
 {
     auto it = clients.find(connID);
     if (clients.end() != it)
     {
-        if (TCP == type)
+        if (TCP == type || WS == type)
         {
             return dynamic_cast<network::TcpClient*>(it->second.get());
         }
@@ -183,6 +222,30 @@ void EpollCommunicator::disconnect(const int connID)
                 clients.erase(it);
                 log_debug("remove connection:" << connID);
             }
+        }
+    }
+    else if (WS == type)
+    {
+        network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
+        if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus ||
+            network::WebSocket::CLOSE_FORCE == clt->closeStatus)
+        {
+            epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+            auto it = clients.find(connID);
+            if (clients.end() != it)
+            {
+                clients.erase(it);
+                log_debug("remove connection:" << connID);
+            }
+        }
+        else
+        {
+            /* 发送 ws close 消息 */
+            unsigned short closeCode = htobe16(1000);
+            std::string buf = "";
+            buf.append((char *)(&closeCode), sizeof(closeCode));
+            sendWS(connID, buf, network::WebSocket::CLOSE);
+            clt->closeSend();
         }
     }
     else

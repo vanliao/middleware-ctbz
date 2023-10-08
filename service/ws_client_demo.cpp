@@ -1,22 +1,22 @@
+#include "ws_client_demo.h"
 #include <unistd.h>
-#include "ws_server_demo.h"
 #include "ws_dev_demo.h"
 #include "tinylog.h"
 
 namespace service {
 
-WSServerDemo::WSServerDemo(const std::string &serverIP, const int serverPort) :
-    Server(serverIP, serverPort, network::EpollServer::WS)
+WSClientDemo::WSClientDemo(const std::string &serverIP, const int serverPort) :
+    Communicator(serverIP, serverPort, network::EpollCommunicator::WS)
 {
     return;
 }
 
-WSServerDemo::~WSServerDemo()
+WSClientDemo::~WSClientDemo()
 {
     return;
 }
 
-void WSServerDemo::connectNotify(unsigned int connID)
+void WSClientDemo::connectNotify(unsigned int connID)
 {
     log_info("connectNotify:" << connID);
     dev::EndPoint *ep = model.getDev(connID);
@@ -29,7 +29,7 @@ void WSServerDemo::connectNotify(unsigned int connID)
     return;
 }
 
-void WSServerDemo::recvNotify(unsigned int connID, std::string &buf)
+void WSClientDemo::recvNotify(unsigned int connID, std::string &buf)
 {
     log_info("recvNotify:" << connID << "[" << buf.length() << "]" << buf);
     dev::EndPoint *ep = model.getDev(connID);
@@ -39,7 +39,7 @@ void WSServerDemo::recvNotify(unsigned int connID, std::string &buf)
         return;
     }
 
-    model.sendWS(connID, "", network::WebSocket::PING);
+//    model.sendWS(connID, "", network::WebSocket::PING);
 //    model.closeDev(connID);
 
     dev::WSDevDemo *dev = dynamic_cast<dev::WSDevDemo *>(ep->dev.get());
@@ -68,33 +68,37 @@ void WSServerDemo::recvNotify(unsigned int connID, std::string &buf)
     return;
 }
 
-void WSServerDemo::closeNotify(unsigned int connID)
+void WSClientDemo::closeNotify(unsigned int connID)
 {
     log_info("closeNotify:" << connID);
     return;
 }
 
-void WSServerDemo::eventtNotify(const int event)
+void WSClientDemo::eventtNotify(const int event)
 {
     if (event == notifyEvt)
     {
         procEvent();
     }
+    else if (event == hbTimer)
+    {
+        procHbTimer();
+    }
     else
     {
-        log_error("ivnalid evnet fd");
+        log_error("ivnalid event fd " << event);
     }
 
     return;
 }
 
-void WSServerDemo::initExternEvent()
+void WSClientDemo::initExternEvent()
 {
-    Server::initExternEvent();
+    Communicator::initExternEvent();
     return;
 }
 
-void WSServerDemo::procEvent()
+void WSClientDemo::procEvent()
 {
     uint64_t buf;
     read(notifyEvt, &buf, sizeof(uint64_t));
@@ -135,12 +139,13 @@ void WSServerDemo::procEvent()
                 log_fatal("invalid ptr");
             }
         }
+
     }
 
     return;
 }
 
-void WSServerDemo::procDevResult(dev::Dev::ProcResult pr,
+void WSClientDemo::procDevResult(dev::Dev::ProcResult pr,
                                  dev::EndPoint *ep,
                                  std::shared_ptr<msg::Msg> &reqMsg,
                                  std::shared_ptr<msg::Msg> &rspMsg)

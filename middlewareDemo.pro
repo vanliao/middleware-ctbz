@@ -20,6 +20,7 @@ SOURCES += \
     log/tinylog.cpp \
     log/tlog.c \
     main/main.cpp \
+    main/main_ws_client_demo.cpp \
     main/main_ws_server_demo.cpp \
     main/oam_cgi_client_demo.cpp \
     main/oam_cgi_server_demo.cpp \
@@ -42,6 +43,7 @@ SOURCES += \
     service/common_server.cpp \
     service/server_demo.cpp \
     lib/xml/tinyxml2.cpp \
+    service/ws_client_demo.cpp \
     service/ws_server_demo.cpp
 
 # Default rules for deployment.
@@ -171,6 +173,7 @@ HEADERS += \
     lib/sqlite3/sqlite3ext.h \
     log/tinylog.h \
     log/tlog.h \
+    main/main_ws_client_demo.h \
     main/main_ws_server_demo.h \
     main/oam_cgi_client_demo.h \
     main/oam_cgi_server_demo.h \
@@ -230,4 +233,5 @@ HEADERS += \
     service/common_server.h \
     service/server_demo.h \
     lib/xml/tinyxml2.h \
+    service/ws_client_demo.h \
     service/ws_server_demo.h

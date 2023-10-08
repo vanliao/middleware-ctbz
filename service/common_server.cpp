@@ -72,7 +72,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
             network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
             if (NULL != clt)
             {
-                clt->sendPrepare(buf, network::WebSocket::BINARY, true);
+                clt->sendPrepare(buf, network::WebSocket::BINARY);
                 struct epoll_event epEvt;
                 epEvt.data.fd = connID;
                 epEvt.events = EPOLLOUT|EPOLLIN;
@@ -128,7 +128,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
     return true;
 }
 
-bool service::CommonServer::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode, const bool fin)
+bool service::CommonServer::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode)
 {
     if (WS == svrType)
     {
@@ -138,7 +138,7 @@ bool service::CommonServer::sendWS(const int connID, const std::string &buf, con
             network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
             if (NULL != clt)
             {
-                clt->sendPrepare(buf, wsOpCode, true);
+                clt->sendPrepare(buf, wsOpCode);
                 struct epoll_event epEvt;
                 epEvt.data.fd = connID;
                 epEvt.events = EPOLLOUT|EPOLLIN;

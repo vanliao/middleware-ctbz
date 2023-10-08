@@ -22,12 +22,12 @@ bool MainWSServerDemo::start()
     bool ret = svr->start();
     if (!ret)
     {
-        log_error("start server demo failed");
+        log_error("start ws server demo failed");
         svr->stop();
         return false;
     }
 
-    log_info("start server demo succ");
+    log_info("start ws server demo succ");
 
     return true;
 }
@@ -43,7 +43,7 @@ void MainWSServerDemo::loop()
 {
     svr->loop();
 
-    log_notice("server demo exit");
+    log_notice("ws server demo exit");
     return;
 }
 
@@ -54,7 +54,7 @@ bool MainWSServerDemo::readConfig(inifile::IniFileHelper &cfg)
 
     if (0 != ret)
     {
-        log_error("read server demo config failed");
+        log_error("read ws server demo config failed");
         return false;
     }
 
@@ -62,7 +62,7 @@ bool MainWSServerDemo::readConfig(inifile::IniFileHelper &cfg)
 
     if (NULL == svr)
     {
-        log_error("create server demo failed");
+        log_error("create ws server demo failed");
         return false;
     }
 

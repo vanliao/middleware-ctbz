@@ -5,14 +5,18 @@ namespace network {
 
 WebsocketClient::WebsocketClient(const std::string serverIP, const int serverPort) :
     TcpClient(serverIP, serverPort), isWSUpdated(false),
-    closeStatus(WebSocket::CLOSE_NONE), recvBuf(""), wsOpCode(0)
+    closeStatus(WebSocket::CLOSE_NONE), recvBuf(""), wsOpCode(0),
+    uri("/"), host("WS-CLIENT"), origin(""), protocol(""),
+    extensions("")
 {
     return;
 }
 
 WebsocketClient::WebsocketClient(const int clientFd) :
     TcpClient(clientFd), isWSUpdated(false),
-    closeStatus(WebSocket::CLOSE_NONE), recvBuf(""), wsOpCode(0)
+    closeStatus(WebSocket::CLOSE_NONE), recvBuf(""), wsOpCode(0),
+    uri("/"), host("WS-CLIENT"), origin(""), protocol(""),
+    extensions("")
 {
     return;
 }
@@ -22,9 +26,33 @@ WebsocketClient::~WebsocketClient()
     return;
 }
 
+bool WebsocketClient::connectWS()
+{
+    std::string wsConnReq;
+    wsConnReq += "GET " + uri + " HTTP/1.1\r\nHost: " + host + "\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: ";
+    wsConnReq += "dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n";
+    if (!origin.empty())
+    {
+        wsConnReq += "Origin: " + origin + "\r\n";
+    }
+
+    if (!protocol.empty())
+    {
+        wsConnReq += "Sec-WebSocket-Protocol: " + protocol + "\r\n";
+    }
+
+    if (!extensions.empty())
+    {
+        wsConnReq += "Sec-WebSocket-Extensions: " + extensions + "\r\n";
+    }
+    wsConnReq += "\r\n";
+    log_debug("send http update ws success");
+    return TcpClient::send(wsConnReq);
+}
+
 bool WebsocketClient::recv(std::string &buf)
 {
-    std::string tcpBuf;
+    std::string tcpBuf = "";
     bool ret = TcpClient::recv(tcpBuf);
     if (!ret)
     {
@@ -48,14 +76,34 @@ bool WebsocketClient::recv(std::string &buf)
     }
     else
     {
-        handleHttpRequest(tcpBuf);
-        ret = false;
+        if (isPeer)
+        {
+            handleHttpRequest(tcpBuf);
+            ret = false;
+        }
+        else
+        {
+           handleHttpReply(tcpBuf);
+           if (isWSUpdated && !tcpBuf.empty())
+           {
+               ret = handleWSMsg(tcpBuf);
+               if (ret)
+               {
+                   buf = recvBuf;
+                   recvBuf = "";
+               }
+           }
+           else
+           {
+               ret = false;
+           }
+        }
     }
 
     return ret;
 }
 
-bool WebsocketClient::sendPrepare(const std::string &buf, const uint8_t opcode, const bool fin)
+bool WebsocketClient::sendPrepare(const std::string &buf, const uint8_t opcode)
 {
     uint8_t op = opcode;
     std::string::size_type totalLen = buf.length();
@@ -79,7 +127,7 @@ bool WebsocketClient::sendPrepare(const std::string &buf, const uint8_t opcode, 
     }
     else
     {
-        std::string header = creatWSHeader(buf.length(), opcode, fin);
+        std::string header = creatWSHeader(buf.length(), opcode, true);
         std::string wsMsg = header;
         wsMsg.append(buf.c_str(), buf.length());
         sendBuf.push_back(wsMsg);
@@ -133,7 +181,7 @@ std::string WebsocketClient::creatWSHeader(const uint64_t payloadLen, const uint
     uint8_t header[14] = {0};
     uint32_t headerLen = 2;
     header[0] = (opcode & 15) | ((uint8_t)fin << 7);
-//    header[1] = (uint8_t)SendMask << 7;
+    header[1] = (uint8_t)(!isPeer) << 7;
     if (payloadLen < 126)
     {
         header[1] |= (uint8_t)payloadLen;
@@ -151,12 +199,15 @@ std::string WebsocketClient::creatWSHeader(const uint64_t payloadLen, const uint
         headerLen += 8;
     }
 
-//    if (SendMask)
-//    {
-//        // for efficency and simplicity masking-key is always set to 0
-//        *(uint32_t*)(header + headerLen) = 0;
-//        headerLen += 4;
-//    }
+    if (!isPeer)
+    {
+        /*
+         * 对于主动发起连接的客户端必须设置 MASK
+         * MASK 目前设置成 0
+         */
+        *(uint32_t*)(header + headerLen) = 0;
+        headerLen += 4;
+    }
 
 //    log_debug("head len:" << headerLen << " " << (uint)header[0] << " " << (uint)header[1] << " " << wsMsg.length());
 
@@ -231,7 +282,7 @@ uint32_t WebsocketClient::sha1base64(uint8_t* in, uint64_t in_len, char* out)
     return 28;
 }
 
-uint32_t WebsocketClient::handleHttpRequest(std::string &wsMsg)
+bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
 {
     uint32_t size = wsMsg.length();
     const char *data = wsMsg.data();
@@ -243,7 +294,9 @@ uint32_t WebsocketClient::handleHttpRequest(std::string &wsMsg)
     char wskey[ValueBufSize] = {0};
     char wsprotocol[ValueBufSize] = {0};
     char wsextensions[ValueBufSize] = {0};
-    bool upgrade_checked = false, connection_checked = false, wsversion_checked = false;
+    bool upgrade_checked = false;
+    bool connection_checked = false;
+    bool wsversion_checked = false;
 
     while (true)
     {
@@ -346,6 +399,84 @@ uint32_t WebsocketClient::handleHttpRequest(std::string &wsMsg)
 
     std::string resp400 = "HTTP/1.1 400 Bad Request\r\nSec-WebSocket-Version: 13\r\n\r\n";
     TcpClient::send(resp400);
+    closeStatus = WebSocket::CLOSE_COMPLETE;
+    log_error("ws connect failed");
+
+    return false;
+}
+
+bool WebsocketClient::handleHttpReply(std::string &wsMsg)
+{
+    std::string::size_type pos = wsMsg.find("\r\n\r\n");
+    if (std::string::npos == pos)
+    {
+        closeStatus = WebSocket::CLOSE_COMPLETE;
+        return false;
+    }
+
+    uint32_t size = pos;
+    const char *data = wsMsg.data();
+    const char* data_end = data + size;
+    bool status_code_checked = false;
+    bool upgrade_checked = false;
+    bool connection_checked = false;
+    bool accept_checked = false;
+
+    while (true)
+    {
+        const char* ln = (char*)memchr(data, '\n', data_end - data);
+        if (!ln)
+        {
+            isWSUpdated = true;
+            wsMsg.erase(0, size + 4);
+            return true;
+        }
+        if (*--ln != '\r') break;
+        if (!status_code_checked) { // first line
+            if (memcmp(data, "HTTP/", 5)) break;
+            const char* status_code = (char*)memchr(data, ' ', ln - data);
+            if (!status_code) break;
+            while (*status_code == ' ') status_code++;
+            if (memcmp(status_code, "101 ", 4)) break;
+            status_code_checked = true;
+        }
+        else
+        {
+            const char* val_end = ln;
+            while (val_end[-1] == ' ') val_end--;
+            if (val_end == data)
+            {
+                if (!upgrade_checked || !connection_checked || !accept_checked) break;
+                isWSUpdated = true;
+                wsMsg.erase(0, size + 4);
+                return true;
+            }
+            const char* colon = (char*)memchr(data, ':', ln - data);
+            if (!colon) break;
+            const char* val = colon + 1;
+            while (*val == ' ') val++;
+            uint32_t key_len = colon - data;
+            uint32_t val_len = val_end - val;
+            if (key_len == 7 && !memcmp(data, "Upgrade", 7))
+            {
+                if (memcmp(val, "websocket", 9)) break;
+                upgrade_checked = true;
+            }
+            else if (key_len == 10 && !memcmp(data, "Connection", 10))
+            {
+                if (!memcmp(val, "Upgrade", 7)) connection_checked = true;
+            }
+            else if (key_len == 20 && !memcmp(data, "Sec-WebSocket-Accept", 20))
+            {
+                if (val_len != 28 || memcmp(val, "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=", 28)) break;
+                accept_checked = true;
+            }
+//            else if (key_len == 20 && !memcmp(data, "Sec-WebSocket-Protocol", 22)) {}
+//            else if (key_len == 20 && !memcmp(data, "Sec-WebSocket-Extensions", 24)) {}
+        }
+        data = ln + 2; // skip \r\n
+    }
+
     closeStatus = WebSocket::CLOSE_COMPLETE;
     log_error("ws connect failed");
 
