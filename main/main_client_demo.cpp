@@ -1,23 +1,23 @@
 #include "tinylog.h"
-#include "oam_cgi_client_demo.h"
+#include "main_client_demo.h"
 
-OamCgiClientDemo::OamCgiClientDemo()
+MainClientDemo::MainClientDemo()
 {
 
 }
 
-OamCgiClientDemo::~OamCgiClientDemo()
+MainClientDemo::~MainClientDemo()
 {
 
 }
 
-OamCgiClientDemo *OamCgiClientDemo::instance()
+MainClientDemo *MainClientDemo::instance()
 {
-    static OamCgiClientDemo inst;
+    static MainClientDemo inst;
     return &inst;
 }
 
-bool OamCgiClientDemo::start()
+bool MainClientDemo::start()
 {
     bool ret = svr->start();
     if (!ret)
@@ -33,14 +33,14 @@ bool OamCgiClientDemo::start()
     return true;
 }
 
-void OamCgiClientDemo::stop()
+void MainClientDemo::stop()
 {
     log_info("stop client demo");
     svr->stop();
     return;
 }
 
-void OamCgiClientDemo::loop()
+void MainClientDemo::loop()
 {
     svr->loop();
 
@@ -48,7 +48,7 @@ void OamCgiClientDemo::loop()
     return;
 }
 
-bool OamCgiClientDemo::readConfig(inifile::IniFileHelper &cfg)
+bool MainClientDemo::readConfig(inifile::IniFileHelper &cfg)
 {
     int ret = cfg.GetIntValue("ClientDemo", "port", &port);
     ret |= cfg.GetStringValue("ClientDemo", "server_ip", &localIP);
@@ -69,7 +69,7 @@ bool OamCgiClientDemo::readConfig(inifile::IniFileHelper &cfg)
     return true;
 }
 
-void OamCgiClientDemo::addEvent(std::shared_ptr<msg::Msg> &msg)
+void MainClientDemo::addEvent(std::shared_ptr<msg::Msg> &msg)
 {
     svr->addEvent(msg);
     return;

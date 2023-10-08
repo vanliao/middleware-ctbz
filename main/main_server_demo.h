@@ -1,15 +1,15 @@
-#ifndef OAMCGINR_H
-#define OAMCGINR_H
+#ifndef MAINSERVERDEMO_H
+#define MAINSERVERDEMO_H
 
 #include "inifile.h"
 #include "server_demo.h"
 
-class OamCgiServerDemo
+class MainServerDemo
 {
 public:
-    OamCgiServerDemo();
-    virtual ~OamCgiServerDemo();
-    static OamCgiServerDemo *instance(void);
+    MainServerDemo();
+    virtual ~MainServerDemo();
+    static MainServerDemo *instance(void);
     virtual bool start(void);
     virtual void stop(void);
     virtual void loop(void);
@@ -22,4 +22,4 @@ private:
     std::string localIP;
 };
 
-#endif // OAMCGINR_H
+#endif // MAINSERVERDEMO_H

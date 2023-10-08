@@ -3,8 +3,8 @@
 #include <csignal>
 #include "server_demo_msg.h"
 #include "tinylog.h"
-#include "oam_cgi_server_demo.h"
-#include "oam_cgi_client_demo.h"
+#include "main_server_demo.h"
+#include "main_client_demo.h"
 #include "main_ws_server_demo.h"
 #include "main_ws_client_demo.h"
 #include "rapidjson.h"

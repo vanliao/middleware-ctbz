@@ -1,15 +1,15 @@
-#ifndef OAMCGICLIENTDEMO_H
-#define OAMCGICLIENTDEMO_H
+#ifndef MAINCLIENTDEMO_H
+#define MAINCLIENTDEMO_H
 
 #include "inifile.h"
 #include "client_demo.h"
 
-class OamCgiClientDemo
+class MainClientDemo
 {
 public:
-    OamCgiClientDemo();
-    virtual ~OamCgiClientDemo();
-    static OamCgiClientDemo *instance(void);
+    MainClientDemo();
+    virtual ~MainClientDemo();
+    static MainClientDemo *instance(void);
     virtual bool start(void);
     virtual void stop(void);
     virtual void loop(void);
@@ -22,4 +22,4 @@ private:
     std::string localIP;
 };
 
-#endif // OAMCGICLIENTDEMO_H
+#endif // MAINCLIENTDEMO_H

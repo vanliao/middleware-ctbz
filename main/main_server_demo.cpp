@@ -1,23 +1,23 @@
 #include "tinylog.h"
-#include "oam_cgi_server_demo.h"
+#include "main_server_demo.h"
 
-OamCgiServerDemo::OamCgiServerDemo()
+MainServerDemo::MainServerDemo()
 {
 
 }
 
-OamCgiServerDemo::~OamCgiServerDemo()
+MainServerDemo::~MainServerDemo()
 {
 
 }
 
-OamCgiServerDemo *OamCgiServerDemo::instance()
+MainServerDemo *MainServerDemo::instance()
 {
-    static OamCgiServerDemo inst;
+    static MainServerDemo inst;
     return &inst;
 }
 
-bool OamCgiServerDemo::start()
+bool MainServerDemo::start()
 {
     bool ret = svr->start();
     if (!ret)
@@ -32,14 +32,14 @@ bool OamCgiServerDemo::start()
     return true;
 }
 
-void OamCgiServerDemo::stop()
+void MainServerDemo::stop()
 {
     log_info("stop server demo");
     svr->stop();
     return;
 }
 
-void OamCgiServerDemo::loop()
+void MainServerDemo::loop()
 {
     svr->loop();
 
@@ -47,7 +47,7 @@ void OamCgiServerDemo::loop()
     return;
 }
 
-bool OamCgiServerDemo::readConfig(inifile::IniFileHelper &cfg)
+bool MainServerDemo::readConfig(inifile::IniFileHelper &cfg)
 {
     int ret = cfg.GetIntValue("ServerDemo", "port", &port);
     ret |= cfg.GetStringValue("ServerDemo", "local_ip", &localIP);
@@ -69,7 +69,7 @@ bool OamCgiServerDemo::readConfig(inifile::IniFileHelper &cfg)
     return true;
 }
 
-void OamCgiServerDemo::addEvent(std::shared_ptr<msg::Msg> &msg)
+void MainServerDemo::addEvent(std::shared_ptr<msg::Msg> &msg)
 {
     svr->addEvent(msg);
     return;

@@ -20,10 +20,10 @@ SOURCES += \
     log/tinylog.cpp \
     log/tlog.c \
     main/main.cpp \
+    main/main_client_demo.cpp \
+    main/main_server_demo.cpp \
     main/main_ws_client_demo.cpp \
     main/main_ws_server_demo.cpp \
-    main/oam_cgi_client_demo.cpp \
-    main/oam_cgi_server_demo.cpp \
     msg/msg.cpp \
     msg/server_demo_msg.cpp \
     network/epoll_communicator.cpp \
@@ -173,10 +173,10 @@ HEADERS += \
     lib/sqlite3/sqlite3ext.h \
     log/tinylog.h \
     log/tlog.h \
+    main/main_client_demo.h \
+    main/main_server_demo.h \
     main/main_ws_client_demo.h \
     main/main_ws_server_demo.h \
-    main/oam_cgi_client_demo.h \
-    main/oam_cgi_server_demo.h \
     msg/msg.h \
     msg/server_demo_msg.h \
     network/epoll_communicator.h \
