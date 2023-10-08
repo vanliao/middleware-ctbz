@@ -470,22 +470,16 @@ uint64_t get_current_timestamp()
 
 unsigned int getClientID()
 {
-    static unsigned int zero = 0;
-    static unsigned int init = 100001;
-    static std::atomic<unsigned int> clientID(init);    //多线程访问需要原子操作
-
-    unsigned int value1;
-    unsigned int value2;
-
-    do
+    static std::atomic<unsigned int> clientID(100001);
+    unsigned int id = clientID.fetch_add(1);
+    if (100000 > id)	/* 翻转 */
     {
-        value1 = clientID.load();
-        clientID.fetch_add(1);
-        clientID.compare_exchange_strong(zero, init);   //翻转
-        value2 = clientID.load();
-    }while ((value1 + 1) != value2);
+        unsigned int id1 = id + 1;
+        clientID.compare_exchange_strong(id1, 100001);
+        id = clientID.fetch_add(1);
+    }
 
-    return value1;
+    return id;
 }
 
 static void hex_print(const void* pv, size_t len)
