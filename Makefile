@@ -1,9 +1,9 @@
 CC := g++
-CFLAGS := -std=c++11 -g -I log/ -I msg/ -I network/ -I service/ -I lib/xml/ -I lib/inifile/ -I lib/rapidjson/ -I db/ -I dev/ -I main/ -I public/ -I lib/fcgi -I lib/sqlite3 -I lib
+CFLAGS := -std=c++11 -g -I log/ -I msg/ -I network/ -I service/ -I db/ -I dev/ -I main/ -I public/ -I thirdparty/xml/ -I thirdparty/inifile/ -I thirdparty/rapidjson/  -I thirdparty/fcgi -I thirdparty/sqlite3 -I thirdparty
 
 ifeq ($(platform), arm)
 CC := aarch64-linux-gnu-g++
-CFLAGS := -std=c++11 -DARM -g -Wno-psabi -I log/ -I msg/ -I network/ -I service/ -I lib/xml/ -I lib/inifile/ -I lib/rapidjson/ -I db/ -I dev/ -I main/ -I public/ -I lib/fcgi -I lib/sqlite3 -I lib
+CFLAGS := -std=c++11 -DARM -g -Wno-psabi -I log/ -I msg/ -I network/ -I service/ -I db/ -I dev/ -I main/ -I public/ -I thirdparty/xml/ -I thirdparty/inifile/ -I thirdparty/rapidjson/ -I thirdparty/fcgi -I thirdparty/sqlite3 -I thirdparty
 endif
 
 # define source path
@@ -15,17 +15,17 @@ OUTPUT_OBJ_DIR := ${OUTPUT_DIR}/obj
 
 SOURCE := $(wildcard ./main/*.cpp) \
 		$(wildcard ./dev/*.cpp) \
-		$(wildcard ./lib/inifile/*.cpp) \
+		$(wildcard ./thirdparty/inifile/*.cpp) \
 		$(wildcard ./log/*.c) \
 		$(wildcard ./log/*.cpp) \
 		$(wildcard ./msg/*.cpp) \
 		$(wildcard ./network/*.cpp) \
 		$(wildcard ./service/*.cpp) \
-		$(wildcard ./lib/xml/*.cpp) \
+		$(wildcard ./thirdparty/xml/*.cpp) \
 		$(wildcard ./public/*.cpp) \
 		$(wildcard ./db/*.cpp)
 
-DYNAMIC_LIBS = -L ./lib -L ./lib/pc -lpthread -lfcgi -lsqlite3 -lssl -lcrypto -ldl
+DYNAMIC_LIBS = -L ./lib/arm -L ./lib/ubuntu -lpthread -lfcgi -lsqlite3 -lssl -lcrypto -ldl
 
 C_OBJS := $(filter %.c, $(SOURCE))
 CPP_OBJS := $(filter %.cpp, $(SOURCE))
@@ -103,11 +103,11 @@ ${OUTPUT_OBJ_DIR}/%.o : ./db/%.cpp
 	@mkdir -p ${OUTPUT_OBJ_DIR}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
 
-${OUTPUT_OBJ_DIR}/%.o : ./lib/xml/%.cpp
+${OUTPUT_OBJ_DIR}/%.o : ./thirdparty/xml/%.cpp
 	@mkdir -p ${OUTPUT_OBJ_DIR}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
 
-${OUTPUT_OBJ_DIR}/%.o : ./lib/inifile/%.cpp
+${OUTPUT_OBJ_DIR}/%.o : ./thirdparty/inifile/%.cpp
 	@mkdir -p ${OUTPUT_OBJ_DIR}
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@	
 

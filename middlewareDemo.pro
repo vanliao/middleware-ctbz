@@ -6,8 +6,8 @@ CONFIG -= app_bundle
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-INCLUDEPATH += dev  log msg network  main service public db \
-               lib lib/inifile lib/xml lib/rapidjson d:/project/include/
+INCLUDEPATH += dev log msg network main service public db \
+               thirdparty/inifile thirdparty/xml thirdparty/rapidjson d:/project/include/
 
 SOURCES += \
     db/cgi_db.cpp \
@@ -16,7 +16,7 @@ SOURCES += \
     dev/lte_dev_demo.cpp \
     dev/nr_dev_demo.cpp \
     dev/ws_dev_demo.cpp \
-    lib/inifile/inifile.cpp \
+    thirdparty/inifile/inifile.cpp \
     log/tinylog.cpp \
     log/tlog.c \
     main/main.cpp \
@@ -46,7 +46,7 @@ SOURCES += \
     service/common_communicator.cpp \
     service/common_server.cpp \
     service/server_demo.cpp \
-    lib/xml/tinyxml2.cpp \
+    thirdparty/xml/tinyxml2.cpp \
     service/ssl_server_demo.cpp \
     service/ws_client_demo.cpp \
     service/ws_server_demo.cpp
@@ -91,7 +91,7 @@ HEADERS += \
     dev/lte_dev_demo.h \
     dev/nr_dev_demo.h \
     dev/ws_dev_demo.h \
-    lib/inifile/inifile.h \
+    thirdparty/inifile/inifile.h \
     lib/fcgi/fastcgi.h \
     lib/fcgi/fcgi_config.h \
     lib/fcgi/fcgi_stdio.h \
@@ -201,47 +201,47 @@ HEADERS += \
     network/websocket_client.h \
     network/websocket_server.h \
     public/api.h \
-    lib/rapidjson/allocators.h \
-    lib/rapidjson/cursorstreamwrapper.h \
-    lib/rapidjson/document.h \
-    lib/rapidjson/encodedstream.h \
-    lib/rapidjson/encodings.h \
-    lib/rapidjson/error/en.h \
-    lib/rapidjson/error/error.h \
-    lib/rapidjson/filereadstream.h \
-    lib/rapidjson/filewritestream.h \
-    lib/rapidjson/fwd.h \
-    lib/rapidjson/internal/biginteger.h \
-    lib/rapidjson/internal/diyfp.h \
-    lib/rapidjson/internal/dtoa.h \
-    lib/rapidjson/internal/ieee754.h \
-    lib/rapidjson/internal/itoa.h \
-    lib/rapidjson/internal/meta.h \
-    lib/rapidjson/internal/pow10.h \
-    lib/rapidjson/internal/regex.h \
-    lib/rapidjson/internal/stack.h \
-    lib/rapidjson/internal/strfunc.h \
-    lib/rapidjson/internal/strtod.h \
-    lib/rapidjson/internal/swap.h \
-    lib/rapidjson/istreamwrapper.h \
-    lib/rapidjson/memorybuffer.h \
-    lib/rapidjson/memorystream.h \
-    lib/rapidjson/msinttypes/inttypes.h \
-    lib/rapidjson/msinttypes/stdint.h \
-    lib/rapidjson/ostreamwrapper.h \
-    lib/rapidjson/pointer.h \
-    lib/rapidjson/prettywriter.h \
-    lib/rapidjson/rapidjson.h \
-    lib/rapidjson/reader.h \
-    lib/rapidjson/schema.h \
-    lib/rapidjson/stream.h \
-    lib/rapidjson/stringbuffer.h \
-    lib/rapidjson/writer.h \
+    thirdparty/rapidjson/allocators.h \
+    thirdparty/rapidjson/cursorstreamwrapper.h \
+    thirdparty/rapidjson/document.h \
+    thirdparty/rapidjson/encodedstream.h \
+    thirdparty/rapidjson/encodings.h \
+    thirdparty/rapidjson/error/en.h \
+    thirdparty/rapidjson/error/error.h \
+    thirdparty/rapidjson/filereadstream.h \
+    thirdparty/rapidjson/filewritestream.h \
+    thirdparty/rapidjson/fwd.h \
+    thirdparty/rapidjson/internal/biginteger.h \
+    thirdparty/rapidjson/internal/diyfp.h \
+    thirdparty/rapidjson/internal/dtoa.h \
+    thirdparty/rapidjson/internal/ieee754.h \
+    thirdparty/rapidjson/internal/itoa.h \
+    thirdparty/rapidjson/internal/meta.h \
+    thirdparty/rapidjson/internal/pow10.h \
+    thirdparty/rapidjson/internal/regex.h \
+    thirdparty/rapidjson/internal/stack.h \
+    thirdparty/rapidjson/internal/strfunc.h \
+    thirdparty/rapidjson/internal/strtod.h \
+    thirdparty/rapidjson/internal/swap.h \
+    thirdparty/rapidjson/istreamwrapper.h \
+    thirdparty/rapidjson/memorybuffer.h \
+    thirdparty/rapidjson/memorystream.h \
+    thirdparty/rapidjson/msinttypes/inttypes.h \
+    thirdparty/rapidjson/msinttypes/stdint.h \
+    thirdparty/rapidjson/ostreamwrapper.h \
+    thirdparty/rapidjson/pointer.h \
+    thirdparty/rapidjson/prettywriter.h \
+    thirdparty/rapidjson/rapidjson.h \
+    thirdparty/rapidjson/reader.h \
+    thirdparty/rapidjson/schema.h \
+    thirdparty/rapidjson/stream.h \
+    thirdparty/rapidjson/stringbuffer.h \
+    thirdparty/rapidjson/writer.h \
     service/client_demo.h \
     service/common_communicator.h \
     service/common_server.h \
     service/server_demo.h \
-    lib/xml/tinyxml2.h \
+    thirdparty/xml/tinyxml2.h \
     service/ssl_server_demo.h \
     service/ws_client_demo.h \
     service/ws_server_demo.h
