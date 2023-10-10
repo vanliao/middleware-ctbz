@@ -73,14 +73,25 @@ bool TcpSocket::accept(int &newSock, std::string &ipAddr, int &port)
 {
     socklen_t len = sizeof(struct sockaddr);
     struct sockaddr_in peerAddr;
-    int ret = ::accept(fd, (struct sockaddr *)&peerAddr, &len);
-    if (-1 == ret)
+
+    while (1)
     {
-        log_error("accpet socket failed:" << strerror(errno));
-        return false;
+        int ret = ::accept(fd, (struct sockaddr *)&peerAddr, &len);
+        if (-1 == ret)
+        {
+            if(EINTR == errno)
+            {
+                log_debug("tcp accept Interrupted");
+                continue;
+            }
+
+            log_error("accpet socket failed:" << strerror(errno));
+            return false;
+        }
+        newSock = ret;
+        log_debug("create fd " << newSock);
+        break;
     }
-    newSock = ret;
-    log_debug("create fd " << newSock);
 
     char buff[64];
     ::inet_ntop(AF_INET,(const void *)&peerAddr.sin_addr,buff, sizeof(buff));
@@ -103,6 +114,12 @@ bool TcpSocket::recv(std::string &buf)
                 log_debug("tcp socket recv eagain");
                 break;
             }
+            else if(EINTR == errno)
+            {
+                log_debug("tcp recv Interrupted");
+                continue;
+            }
+
             log_error("recv failed:" << strerror(errno))
             return false;
         }
@@ -124,11 +141,27 @@ bool TcpSocket::recv(std::string &buf)
 bool TcpSocket::send(std::string &buf)
 {
     std::string::size_type len = buf.length();
-    int ret = ::send(fd, buf.c_str(), len, 0);
-    if (0 > ret)
+    int ret = 0;
+    while (1)
     {
-        log_error("send failed:" << strerror(errno))
-        return false;
+        ret = ::send(fd, buf.c_str(), len, 0);
+        if (0 > ret)
+        {
+            if(EINTR == errno)
+            {
+                log_debug("tcp send Interrupted");
+                continue;
+            }
+            else
+            {
+                log_error("send failed:" << strerror(errno))
+                return false;
+            }
+        }
+        else
+        {
+            break;
+        }
     }
 
     buf.erase(0, ret);

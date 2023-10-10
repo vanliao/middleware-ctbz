@@ -46,6 +46,10 @@ bool TcpClient::connect()
             status = CONNECTING;
         }
     }
+//    else
+//    {
+//        status = CONNECTED;
+//    }
 
     return ret;
 }

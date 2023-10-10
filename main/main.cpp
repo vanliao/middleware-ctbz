@@ -7,6 +7,7 @@
 #include "main_client_demo.h"
 #include "main_ws_server_demo.h"
 #include "main_ws_client_demo.h"
+#include "main_ssl_server_demo.h"
 #include "rapidjson.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -17,10 +18,11 @@
 
 void signalHandler(int /*signum*/)
 {
-//    OamCgiServerDemo::instance()->stop();
-//    OamCgiClientDemo::instance()->stop();
+    MainServerDemo::instance()->stop();
+//    MainClientDemo::instance()->stop();
 //    MainWSServerDemo::instance()->stop();
-    MainWSClientDemo::instance()->stop();
+//    MainWSClientDemo::instance()->stop();
+//    MainSSLServerDemo::instance()->stop();
     return;
 }
 
@@ -137,20 +139,20 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-//    if (OamCgiServerDemo::instance()->readConfig(cfg))
-//    {
-//        OamCgiServerDemo::instance()->start();
-//    }
-//    else
-//    {
-//        std::cout << "server demo read config failed" << std::endl;
-//        log_debug("server demo read config failed");
-//        return -1;
-//    }
+    if (MainServerDemo::instance()->readConfig(cfg))
+    {
+        MainServerDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "server demo read config failed" << std::endl;
+        log_debug("server demo read config failed");
+        return -1;
+    }
 
-//    if (OamCgiClientDemo::instance()->readConfig(cfg))
+//    if (MainClientDemo::instance()->readConfig(cfg))
 //    {
-//        OamCgiClientDemo::instance()->start();
+//        MainClientDemo::instance()->start();
 //    }
 //    else
 //    {
@@ -170,17 +172,27 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-    sleep(2);
-    if (MainWSClientDemo::instance()->readConfig(cfg))
-    {
-        MainWSClientDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "ws client demo read config failed" << std::endl;
-        log_debug("ws client demo read config failed");
-        return -1;
-    }
+//    if (MainWSClientDemo::instance()->readConfig(cfg))
+//    {
+//        MainWSClientDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "ws client demo read config failed" << std::endl;
+//        log_debug("ws client demo read config failed");
+//        return -1;
+//    }
+
+//    if (MainSSLServerDemo::instance()->readConfig(cfg))
+//    {
+//        MainSSLServerDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "ssl server demo read config failed" << std::endl;
+//        log_debug("ssl server demo read config failed");
+//        return -1;
+//    }
     jsonTest();
 
 //    std::string before = "123<>?:?!@#$%^&*(\"{}4adsfds,./adsa56789";
@@ -215,15 +227,17 @@ int main(int argc, char *argv[])
     ev->cmdType = 2;
     ev->result = 3;
     sleep(2);
-//    OamCgiServerDemo::instance()->addEvent(msg);
-//    OamCgiClientDemo::instance()->addEvent(msg);
+    MainServerDemo::instance()->addEvent(msg);
+//    MainClientDemo::instance()->addEvent(msg);
 //    MainWSServerDemo::instance()->addEvent(msg);
-    MainWSClientDemo::instance()->addEvent(msg);
+//    MainWSClientDemo::instance()->addEvent(msg);
+//    MainSSLServerDemo::instance()->addEvent(msg);
 
-//    OamCgiServerDemo::instance()->loop();
-//    OamCgiClientDemo::instance()->loop();
+    MainServerDemo::instance()->loop();
+//    MainClientDemo::instance()->loop();
 //    MainWSServerDemo::instance()->loop();
-    MainWSClientDemo::instance()->loop();
+//    MainWSClientDemo::instance()->loop();
+//    MainSSLServerDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

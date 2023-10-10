@@ -18,6 +18,7 @@ public:
     {
         NONE,
         CONNECTING,
+        SSLCONNECTING,
         CONNECTED,
     };
     Status status;

@@ -14,10 +14,10 @@ public:
     virtual ~TcpServer(void);
     bool bind(void);
     bool listen(void);
-    bool accept(unsigned int &connID);
+    virtual bool accept(unsigned int &connID);
     void close(const int connID);
     bool recv(std::string &/*buf*/);
-    bool send(const std::string &/*buf*/);
+    bool send(std::string &/*buf*/);
     TcpClient *getClient(const unsigned int connID);
     TcpClient *getClient(void);
 public:

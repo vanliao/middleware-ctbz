@@ -25,7 +25,7 @@ SOURCE := $(wildcard ./main/*.cpp) \
 		$(wildcard ./public/*.cpp) \
 		$(wildcard ./db/*.cpp)
 
-DYNAMIC_LIBS = -L ./lib -lpthread -lfcgi -lsqlite3 -ldl -lssl -lcrypto
+DYNAMIC_LIBS = -L ./lib -L ./lib/pc -lpthread -lfcgi -lsqlite3 -lssl -lcrypto -ldl
 
 C_OBJS := $(filter %.c, $(SOURCE))
 CPP_OBJS := $(filter %.cpp, $(SOURCE))

@@ -17,6 +17,10 @@ EpollServer::EpollServer(const std::string &serverIP, const int serverPort, cons
         sock = std::make_shared<TcpServer>(serverIP, serverPort);
 //        TcpServer *cvt = dynamic_cast<TcpServer*>(sock.get());
     }
+    else if (SSL == type)
+    {
+        sock = std::make_shared<SSLServer>(serverIP, serverPort);
+    }
     else if (WS == type)
     {
         sock = std::make_shared<WebsocketServer>(serverIP, serverPort);
@@ -48,7 +52,7 @@ bool EpollServer::start(EpollServerIF &obj)
     }
 
     bool ret = true;
-    if (TCP == svrType)
+    if (TCP == svrType || SSL == svrType)
     {
         ret = startTcpSvr(obj);
     }
@@ -67,6 +71,22 @@ bool EpollServer::start(EpollServerIF &obj)
 void EpollServer::stop()
 {
     finish = true;
+}
+
+void EpollServer::setSSLPemFile(const std::string &certFile, const std::string &keyFile)
+{
+    if (SSL == svrType)
+    {
+        SSLServer *svr = dynamic_cast<SSLServer *>(sock.get());
+        svr->setCertificateFile(certFile);
+        svr->setPrivateKeyFile(keyFile);
+    }
+    else
+    {
+        log_error("set pem file only for ssl");
+    }
+
+    return;
 }
 
 bool EpollServer::startTcpSvr(EpollServerIF &obj)

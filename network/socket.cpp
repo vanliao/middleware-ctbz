@@ -8,12 +8,12 @@
 
 namespace network {
 
-Socket::Socket(const int sockType): dev::EndPoint(), fd(-1), type(sockType)
+Socket::Socket(const int sockType): dev::EndPoint(), fd(-1), type(sockType), sslHandle(NULL)
 {
     return;
 }
 
-Socket::Socket(const int sockFd, const int sockType):dev::EndPoint(), fd(sockFd), type(sockType)
+Socket::Socket(const int sockFd, const int sockType):dev::EndPoint(), fd(sockFd), type(sockType), sslHandle(NULL)
 {
     return;
 }
@@ -48,6 +48,14 @@ bool Socket::create()
 
 void Socket::destroy()
 {
+    if (sslHandle)
+    {
+        log_debug("close ssl handle");
+        SSL_shutdown(sslHandle);
+        SSL_free(sslHandle);
+        sslHandle = NULL;
+    }
+
     if (0 <= fd)
     {
         log_debug("close fd " << fd);

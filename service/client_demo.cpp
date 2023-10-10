@@ -6,7 +6,7 @@
 namespace service {
 
 ClientDemo::ClientDemo(const std::string &serverIP, const int serverPort):
-    Communicator(serverIP, serverPort, network::EpollCommunicator::UDP)
+    Communicator(serverIP, serverPort, network::EpollCommunicator::TCP)
 {
     return;
 }

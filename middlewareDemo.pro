@@ -22,6 +22,7 @@ SOURCES += \
     main/main.cpp \
     main/main_client_demo.cpp \
     main/main_server_demo.cpp \
+    main/main_ssl_server_demo.cpp \
     main/main_ws_client_demo.cpp \
     main/main_ws_server_demo.cpp \
     msg/msg.cpp \
@@ -29,6 +30,9 @@ SOURCES += \
     network/epoll_communicator.cpp \
     network/epoll_server.cpp \
     network/socket.cpp \
+    network/ssl_client.cpp \
+    network/ssl_common.cpp \
+    network/ssl_server.cpp \
     network/tcp_client.cpp \
     network/tcp_server.cpp \
     network/tcp_socket.cpp \
@@ -43,6 +47,7 @@ SOURCES += \
     service/common_server.cpp \
     service/server_demo.cpp \
     lib/xml/tinyxml2.cpp \
+    service/ssl_server_demo.cpp \
     service/ws_client_demo.cpp \
     service/ws_server_demo.cpp
 
@@ -175,6 +180,7 @@ HEADERS += \
     log/tlog.h \
     main/main_client_demo.h \
     main/main_server_demo.h \
+    main/main_ssl_server_demo.h \
     main/main_ws_client_demo.h \
     main/main_ws_server_demo.h \
     msg/msg.h \
@@ -182,6 +188,9 @@ HEADERS += \
     network/epoll_communicator.h \
     network/epoll_server.h \
     network/socket.h \
+    network/ssl_client.h \
+    network/ssl_common.h \
+    network/ssl_server.h \
     network/tcp_client.h \
     network/tcp_server.h \
     network/tcp_socket.h \
@@ -233,5 +242,6 @@ HEADERS += \
     service/common_server.h \
     service/server_demo.h \
     lib/xml/tinyxml2.h \
+    service/ssl_server_demo.h \
     service/ws_client_demo.h \
     service/ws_server_demo.h

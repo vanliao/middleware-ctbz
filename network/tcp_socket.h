@@ -11,12 +11,12 @@ public:
     TcpSocket();
     TcpSocket(const int sockFd);
     virtual ~TcpSocket();
-    bool bind(void);
-    bool listen(void);
-    bool connect(void);
-    bool accept(int &newSock, std::string &ipAddr, int &port);
-    bool recv(std::string &buf);
-    bool send(std::string &buf);
+    virtual bool bind(void);
+    virtual bool listen(void);
+    virtual bool connect(void);
+    virtual bool accept(int &newSock, std::string &ipAddr, int &port);
+    virtual bool recv(std::string &buf);
+    virtual bool send(std::string &buf);
 };
 
 }

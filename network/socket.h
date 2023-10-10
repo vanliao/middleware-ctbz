@@ -1,6 +1,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "ssl_common.h"
 #include "end_point.h"
 
 namespace network {
@@ -20,6 +21,7 @@ public:
     int type;
     int port;
     std::string ip;
+    SSL *sslHandle;
 };
 
 }

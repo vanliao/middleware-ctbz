@@ -10,7 +10,7 @@ namespace dev {
 
 WSDevDemo::WSDevDemo()
 {
-    isLogin = false;
+    isLogin = true;
     msgCallback.insert(std::pair<std::string, std::function<Dev::ProcResult(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg)> >
                     ("login", std::bind(&WSDevDemo::procMsgLogin, this, std::placeholders::_1,std::placeholders::_2)));
     msgCallback.insert(std::pair<std::string, std::function<Dev::ProcResult(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg)> >

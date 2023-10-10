@@ -77,7 +77,7 @@ bool TcpServer::recv(std::string &/*buf*/)
     return false;
 }
 
-bool TcpServer::send(const std::string &/*buf*/)
+bool TcpServer::send(std::string &/*buf*/)
 {
     return false;
 }

@@ -3,6 +3,7 @@
 #include "tcp_server.h"
 #include "udp_server.h"
 #include "websocket_server.h"
+#include "ssl_server.h"
 
 namespace network {
 
@@ -23,6 +24,7 @@ public:
     {
         UDP,
         TCP,
+        SSL,
         WS,
     };
 
@@ -30,6 +32,7 @@ public:
     virtual ~EpollServer(void);
     bool start(EpollServerIF &obj);
     void stop(void);
+    void setSSLPemFile(const std::string &certFile, const std::string &keyFile);
 
 private:
     bool startTcpSvr(EpollServerIF &obj);

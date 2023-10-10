@@ -135,3 +135,27 @@ export RANLIB=aarch64-linux-gnu-ranlib
 config会生成Makefile文件，编辑makefile，去掉-m64，否则编译报错
 
 make && make install
+====================================
+生成证书流程
+
+mkdir demoCA
+cd demoCA
+
+mkdir -p certs crl newcerts private
+touch index.txt
+echo 01 >> serial
+
+ca 秘钥
+openssl genrsa -des3 -out private/cakey.pem 4096
+ca 证书
+openssl req -new -x509 -key private/cakey.pem  -out cacert.pem
+
+cd ..
+
+服务器秘钥
+openssl genrsa -des3 -out server.key 4096
+服务器证书请求
+openssl req -new -key server.key -out server.csr
+服务器证书
+openssl ca -in server.csr -out server.crt -cert demoCA/cacert.pem -keyfile demoCA/private/cakey.pem
+====================================

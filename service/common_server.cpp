@@ -34,7 +34,7 @@ bool CommonServer::open()
 
 bool CommonServer::send(const int connID, const std::string &buf)
 {
-    if (TCP == svrType)
+    if (TCP == svrType || SSL == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         if (NULL != svr)
@@ -171,7 +171,7 @@ bool service::CommonServer::sendWS(const int connID, const std::string &buf, con
 
 void CommonServer::closeDev(const unsigned int connID)
 {
-    if (TCP == svrType)
+    if (TCP == svrType || SSL == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         if (NULL != svr)
@@ -238,7 +238,7 @@ bool CommonServer::start(CommonServerIF &obj)
     }
 
     bool ret = true;
-    if (TCP == svrType)
+    if (TCP == svrType || SSL == svrType)
     {
         ret = startTcpSvr(obj);
     }
@@ -295,7 +295,7 @@ bool CommonServer::delExtenEvent(const int ev)
 
 dev::EndPoint *CommonServer::getDev(const int connID)
 {
-    if (TCP == svrType || WS == svrType)
+    if (TCP == svrType || WS == svrType || SSL == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         network::TcpClient *clt = svr->getClient(connID);
@@ -313,7 +313,7 @@ dev::EndPoint *CommonServer::getDev(const int connID)
 
 dev::EndPoint *CommonServer::getFirstDev()
 {
-    if (TCP == svrType || WS == svrType)
+    if (TCP == svrType || WS == svrType || SSL == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         network::TcpClient *clt = svr->getClient();
@@ -331,7 +331,7 @@ dev::EndPoint *CommonServer::getFirstDev()
 
 void CommonServer::getAllDev(std::vector<unsigned int> &vec)
 {
-    if (TCP == svrType || WS == svrType)
+    if (TCP == svrType || WS == svrType || SSL == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         for (const auto &it : svr->clients)
