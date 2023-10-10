@@ -6,7 +6,7 @@ namespace network {
 SSLClient::SSLClient(const std::string serverIP, const int serverPort) :
     TcpClient(serverIP, serverPort), sslCtx(NULL)
 {
-
+    SSLCommon::initSSL();
 }
 
 SSLClient::SSLClient(const int clientFd):
@@ -149,6 +149,10 @@ bool SSLClient::send(std::string &buf)
             {
                 /* 等同错误码 EAGAIN */
                 log_debug("ssl send eagain:" << sslErrCode);
+                return false;
+            }
+            else if (SSL_ERROR_ZERO_RETURN == sslErrCode)
+            {
                 break;
             }
             else
@@ -167,7 +171,7 @@ bool SSLClient::send(std::string &buf)
 
     if ((unsigned int)ret != len)
     {
-        log_debug("ssl send incomplete");
+        log_debug("ssl send incomplete:sendlen=" << ret << ", totallen=" << len);
         return false;
     }
 

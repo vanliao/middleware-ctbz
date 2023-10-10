@@ -1,6 +1,7 @@
 import socket
 import ssl
 import threading
+import time
 
 class server_ssl:
     def build_listen(self):
@@ -16,7 +17,7 @@ class server_ssl:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
             # 将socket打包成SSL socket
             with context.wrap_socket(sock, server_side=True) as ssock:
-                ssock.bind(('0.0.0.0', 10001))
+                ssock.bind(('0.0.0.0', 3337))
                 ssock.listen(5)
                 print("Server is listening for connections...")
 
@@ -32,6 +33,7 @@ class server_ssl:
     def handle_client(self, client_socket, addr):
         try:
             while True:
+                time.sleep(1)
                 # 接收客户端信息
                 msg = client_socket.recv(1024).decode("utf-8")
                 if not msg:
@@ -40,7 +42,7 @@ class server_ssl:
                 print(f"Received message from client {addr}: {msg}")
 
                 # 向客户端发送信息
-                response = f"Echo Received: {msg}".encode("utf-8")
+                response = b"{\"code\":1,\"data\":\"hijklmn\"}"
                 client_socket.send(response)
         except Exception as e:
             print(f"Error: {str(e)}")

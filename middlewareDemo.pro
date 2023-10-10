@@ -16,6 +16,8 @@ SOURCES += \
     dev/lte_dev_demo.cpp \
     dev/nr_dev_demo.cpp \
     dev/ws_dev_demo.cpp \
+    main/main_ssl_client_demo.cpp \
+    service/ssl_client_demo.cpp \
     thirdparty/inifile/inifile.cpp \
     log/tinylog.cpp \
     log/tlog.c \
@@ -91,6 +93,8 @@ HEADERS += \
     dev/lte_dev_demo.h \
     dev/nr_dev_demo.h \
     dev/ws_dev_demo.h \
+    main/main_ssl_client_demo.h \
+    service/ssl_client_demo.h \
     thirdparty/inifile/inifile.h \
     lib/fcgi/fastcgi.h \
     lib/fcgi/fcgi_config.h \

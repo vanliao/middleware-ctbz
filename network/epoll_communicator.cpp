@@ -35,7 +35,7 @@ bool EpollCommunicator::start(EpollCommunicatorIF &obj)
     }
 
     bool ret = true;
-    if (TCP == type)
+    if (TCP == type || SSL == type)
     {
         ret = startTcpSvr(obj);
     }
@@ -56,11 +56,15 @@ void EpollCommunicator::stop()
 bool EpollCommunicator::connect()
 {
     std::shared_ptr<network::Socket> clt;
-    if (TCP == type || WS == type)
+    if (TCP == type || WS == type || SSL == type)
     {
         if (TCP == type)
         {
             clt = std::make_shared<network::TcpClient>(ip, port);
+        }
+        else if (SSL == type)
+        {
+            clt = std::make_shared<network::SSLClient>(ip, port);
         }
         else
         {
@@ -185,7 +189,7 @@ network::TcpClient *EpollCommunicator::getTcpClient(const int connID)
     auto it = clients.find(connID);
     if (clients.end() != it)
     {
-        if (TCP == type || WS == type)
+        if (TCP == type || WS == type || SSL == type)
         {
             return dynamic_cast<network::TcpClient*>(it->second.get());
         }
@@ -210,7 +214,7 @@ UdpClient *EpollCommunicator::getUdpClient(const int connID)
 
 void EpollCommunicator::disconnect(const int connID)
 {
-    if (TCP == type)
+    if (TCP == type || SSL == type)
     {
         network::TcpClient *clt = getTcpClient(connID);
         if (NULL != clt)

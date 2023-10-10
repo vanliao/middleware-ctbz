@@ -1,22 +1,22 @@
 #include <unistd.h>
 #include "tinylog.h"
-#include "client_demo.h"
 #include "lte_dev_demo.h"
+#include "ssl_client_demo.h"
 
 namespace service {
 
-ClientDemo::ClientDemo(const std::string &serverIP, const int serverPort):
-    Communicator(serverIP, serverPort, network::EpollCommunicator::TCP)
+SSLClientDemo::SSLClientDemo(const std::string &serverIP, const int serverPort):
+    Communicator(serverIP, serverPort, network::EpollCommunicator::SSL)
 {
     return;
 }
 
-ClientDemo::~ClientDemo()
+SSLClientDemo::~SSLClientDemo()
 {
     return;
 }
 
-void ClientDemo::connectNotify(unsigned int connID)
+void SSLClientDemo::connectNotify(unsigned int connID)
 {
     log_info("connectNotify:" << connID);
     dev::EndPoint *ep = model.getDev(connID);
@@ -29,7 +29,7 @@ void ClientDemo::connectNotify(unsigned int connID)
     model.send(connID, "{\"code\":20,\"data\":\"123456789\"}");
 }
 
-void ClientDemo::recvNotify(unsigned int connID, std::string &buf)
+void SSLClientDemo::recvNotify(unsigned int connID, std::string &buf)
 {
     log_info("recvNotify:" << connID << "[" << buf.length() << "]" << buf);
     dev::EndPoint *ep = model.getDev(connID);
@@ -65,13 +65,13 @@ void ClientDemo::recvNotify(unsigned int connID, std::string &buf)
     return;
 }
 
-void ClientDemo::closeNotify(unsigned int connID)
+void SSLClientDemo::closeNotify(unsigned int connID)
 {
     log_info("closeNotify:" << connID);
     return;
 }
 
-void ClientDemo::eventtNotify(const int event)
+void SSLClientDemo::eventtNotify(const int event)
 {
     if (event == notifyEvt)
     {
@@ -89,13 +89,13 @@ void ClientDemo::eventtNotify(const int event)
     return;
 }
 
-void ClientDemo::initExternEvent()
+void SSLClientDemo::initExternEvent()
 {
     Communicator::initExternEvent();
     return;
 }
 
-void ClientDemo::procEvent()
+void SSLClientDemo::procEvent()
 {
     uint64_t buf;
     read(notifyEvt, &buf, sizeof(uint64_t));
@@ -142,10 +142,10 @@ void ClientDemo::procEvent()
     return;
 }
 
-void ClientDemo::procDevResult(dev::Dev::ProcResult pr,
-                               dev::EndPoint *ep,
-                               std::shared_ptr<msg::Msg> &reqMsg,
-                               std::shared_ptr<msg::Msg> &rspMsg)
+void SSLClientDemo::procDevResult(dev::Dev::ProcResult pr,
+                                  dev::EndPoint *ep,
+                                  std::shared_ptr<msg::Msg> &reqMsg,
+                                  std::shared_ptr<msg::Msg> &rspMsg)
 {
     switch (pr)
     {
@@ -156,7 +156,7 @@ void ClientDemo::procDevResult(dev::Dev::ProcResult pr,
     case dev::Dev::SENDTODEV:
     {
         model.send(ep->connID, rspMsg->raw);
-        log_info("send to client demo:" << rspMsg->raw);
+        log_info("send to ssl demo:" << rspMsg->raw);
         break;
     }
     default:

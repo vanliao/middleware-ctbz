@@ -8,6 +8,7 @@
 #include "main_ws_server_demo.h"
 #include "main_ws_client_demo.h"
 #include "main_ssl_server_demo.h"
+#include "main_ssl_client_demo.h"
 #include "rapidjson.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -22,7 +23,8 @@ void signalHandler(int /*signum*/)
 //    MainClientDemo::instance()->stop();
 //    MainWSServerDemo::instance()->stop();
 //    MainWSClientDemo::instance()->stop();
-    MainSSLServerDemo::instance()->stop();
+//    MainSSLServerDemo::instance()->stop();
+    MAINSSLClientDemo::instance()->stop();
     return;
 }
 
@@ -183,14 +185,25 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-    if (MainSSLServerDemo::instance()->readConfig(cfg))
+//    if (MainSSLServerDemo::instance()->readConfig(cfg))
+//    {
+//        MainSSLServerDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "ssl server demo read config failed" << std::endl;
+//        log_debug("ssl server demo read config failed");
+//        return -1;
+//    }
+
+    if (MAINSSLClientDemo::instance()->readConfig(cfg))
     {
-        MainSSLServerDemo::instance()->start();
+        MAINSSLClientDemo::instance()->start();
     }
     else
     {
-        std::cout << "ssl server demo read config failed" << std::endl;
-        log_debug("ssl server demo read config failed");
+        std::cout << "ssl client demo read config failed" << std::endl;
+        log_debug("ssl client demo read config failed");
         return -1;
     }
     jsonTest();
@@ -232,12 +245,14 @@ int main(int argc, char *argv[])
 //    MainWSServerDemo::instance()->addEvent(msg);
 //    MainWSClientDemo::instance()->addEvent(msg);
 //    MainSSLServerDemo::instance()->addEvent(msg);
+    MAINSSLClientDemo::instance()->addEvent(msg);
 
 //    MainServerDemo::instance()->loop();
 //    MainClientDemo::instance()->loop();
 //    MainWSServerDemo::instance()->loop();
 //    MainWSClientDemo::instance()->loop();
-    MainSSLServerDemo::instance()->loop();
+//    MainSSLServerDemo::instance()->loop();
+    MAINSSLClientDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

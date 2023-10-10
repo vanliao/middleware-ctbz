@@ -33,7 +33,7 @@ bool CommonCommunicator::open()
 
 bool CommonCommunicator::send(const int connID, const std::string &buf)
 {
-    if (TCP == type)
+    if (TCP == type || SSL == type)
     {
         network::TcpClient *clt = getTcpClient(connID);
         if (NULL == clt)
@@ -105,7 +105,7 @@ bool CommonCommunicator::start(CommonCommunicatorIF &obj)
     }
 
     bool ret = true;
-    if (TCP == type)
+    if (TCP == type || SSL == type)
     {
         ret = startTcpSvr(obj);
     }
@@ -162,7 +162,7 @@ bool CommonCommunicator::delExtenEvent(const int ev)
 
 dev::EndPoint *CommonCommunicator::getDev(const int connID)
 {
-    if (TCP == type || WS == type)
+    if (TCP == type || WS == type || SSL == type)
     {
         network::TcpClient *clt = getTcpClient(connID);
         return dynamic_cast<dev::EndPoint *>(clt);
@@ -181,7 +181,7 @@ dev::EndPoint *CommonCommunicator::getFirstDev()
     auto it = clients.begin();
     if (clients.end() != it)
     {
-        if (TCP == type || WS == type)
+        if (TCP == type || WS == type || SSL == type)
         {
             network::TcpClient *clt = dynamic_cast<network::TcpClient*>(it->second.get());
             return dynamic_cast<dev::EndPoint *>(clt);
@@ -250,6 +250,28 @@ bool CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
                 if (NULL != clt)
                 {
                     if (network::TcpClient::CONNECTING == clt->status)
+                    {
+                        if (SSL == type)
+                        {
+                            network::SSLClient *sslClt = dynamic_cast<network::SSLClient *>(clt);
+                            if (!sslClt->SSLconnect())
+                            {
+                                log_error("ssl connect failed");
+                                disconnect(connID);
+                            }
+                        }
+                        else
+                        {
+                            struct epoll_event epEvt;
+                            epEvt.data.fd = connID;
+                            epEvt.events = EPOLLIN;
+                            epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                            clt->status = network::TcpClient::CONNECTED;
+                            clt->connID = connID;
+                            obj.connectNotify(connID);
+                        }
+                    }
+                    else if (network::TcpClient::SSLCONNECTING == clt->status)
                     {
                         struct epoll_event epEvt;
                         epEvt.data.fd = connID;

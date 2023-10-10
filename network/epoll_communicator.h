@@ -5,6 +5,7 @@
 #include <vector>
 #include "tcp_client.h"
 #include "udp_client.h"
+#include "ssl_client.h"
 #include "epoll_server.h"
 
 namespace network {
@@ -18,6 +19,7 @@ public:
     {
         UDP,
         TCP,
+        SSL,
         WS,
     };
     EpollCommunicator(const std::string &serverIP, const int serverPort, const ServerType svrtype);
