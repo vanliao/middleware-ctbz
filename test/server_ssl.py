@@ -5,13 +5,13 @@ import time
 
 class server_ssl:
     def build_listen(self):
-        # CA_FILE = "ca-cert.pem"
+        CA_FILE = "cacert.pem"
         KEY_FILE = "server.key"
         CERT_FILE = "server.crt"
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.load_cert_chain(certfile=CERT_FILE, keyfile=KEY_FILE)  # 加载服务端证书和私钥
-        # context.load_verify_locations(CA_FILE)  # 加载根证书
-        context.verify_mode = ssl.CERT_NONE  # 不需要客户端提供证书
+        context.load_verify_locations(CA_FILE)  # 加载根证书
+        context.verify_mode = ssl.CERT_REQUIRED  # 是否需要客户端提供证书
 
         # 监听端口
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
@@ -33,7 +33,6 @@ class server_ssl:
     def handle_client(self, client_socket, addr):
         try:
             while True:
-                time.sleep(1)
                 # 接收客户端信息
                 msg = client_socket.recv(1024).decode("utf-8")
                 if not msg:
@@ -44,6 +43,7 @@ class server_ssl:
                 # 向客户端发送信息
                 response = b"{\"code\":1,\"data\":\"hijklmn\"}"
                 client_socket.send(response)
+                break
         except Exception as e:
             print(f"Error: {str(e)}")
         finally:

@@ -26,7 +26,7 @@ void SSLClientDemo::connectNotify(unsigned int connID)
         return;
     }
     ep->dev = std::make_shared<dev::LteDevDemo>();
-    model.send(connID, "{\"code\":20,\"data\":\"123456789\"}");
+    model.send(connID, "{\"code\":1,\"data\":\"123456789\"}");
 }
 
 void SSLClientDemo::recvNotify(unsigned int connID, std::string &buf)
@@ -62,6 +62,7 @@ void SSLClientDemo::recvNotify(unsigned int connID, std::string &buf)
         log_fatal("invalid ptr");
         return;
     }
+//    model.disconnect(ep->connID);
     return;
 }
 
@@ -93,6 +94,14 @@ void SSLClientDemo::initExternEvent()
 {
     Communicator::initExternEvent();
     return;
+}
+
+void SSLClientDemo::setSSLCaFile(const bool verifyPeer,
+                                 const std::string &caFile,
+                                 const std::string &certFile,
+                                 const std::string &keyFile)
+{
+    model.setSSLCAFile(verifyPeer, caFile, certFile, keyFile);
 }
 
 void SSLClientDemo::procEvent()
@@ -136,7 +145,6 @@ void SSLClientDemo::procEvent()
                 log_fatal("invalid ptr");
             }
         }
-
     }
 
     return;

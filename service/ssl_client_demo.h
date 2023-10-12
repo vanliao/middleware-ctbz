@@ -15,6 +15,10 @@ public:
     void closeNotify(unsigned int connID) override;
     void eventtNotify(const int event) override;
     void initExternEvent(void) override;
+    void setSSLCaFile(const bool verifyPeer,
+                      const std::string &caFile,
+                      const std::string &certFile,
+                      const std::string &keyFile);
 
 private:
     void procEvent(void);

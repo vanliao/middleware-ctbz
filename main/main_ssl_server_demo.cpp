@@ -51,6 +51,8 @@ bool MainSSLServerDemo::readConfig(inifile::IniFileHelper &cfg)
 {
     int ret = cfg.GetIntValue("SSLServerDemo", "port", &port);
     ret |= cfg.GetStringValue("SSLServerDemo", "local_ip", &localIP);
+    ret |= cfg.GetIntValue("SSLServerDemo", "verify_peer", &verifyCA);
+    ret |= cfg.GetStringValue("SSLServerDemo", "ca_file", &caFile);
     ret |= cfg.GetStringValue("SSLServerDemo", "cert_file", &certFile);
     ret |= cfg.GetStringValue("SSLServerDemo", "key_file", &keyFile);
 
@@ -68,7 +70,7 @@ bool MainSSLServerDemo::readConfig(inifile::IniFileHelper &cfg)
         return false;
     }
 
-    svr->setSSLPemFile(certFile, keyFile);
+    svr->setSSLCAFile(1 == verifyCA, caFile, certFile, keyFile);
 
     return true;
 }

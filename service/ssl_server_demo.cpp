@@ -62,6 +62,8 @@ void SSLServerDemo::recvNotify(unsigned int connID, std::string &buf)
         return;
     }
 
+//    model.closeDev(ep->connID);
+
     return;
 }
 
@@ -91,9 +93,12 @@ void SSLServerDemo::initExternEvent()
     return;
 }
 
-void SSLServerDemo::setSSLPemFile(const std::string &certFile, const std::string &keyFile)
+void SSLServerDemo::setSSLCAFile(const bool verifyPeer,
+                                 const std::string &caFilePath,
+                                 const std::string &certFilePath,
+                                 const std::string &keyFilePath)
 {
-    model.setSSLPemFile(certFile, keyFile);
+    model.setSSLCAFile(verifyPeer, caFilePath, certFilePath, keyFilePath);
     return;
 }
 

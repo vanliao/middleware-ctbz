@@ -56,6 +56,7 @@ bool WebsocketClient::recv(std::string &buf)
     bool ret = TcpClient::recv(tcpBuf);
     if (!ret)
     {
+        closeStatus = WebSocket::CLOSE_FORCE;
         return ret;//false
     }
 

@@ -8,7 +8,12 @@ namespace network {
 class SSLClient : public TcpClient
 {
 public:
-    SSLClient(const std::string serverIP, const int serverPort);
+    SSLClient(const std::string &serverIP,
+              const int serverPort,
+              const bool verifyPeer,
+              const std::string &caFilePath,
+              const std::string &certFilePath,
+              const std::string &keyFilePath);
     SSLClient(const int clientFd);
     virtual ~SSLClient(void);
     bool SSLconnect();
@@ -16,7 +21,13 @@ public:
     bool send(std::string &buf);
 
 private:
-    SSL_CTX * sslCtx;
+    bool verifyPeerCA(void);
+
+private:
+    bool verifyCA;
+    std::string caFile;
+    std::string certFile;
+    std::string privateKeyFile;
 };
 
 }

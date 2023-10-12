@@ -15,7 +15,10 @@ public:
     void closeNotify(unsigned int connID) override;
     void eventtNotify(const int event) override;
     void initExternEvent(void) override;
-    void setSSLPemFile(const std::string &certFile, const std::string &keyFile);
+    void setSSLCAFile(const bool verifyPeer,
+                       const std::string &caFilePath,
+                       const std::string &certFilePath,
+                       const std::string &keyFilePath);
 
 private:
     void procEvent(void);

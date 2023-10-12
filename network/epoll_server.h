@@ -32,7 +32,10 @@ public:
     virtual ~EpollServer(void);
     bool start(EpollServerIF &obj);
     void stop(void);
-    void setSSLPemFile(const std::string &certFile, const std::string &keyFile);
+    void setSSLCAFile(const bool verifyPeer,
+                      const std::string &caFilePath,
+                      const std::string &certFilePath,
+                      const std::string &keyFilePath);
 
 private:
     bool startTcpSvr(EpollServerIF &obj);

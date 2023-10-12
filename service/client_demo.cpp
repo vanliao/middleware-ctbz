@@ -62,6 +62,8 @@ void ClientDemo::recvNotify(unsigned int connID, std::string &buf)
         log_fatal("invalid ptr");
         return;
     }
+
+//    model.disconnect(connID);
     return;
 }
 

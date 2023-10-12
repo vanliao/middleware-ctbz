@@ -10,15 +10,21 @@ class SSLServer : public TcpServer
 public:
     SSLServer(const std::string serverIP, const int serverPort);
     virtual ~SSLServer(void);
-    void setCertificateFile(const std::string &filePath);
-    void setPrivateKeyFile(const std::string &filePath);
+    void setCAFile(const bool verifyPeer,
+                   const std::string &caFilePath,
+                   const std::string &certFilePath,
+                   const std::string &keyFilePath);
     bool listen(void);
     bool accept(unsigned int &connID);
 
 private:
+    bool verifyPeerCA(SSL *sslHandle);
+
+private:
+    bool verifyCA;
+    std::string caFile;
     std::string certFile;
     std::string privateKeyFile;
-    SSL_CTX * sslCtx;
 };
 
 }

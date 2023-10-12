@@ -19,7 +19,11 @@ public:
 private:
     std::shared_ptr<service::SSLClientDemo> svr;
     int port;
+    int verifyCA;
     std::string localIP;
+    std::string caFile;
+    std::string certFile;
+    std::string keyFile;
 };
 
 #endif // MAINSSLCLIENTDEMO_H

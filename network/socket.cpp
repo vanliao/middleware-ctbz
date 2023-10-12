@@ -8,7 +8,7 @@
 
 namespace network {
 
-Socket::Socket(const int sockType): dev::EndPoint(), fd(-1), type(sockType), sslHandle(NULL)
+Socket::Socket(const int sockType): dev::EndPoint(), fd(-1), type(sockType), sslHandle(NULL), sslCtx(NULL)
 {
     return;
 }
@@ -51,9 +51,16 @@ void Socket::destroy()
     if (sslHandle)
     {
         log_debug("close ssl handle");
-        SSL_shutdown(sslHandle);
+//        SSL_shutdown(sslHandle);
         SSL_free(sslHandle);
         sslHandle = NULL;
+    }
+
+    if (sslCtx)
+    {
+        /*释放SSL上下文环境变量函数*/
+        SSL_CTX_free(sslCtx);
+        sslCtx = NULL;
     }
 
     if (0 <= fd)

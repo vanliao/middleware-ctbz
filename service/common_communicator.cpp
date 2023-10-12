@@ -27,6 +27,7 @@ bool CommonCommunicator::open()
         log_error("create epoll fd failed");
         return false;
     }
+    log_debug("epoll create fd " << epollFd);
 
     return true;
 }
@@ -239,13 +240,14 @@ bool CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
             if ((waitEv[i].events & EPOLLERR) ||
                 (waitEv[i].events & EPOLLHUP))
             {
-                log_debug("epoll error");
+                log_debug("epoll error " << connID);
                 obj.closeNotify(connID);
                 disconnect(connID);
+                continue;
             }
-            else if (waitEv[i].events & EPOLLOUT)
+            if (waitEv[i].events & EPOLLOUT)
             {
-                log_debug("epoll out");
+                log_debug("epoll out " << connID);
                 network::TcpClient *clt = getTcpClient(connID);
                 if (NULL != clt)
                 {
@@ -293,9 +295,9 @@ bool CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
                     }
                 }
             }
-            else if (waitEv[i].events & EPOLLIN)
+            if (waitEv[i].events & EPOLLIN)
             {
-                log_debug("epoll in");
+                log_debug("epoll in " << connID);
                 auto it = eventFds.begin();
                 while(eventFds.end() != it)
                 {
@@ -312,10 +314,13 @@ bool CommonCommunicator::startTcpSvr(CommonCommunicatorIF &obj)
                     if (NULL != clt)
                     {
                         std::string buf;
-                        clt->recv(buf);
-                        if (0 != buf.size())
+                        if (clt->recv(buf))
                         {
-                            obj.recvNotify(connID, buf);
+                            if (0 != buf.size())
+                            {
+                                obj.recvNotify(connID, buf);
+                            }
+                            //else{}
                         }
                         else
                         {
@@ -369,15 +374,16 @@ bool CommonCommunicator::startWSSvr(CommonCommunicatorIF &obj)
             if ((waitEv[i].events & EPOLLERR) ||
                 (waitEv[i].events & EPOLLHUP))
             {
-                log_debug("epoll error");
+                log_debug("epoll error " << connID);
                 obj.closeNotify(connID);
                 network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
                 clt->closeStatus = network::WebSocket::CLOSE_FORCE;
                 disconnect(connID);
+                continue;
             }
-            else if (waitEv[i].events & EPOLLOUT)
+            if (waitEv[i].events & EPOLLOUT)
             {
-                log_debug("epoll out");
+                log_debug("epoll out " << connID);
                 network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
                 if (NULL != clt)
                 {
@@ -433,9 +439,9 @@ bool CommonCommunicator::startWSSvr(CommonCommunicatorIF &obj)
                     }
                 }
             }
-            else if (waitEv[i].events & EPOLLIN)
+            if (waitEv[i].events & EPOLLIN)
             {
-                log_debug("epoll in");
+                log_debug("epoll in " << connID);
                 auto it = eventFds.begin();
                 while(eventFds.end() != it)
                 {
@@ -503,7 +509,8 @@ bool CommonCommunicator::startWSSvr(CommonCommunicatorIF &obj)
                         else
                         {
                             /* 握手失败 */
-                            if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
+                            if(network::WebSocket::CLOSE_FORCE    == clt->closeStatus ||
+                               network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
                             {
                                 log_debug("epoll in recv fail should close ws");
                                 obj.closeNotify(connID);
@@ -557,13 +564,14 @@ bool CommonCommunicator::startUdpSvr(CommonCommunicatorIF &obj)
             if ((waitEv[i].events & EPOLLERR) ||
                 (waitEv[i].events & EPOLLHUP))
             {
-                log_debug("epoll error");
+                log_debug("epoll error " << connID);
                 obj.closeNotify(connID);
                 disconnect(connID);
+                continue;
             }
-            else if (waitEv[i].events & EPOLLOUT)
+            if (waitEv[i].events & EPOLLOUT)
             {
-                log_debug("epoll out");
+                log_debug("epoll out " << connID);
                 network::UdpClient *clt = getUdpClient(connID);
                 if (NULL != clt)
                 {
@@ -604,9 +612,9 @@ bool CommonCommunicator::startUdpSvr(CommonCommunicatorIF &obj)
                     }
                 }
             }
-            else if (waitEv[i].events & EPOLLIN)
+            if (waitEv[i].events & EPOLLIN)
             {
-                log_debug("epoll in");
+                log_debug("epoll in " << connID);
                 auto it = eventFds.begin();
                 while(eventFds.end() != it)
                 {
@@ -750,6 +758,7 @@ void Communicator::run()
         log_error("create event failed:" << strerror(errno));
         return;
     }
+    log_debug("event create fd " << notifyEvt);
 
     struct itimerspec new_value;
     new_value.it_value.tv_sec = 10;
@@ -772,6 +781,7 @@ void Communicator::run()
         notifyEvt = -1;
         return;
     }
+    log_debug("timer create fd " << hbTimer);
 
     bool ret = model.open();
     if (ret)

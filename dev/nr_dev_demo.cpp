@@ -113,7 +113,7 @@ Dev::ProcResult NrDevDemo::procMsgDemo(const rapidjson::Document &doc, std::shar
 {
     log_debug("proc msg demo");
     outMsg = std::make_shared<msg::Msg>();
-    outMsg->raw = "{\"code\":10,\"data\":\"opqrstxyz\"}";
+    outMsg->raw = "{\"code\":1,\"data\":\"opqrstxyz\"}";
     return ProcResult::SENDTODEV;
 }
 

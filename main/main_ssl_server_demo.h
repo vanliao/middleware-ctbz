@@ -26,7 +26,9 @@ public:
 private:
     std::shared_ptr<service::SSLServerDemo> svr;
     int port;
+    int verifyCA;
     std::string localIP;
+    std::string caFile;
     std::string certFile;
     std::string keyFile;
 };

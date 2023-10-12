@@ -22,6 +22,7 @@ public:
     int port;
     std::string ip;
     SSL *sslHandle;
+    SSL_CTX * sslCtx;
 };
 
 }

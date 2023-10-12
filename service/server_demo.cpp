@@ -62,6 +62,7 @@ void ServerDemo::recvNotify(unsigned int connID, std::string &buf)
         return;
     }
 
+//    model.closeDev(connID);
     return;
 }
 

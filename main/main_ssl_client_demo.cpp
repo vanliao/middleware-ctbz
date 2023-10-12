@@ -52,6 +52,10 @@ bool MAINSSLClientDemo::readConfig(inifile::IniFileHelper &cfg)
 {
     int ret = cfg.GetIntValue("SSLClientDemo", "port", &port);
     ret |= cfg.GetStringValue("SSLClientDemo", "server_ip", &localIP);
+    ret |= cfg.GetIntValue("SSLClientDemo", "verify_peer", &verifyCA);
+    ret |= cfg.GetStringValue("SSLClientDemo", "ca_file", &caFile);
+    ret |= cfg.GetStringValue("SSLClientDemo", "cert_file", &certFile);
+    ret |= cfg.GetStringValue("SSLClientDemo", "key_file", &keyFile);
 
     if (0 != ret)
     {
@@ -65,6 +69,7 @@ bool MAINSSLClientDemo::readConfig(inifile::IniFileHelper &cfg)
         log_error("create ssl client demo failed");
         return false;
     }
+    svr->setSSLCaFile(1 == verifyCA, caFile, certFile, keyFile);
 
     return true;
 }

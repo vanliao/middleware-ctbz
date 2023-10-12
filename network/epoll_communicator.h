@@ -31,6 +31,10 @@ public:
     bool sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode);
     network::TcpClient *getTcpClient(const int connID);
     network::UdpClient *getUdpClient(const int connID);
+    void setSSLCAFile(const bool verifyPeer,
+                      const std::string &caFilePath,
+                      const std::string &certFilePath,
+                      const std::string &keyFilePath);
 
 protected:
     bool startTcpSvr(EpollCommunicatorIF &obj);
@@ -43,6 +47,10 @@ protected:
     int epollFd;
     bool finish;
     std::map<int, std::shared_ptr<network::Socket> > clients;
+    bool verifyCA;
+    std::string caFile;
+    std::string certFile;
+    std::string privateKeyFile;
 };
 
 class EpollCommunicatorIF: public EpollServerIF{};

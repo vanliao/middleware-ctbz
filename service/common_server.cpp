@@ -29,6 +29,8 @@ bool CommonServer::open()
         return false;
     }
 
+    log_debug("epoll create fd " << epollFd);
+
     return true;
 }
 
@@ -486,10 +488,13 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
                     if (NULL != clt)
                     {
                         std::string buf;
-                        clt->recv(buf);
-                        if (0 != buf.size())
+                        if (clt->recv(buf))
                         {
-                            obj.recvNotify(connID, buf);
+                            if (0 != buf.size())
+                            {
+                                obj.recvNotify(connID, buf);
+                            }
+                            //else{}
                         }
                         else
                         {
@@ -947,6 +952,8 @@ void Server::run()
         log_error("create event failed:" << strerror(errno));
         return;
     }
+
+    log_debug("event create fd " << notifyEvt);
 
     bool ret = model.open();
     if (ret)

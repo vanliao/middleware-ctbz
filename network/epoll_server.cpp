@@ -50,6 +50,7 @@ bool EpollServer::start(EpollServerIF &obj)
         log_error("create epoll fd failed");
         return false;
     }
+    log_debug("epoll create fd " << epollFd);
 
     bool ret = true;
     if (TCP == svrType || SSL == svrType)
@@ -73,13 +74,15 @@ void EpollServer::stop()
     finish = true;
 }
 
-void EpollServer::setSSLPemFile(const std::string &certFile, const std::string &keyFile)
+void EpollServer::setSSLCAFile(const bool verifyPeer,
+                               const std::string &caFilePath,
+                               const std::string &certFilePath,
+                               const std::string &keyFilePath)
 {
     if (SSL == svrType)
     {
         SSLServer *svr = dynamic_cast<SSLServer *>(sock.get());
-        svr->setCertificateFile(certFile);
-        svr->setPrivateKeyFile(keyFile);
+        svr->setCAFile(verifyPeer, caFilePath, certFilePath, keyFilePath);
     }
     else
     {

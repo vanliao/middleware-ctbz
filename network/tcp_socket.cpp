@@ -107,20 +107,25 @@ bool TcpSocket::recv(std::string &buf)
     while (1)
     {
         int ret = ::recv(fd, buffer, sizeof(buffer), 0);
+        log_debug("tcp recv len:" << ret);
         if (0 > ret)
         {
-            if(EAGAIN == errno)
+            if (EAGAIN == errno)
             {
                 log_debug("tcp socket recv eagain");
                 break;
             }
-            else if(EINTR == errno)
+            else if (EINTR == errno)
             {
                 log_debug("tcp recv Interrupted");
                 continue;
             }
 
             log_error("recv failed:" << strerror(errno))
+            return false;
+        }
+        else if (0 == ret)
+        {
             return false;
         }
         else

@@ -149,7 +149,7 @@ Dev::ProcResult LteDevDemo::procMsgDemo(const rapidjson::Document &doc, std::sha
 {
     log_debug("proc msg demo");
     outMsg = std::make_shared<msg::Msg>();
-    outMsg->raw = "{\"code\":20,\"data\":\"xyzabcdefg\"}";
+    outMsg->raw = "{\"code\":1,\"data\":\"xyzabcdefg\"}";
     return ProcResult::SENDTODEV;
 }
 

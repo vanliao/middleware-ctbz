@@ -22,9 +22,9 @@ void signalHandler(int /*signum*/)
 //    MainServerDemo::instance()->stop();
 //    MainClientDemo::instance()->stop();
 //    MainWSServerDemo::instance()->stop();
-//    MainWSClientDemo::instance()->stop();
+    MainWSClientDemo::instance()->stop();
 //    MainSSLServerDemo::instance()->stop();
-    MAINSSLClientDemo::instance()->stop();
+//    MAINSSLClientDemo::instance()->stop();
     return;
 }
 
@@ -174,16 +174,16 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-//    if (MainWSClientDemo::instance()->readConfig(cfg))
-//    {
-//        MainWSClientDemo::instance()->start();
-//    }
-//    else
-//    {
-//        std::cout << "ws client demo read config failed" << std::endl;
-//        log_debug("ws client demo read config failed");
-//        return -1;
-//    }
+    if (MainWSClientDemo::instance()->readConfig(cfg))
+    {
+        MainWSClientDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "ws client demo read config failed" << std::endl;
+        log_debug("ws client demo read config failed");
+        return -1;
+    }
 
 //    if (MainSSLServerDemo::instance()->readConfig(cfg))
 //    {
@@ -196,16 +196,16 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-    if (MAINSSLClientDemo::instance()->readConfig(cfg))
-    {
-        MAINSSLClientDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "ssl client demo read config failed" << std::endl;
-        log_debug("ssl client demo read config failed");
-        return -1;
-    }
+//    if (MAINSSLClientDemo::instance()->readConfig(cfg))
+//    {
+//        MAINSSLClientDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "ssl client demo read config failed" << std::endl;
+//        log_debug("ssl client demo read config failed");
+//        return -1;
+//    }
     jsonTest();
 
 //    std::string before = "123<>?:?!@#$%^&*(\"{}4adsfds,./adsa56789";
@@ -243,16 +243,16 @@ int main(int argc, char *argv[])
 //    MainServerDemo::instance()->addEvent(msg);
 //    MainClientDemo::instance()->addEvent(msg);
 //    MainWSServerDemo::instance()->addEvent(msg);
-//    MainWSClientDemo::instance()->addEvent(msg);
+    MainWSClientDemo::instance()->addEvent(msg);
 //    MainSSLServerDemo::instance()->addEvent(msg);
-    MAINSSLClientDemo::instance()->addEvent(msg);
+//    MAINSSLClientDemo::instance()->addEvent(msg);
 
 //    MainServerDemo::instance()->loop();
 //    MainClientDemo::instance()->loop();
 //    MainWSServerDemo::instance()->loop();
-//    MainWSClientDemo::instance()->loop();
+    MainWSClientDemo::instance()->loop();
 //    MainSSLServerDemo::instance()->loop();
-    MAINSSLClientDemo::instance()->loop();
+//    MAINSSLClientDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

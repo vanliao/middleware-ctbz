@@ -3,26 +3,26 @@
 
 namespace network {
 
-SSLClient::SSLClient(const std::string serverIP, const int serverPort) :
-    TcpClient(serverIP, serverPort), sslCtx(NULL)
+SSLClient::SSLClient(const std::string &serverIP,
+                     const int serverPort,
+                     const bool verifyPeer,
+                     const std::string &caFilePath,
+                     const std::string &certFilePath,
+                     const std::string &keyFilePath) :
+    TcpClient(serverIP, serverPort),
+    verifyCA(verifyPeer), caFile(caFilePath), certFile(certFilePath), privateKeyFile(keyFilePath)
 {
     SSLCommon::initSSL();
 }
 
 SSLClient::SSLClient(const int clientFd):
-    TcpClient(clientFd), sslCtx(NULL)
+    TcpClient(clientFd)
 {
 
 }
 
 network::SSLClient::~SSLClient()
 {
-    if (sslCtx)
-    {
-        /*释放SSL上下文环境变量函数*/
-        SSL_CTX_free(sslCtx);
-        sslCtx = NULL;
-    }
 }
 
 bool SSLClient::SSLconnect()
@@ -42,7 +42,41 @@ bool SSLClient::SSLconnect()
         return false;
     }
 
-    /*基于pCtx产生一个新的ssl*/
+    if (!certFile.empty())
+    {
+        /* 载入用户的数字证书， 此证书用来发送给客户端。 证书里包含有公钥 */
+        if(SSL_CTX_use_certificate_file(sslCtx, certFile.c_str(), SSL_FILETYPE_PEM) <= 0)
+        {
+            log_error("ssl set cert file failed");
+            return false;
+        }
+    }
+    if (!privateKeyFile.empty())
+    {
+        /* 载入用户私钥 */
+        if(SSL_CTX_use_PrivateKey_file(sslCtx, privateKeyFile.c_str(), SSL_FILETYPE_PEM) <= 0)
+        {
+            log_error("ssl set key file failed");
+            return false;
+        }
+    }
+    if (!caFile.empty())
+    {
+        /*加载CA证书（对端证书需要用CA证书来验证）*/
+        if(SSL_CTX_load_verify_locations(sslCtx, caFile.c_str(), NULL) !=1)
+        {
+            log_error("ssl set ca file failed");
+            return false;
+        }
+    }
+
+    if (verifyCA)
+    {
+        /*设置对端证书验证*/
+        SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
+    }
+
+    /*基于sslCtx产生一个新的ssl*/
     sslHandle = SSL_new(sslCtx);
     if(NULL  == sslHandle)
     {
@@ -80,6 +114,11 @@ bool SSLClient::SSLconnect()
 //        status = CONNECTED;
 //    }
 
+//    if (verifyCA)
+//    {
+//        return verifyPeerCA();
+//    }
+
     return true;
 }
 
@@ -89,6 +128,7 @@ bool SSLClient::recv(std::string &buf)
     while (1)
     {
         int ret = SSL_read(sslHandle, buffer, sizeof(buffer));
+        log_debug("ssl recv len:" << ret);
         if (0 > ret)
         {
             int sslErrCode = SSL_get_error(sslHandle, ret);
@@ -111,16 +151,40 @@ bool SSLClient::recv(std::string &buf)
             {
                 /* 等同错误码 EAGAIN */
                 log_debug("ssl recv eagain:" << sslErrCode);
+                if (verifyCA)
+                {
+                    verifyCA = false;
+                    if (!verifyPeerCA())
+                    {
+                        buf = "";
+                        return false;
+                    }
+                }
                 break;
             }
             else
             {
                 log_error("ssl read failed:" << sslErrCode);
+                buf = "";
                 return false;
             }
         }
+        else if (0 == ret)
+        {
+            buf = "";
+            return false;
+        }
         else
         {
+            if (verifyCA)
+            {
+                verifyCA = false;
+                if (!verifyPeerCA())
+                {
+                    buf = "";
+                    return false;
+                }
+            }
             buf.append(buffer, ret);
             if ((unsigned int)ret < sizeof(buffer))
             {
@@ -175,6 +239,47 @@ bool SSLClient::send(std::string &buf)
         return false;
     }
 
+    return true;
+}
+
+bool SSLClient::verifyPeerCA()
+{
+    X509* pX509Cert = NULL;
+    X509_NAME *pX509Subject = NULL;
+    char szCommName[256]={0};
+    char szSubject[1024]={0};
+    char szIssuer[256]={0};
+
+    /*获取验证对端证书的结果*/
+    if (X509_V_OK != SSL_get_verify_result(sslHandle))
+    {
+        log_error("verify peer cert failed");
+        return false;
+    }
+
+    /*获取对端证书*/
+    pX509Cert = SSL_get_peer_certificate(sslHandle);
+    if (NULL == pX509Cert)
+    {
+        log_error("get peer cert failed");
+        return false;
+    }
+
+    /*获取证书使用者属性*/
+    pX509Subject = X509_get_subject_name(pX509Cert);
+    if (NULL == pX509Subject)
+    {
+        X509_free(pX509Cert);
+        log_error("get cert subject failed");
+        return false;
+    }
+
+    X509_NAME_oneline(pX509Subject, szSubject, sizeof(szSubject) -1);
+    X509_NAME_oneline(X509_get_issuer_name(pX509Cert), szIssuer, sizeof(szIssuer) -1);
+    X509_NAME_get_text_by_NID(pX509Subject, NID_commonName, szCommName, sizeof(szCommName)-1);
+    log_debug("cert info:" << szSubject << " " << szIssuer << " " << szCommName);
+
+    X509_free(pX509Cert);
     return true;
 }
 

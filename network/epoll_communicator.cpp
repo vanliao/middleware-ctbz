@@ -10,7 +10,8 @@
 namespace network {
 
 EpollCommunicator::EpollCommunicator(const std::string &serverIP, const int serverPort, const ServerType svrtype)
-    :type(svrtype), port(serverPort), ip(serverIP), epollFd(-1), finish(false)
+    :type(svrtype), port(serverPort), ip(serverIP), epollFd(-1), finish(false),
+     verifyCA(false), caFile(""), certFile(""), privateKeyFile("")
 {
     return;
 }
@@ -33,6 +34,7 @@ bool EpollCommunicator::start(EpollCommunicatorIF &obj)
         log_error("create epoll fd failed");
         return false;
     }
+    log_debug("epoll create fd " << epollFd);
 
     bool ret = true;
     if (TCP == type || SSL == type)
@@ -64,7 +66,7 @@ bool EpollCommunicator::connect()
         }
         else if (SSL == type)
         {
-            clt = std::make_shared<network::SSLClient>(ip, port);
+            clt = std::make_shared<network::SSLClient>(ip, port, verifyCA, caFile, certFile, privateKeyFile);
         }
         else
         {
@@ -210,6 +212,17 @@ UdpClient *EpollCommunicator::getUdpClient(const int connID)
     }
 
     return NULL;
+}
+
+void EpollCommunicator::setSSLCAFile(const bool verifyPeer,
+                                     const std::string &caFilePath,
+                                     const std::string &certFilePath,
+                                     const std::string &keyFilePath)
+{
+    verifyCA = verifyPeer;
+    caFile = caFilePath;
+    certFile = certFilePath;
+    privateKeyFile = keyFilePath;
 }
 
 void EpollCommunicator::disconnect(const int connID)

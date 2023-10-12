@@ -126,6 +126,7 @@ bool UdpSocket::recv(std::string &buf)
     {
         /* UDP必须一次性吧数据读取完,否则会丢弃 */
         int ret = ::recvfrom(fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&raddr, &len);
+        log_debug("udp recv len:" << ret);
         if (0 > ret)
         {
             if(EAGAIN == errno)
