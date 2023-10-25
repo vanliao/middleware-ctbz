@@ -34,9 +34,9 @@ void SSLServer::setCAFile(const bool verifyPeer,
 
 bool SSLServer::listen()
 {
-    if (caFile.empty() || certFile.empty() || privateKeyFile.empty())
+    if (certFile.empty() || privateKeyFile.empty())
     {
-        log_error("ssl ca/cert/key file not set");
+        log_error("ssl cert/key file not set");
         return false;
     }
 
@@ -85,15 +85,6 @@ bool SSLServer::listen()
         return false;
     }
 
-    /* 设置信任根证书 */
-    if (SSL_CTX_load_verify_locations(sslCtx, caFile.c_str(), NULL)<=0)
-    {
-        SSL_CTX_free(sslCtx);
-        sslCtx = NULL;
-        log_error("ssl load verify locations failed");
-        return false;
-    }
-
     if (!SSL_CTX_set_cipher_list(sslCtx, "ALL"))
     {
         SSL_CTX_free(sslCtx);
@@ -104,6 +95,23 @@ bool SSLServer::listen()
 
     if (verifyCA)
     {
+        if (!caFile.empty())
+        {
+            /* 设置信任根证书 */
+            if (SSL_CTX_load_verify_locations(sslCtx, caFile.c_str(), NULL)<=0)
+            {
+                SSL_CTX_free(sslCtx);
+                sslCtx = NULL;
+                log_error("ssl load verify locations failed");
+                return false;
+            }
+        }
+        else
+        {
+            log_error("ssl ca file not set");
+            return false;
+        }
+
         /*设置对端证书验证*/
         SSL_CTX_set_verify(sslCtx, SSL_VERIFY_PEER, NULL);
 //        SSL_CTX_set_verify(sslCtx, SSL_VERIFY_NONE,NULL);
@@ -153,24 +161,16 @@ bool SSLServer::accept(unsigned int &connID)
         return false;
     }
 
-    if (verifyCA)
-    {
-        if (!verifyPeerCA(sslHandle))
-        {
-            close(sock);
-            SSL_free(sslHandle);
-            log_error("ssl verify ca failed");
-            return false;
-        }
-    }
-
-    if (clients.end() != clients.find(sock))
-    {
-        close(sock);
-        SSL_free(sslHandle);
-        log_error("socket[" << sock << "] has been used");
-        return false;
-    }
+//    if (verifyCA)
+//    {
+//        if (!verifyPeerCA(sslHandle))
+//        {
+//            close(sock);
+//            SSL_free(sslHandle);
+//            log_error("ssl verify ca failed");
+//            return false;
+//        }
+//    }
 
     std::shared_ptr<TcpClient> clt = std::make_shared<SSLClient>(sock);
     auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<TcpClient> >(api::getClientID(), clt));

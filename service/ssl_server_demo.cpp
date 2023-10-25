@@ -1,7 +1,7 @@
+#include "tinylog.h"
 #include <unistd.h>
 #include "ssl_server_demo.h"
 #include "nr_dev_demo.h"
-#include "tinylog.h"
 
 namespace service {
 

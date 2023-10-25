@@ -77,7 +77,7 @@ bool TcpSocket::accept(int &newSock, std::string &ipAddr, int &port)
     while (1)
     {
         int ret = ::accept(fd, (struct sockaddr *)&peerAddr, &len);
-        if (-1 == ret)
+        if (unlikely(-1 == ret))
         {
             if(EINTR == errno)
             {
@@ -108,25 +108,29 @@ bool TcpSocket::recv(std::string &buf)
     {
         int ret = ::recv(fd, buffer, sizeof(buffer), 0);
         log_debug("tcp recv len:" << ret);
-        if (0 > ret)
+        if (unlikely(ret <= 0))
         {
-            if (EAGAIN == errno)
+            if (0 == ret)
             {
-                log_debug("tcp socket recv eagain");
-                break;
+                log_error("recv zero:" << strerror(errno))
+                return false;
             }
-            else if (EINTR == errno)
+            if (EINTR == errno)
             {
                 log_debug("tcp recv Interrupted");
                 continue;
             }
-
-            log_error("recv failed:" << strerror(errno))
-            return false;
-        }
-        else if (0 == ret)
-        {
-            return false;
+            else if (EAGAIN == errno)
+            {
+                log_debug("tcp socket need recv eagain");
+                break;
+            }
+            else
+            {
+                /* 接收到空数据 或者 接收失败 */
+                log_error("recv failed:" << strerror(errno))
+                return false;
+            }
         }
         else
         {
@@ -139,7 +143,6 @@ bool TcpSocket::recv(std::string &buf)
         }
     }
 
-
     return true;
 }
 
@@ -150,12 +153,17 @@ bool TcpSocket::send(std::string &buf)
     while (1)
     {
         ret = ::send(fd, buf.c_str(), len, 0);
-        if (0 > ret)
+        if (unlikely(ret < 0))
         {
-            if(EINTR == errno)
+            if (EINTR == errno)
             {
                 log_debug("tcp send Interrupted");
                 continue;
+            }
+            else if (EAGAIN == errno)
+            {
+                log_debug("tcp socket need send eagain");
+                break;
             }
             else
             {
@@ -165,17 +173,16 @@ bool TcpSocket::send(std::string &buf)
         }
         else
         {
+            buf.erase(0, ret);
             break;
         }
     }
 
-    buf.erase(0, ret);
-
-    if ((unsigned int)ret != len)
-    {
-        log_debug("tcp send incomplete");
-        return false;
-    }
+//    if (unlikely((unsigned int)ret != len))
+//    {
+//        log_debug("tcp send incomplete");
+//        return true;
+//    }
 
     return true;
 }

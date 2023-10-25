@@ -1,4 +1,5 @@
 import socket
+import time
 
 # 指定协议
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,8 +20,11 @@ data = clientsocket.recv(1024).decode()
 print(data)
 
 # 接收消息
-data = clientsocket.recv(1024).decode()
-print(data)
+while True:
+    clientsocket.send(b"{\"code\":1,\"data\":\"hijklmn\"}")
+    data = clientsocket.recv(1024).decode()
+    print(data)
+    time.sleep(1)
 
 # 关闭socket
 clientsocket.close()

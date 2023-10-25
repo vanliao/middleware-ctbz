@@ -1,9 +1,9 @@
 CC := g++
-CFLAGS := -std=c++11 -g -I log/ -I msg/ -I network/ -I service/ -I db/ -I dev/ -I main/ -I public/ -I thirdparty/xml/ -I thirdparty/inifile/ -I thirdparty/rapidjson/  -I thirdparty/fcgi -I thirdparty/sqlite3 -I thirdparty
+CFLAGS := -std=c++11 -O2 -g -I log/ -I msg/ -I network/ -I service/ -I db/ -I dev/ -I main/ -I public/ -I thirdparty/xml/ -I thirdparty/inifile/ -I thirdparty/rapidjson/  -I thirdparty/fcgi -I thirdparty/sqlite3 -I thirdparty
 
 ifeq ($(platform), arm)
 CC := aarch64-linux-gnu-g++
-CFLAGS := -std=c++11 -DARM -g -Wno-psabi -I log/ -I msg/ -I network/ -I service/ -I db/ -I dev/ -I main/ -I public/ -I thirdparty/xml/ -I thirdparty/inifile/ -I thirdparty/rapidjson/ -I thirdparty/fcgi -I thirdparty/sqlite3 -I thirdparty
+CFLAGS := -std=c++11 -DARM -O2 -g -Wno-psabi -I log/ -I msg/ -I network/ -I service/ -I db/ -I dev/ -I main/ -I public/ -I thirdparty/xml/ -I thirdparty/inifile/ -I thirdparty/rapidjson/ -I thirdparty/fcgi -I thirdparty/sqlite3 -I thirdparty
 endif
 
 # define source path

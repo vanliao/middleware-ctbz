@@ -22,7 +22,7 @@ async def ws_client(url):
             response = await websocket.recv()
             print(response)
             # await websocket.ping("1234567")
-        time.sleep(1)
+        # time.sleep(1)
 
 asyncio.run(ws_client('ws://192.168.216.135:4444/login'))
 

@@ -1,3 +1,4 @@
+#include <functional>
 #include "tinylog.h"
 #include "websocket_client.h"
 
@@ -5,19 +6,23 @@ namespace network {
 
 WebsocketClient::WebsocketClient(const std::string serverIP, const int serverPort) :
     TcpClient(serverIP, serverPort), isWSUpdated(false),
-    closeStatus(WebSocket::CLOSE_NONE), recvBuf(""), wsOpCode(0),
+    closeStatus(WebSocket::CLOSE_NONE), wsOpCode(0), partialWSFrame(""),
     uri("/"), host("WS-CLIENT"), origin(""), protocol(""),
     extensions("")
 {
+    pollOutAction = std::bind(&WebsocketClient::connectAction, this);
+    pollInAction = std::bind(&WebsocketClient::handShakeAction1, this);
     return;
 }
 
 WebsocketClient::WebsocketClient(const int clientFd) :
     TcpClient(clientFd), isWSUpdated(false),
-    closeStatus(WebSocket::CLOSE_NONE), recvBuf(""), wsOpCode(0),
+    closeStatus(WebSocket::CLOSE_NONE), wsOpCode(0), partialWSFrame(""),
     uri("/"), host("WS-CLIENT"), origin(""), protocol(""),
     extensions("")
 {
+    pollOutAction = std::bind(&WebsocketClient::sendAction, this);
+    pollInAction = std::bind(&WebsocketClient::handShakeAction2, this);
     return;
 }
 
@@ -46,62 +51,16 @@ bool WebsocketClient::connectWS()
         wsConnReq += "Sec-WebSocket-Extensions: " + extensions + "\r\n";
     }
     wsConnReq += "\r\n";
-    log_debug("send http update ws success");
-    return TcpClient::send(wsConnReq);
-}
-
-bool WebsocketClient::recv(std::string &buf)
-{
-    std::string tcpBuf = "";
-    bool ret = TcpClient::recv(tcpBuf);
-    if (!ret)
+    TcpClient::send(wsConnReq);
+    if (likely(wsConnReq.empty()))
     {
-        closeStatus = WebSocket::CLOSE_FORCE;
-        return ret;//false
+        log_debug("send http update ws success");
+        return true;
     }
 
-    if (tcpBuf.empty())
-    {
-        closeStatus = WebSocket::CLOSE_FORCE;
-        return ret;//true
-    }
+    log_error("send ws connect requst failed");
 
-    if (isWSUpdated)
-    {
-        ret = handleWSMsg(tcpBuf);
-        if (ret)
-        {
-            buf = recvBuf;
-            recvBuf = "";
-        }
-    }
-    else
-    {
-        if (isPeer)
-        {
-            handleHttpRequest(tcpBuf);
-            ret = false;
-        }
-        else
-        {
-           handleHttpReply(tcpBuf);
-           if (isWSUpdated && !tcpBuf.empty())
-           {
-               ret = handleWSMsg(tcpBuf);
-               if (ret)
-               {
-                   buf = recvBuf;
-                   recvBuf = "";
-               }
-           }
-           else
-           {
-               ret = false;
-           }
-        }
-    }
-
-    return ret;
+    return false;
 }
 
 bool WebsocketClient::sendPrepare(const std::string &buf, const uint8_t opcode)
@@ -175,6 +134,150 @@ void WebsocketClient::closeSend()
     }
 
     return;
+}
+
+Socket::POLL_RESULT WebsocketClient::pollIn()
+{
+    return pollInAction();
+}
+
+Socket::POLL_RESULT WebsocketClient::pollOut()
+{
+    return pollOutAction();
+}
+
+Socket::POLL_RESULT WebsocketClient::connectAction()
+{
+    if (unlikely(CONNECTING != status))
+    {
+        log_error("invaild tcp status");
+        /* 状态错误 关闭连接 */
+        return POLL_RESULT_CLOSE;
+    }
+
+    if (likely(connectWS()))
+    {
+        /* 之后收到写事件 执行数据发送流程 */
+        pollOutAction = std::bind(&WebsocketClient::sendAction, this);
+        return POLL_RESULT_READ;
+    }
+
+    /* WS连接失败 关闭连接 */
+    return POLL_RESULT_CLOSE;
+}
+
+Socket::POLL_RESULT WebsocketClient::sendAction()
+{
+    while (!sendBuf.empty())
+    {
+        std::string &s = sendBuf.front();
+        if (likely(TcpSocket::send(s)))
+        {
+            if (!s.empty())
+            {
+                /* 本次没发送完 之后继续发送 */
+                return POLL_RESULT_SEND;
+            }
+
+            sendBuf.pop_front();
+        }
+        else
+        {
+            /* 发送时遇到错误 关闭连接 */
+            return POLL_RESULT_CLOSE;
+        }
+    }
+
+    if (likely(sendBuf.empty()))
+    {
+        if (network::WebSocket::CLOSE_COMPLETE == closeStatus)
+        {
+            log_debug("send ws close msg and close ws");
+            /* 双方协商关闭完成 断开连接 */
+            return POLL_RESULT_CLOSE;
+        }
+
+        /* 发送完成 */
+        return POLL_RESULT_SUCCESS;
+    }
+
+    /* 还有数据 之后继续发送 */
+    return POLL_RESULT_SEND;
+}
+
+Socket::POLL_RESULT WebsocketClient::handShakeAction1()
+{
+    bool ret = TcpClient::recv(recvBuf);
+    if (unlikely(!ret))
+    {
+        closeStatus = WebSocket::CLOSE_FORCE;
+        return POLL_RESULT_CLOSE;
+    }
+
+    if (unlikely(std::string::npos == recvBuf.rfind("\r\n\r\n")))
+    {
+        /* HTTP 头以 \r\n\r\n 结束
+         * 没找到需要等待继续接收
+         */
+        return POLL_RESULT_READ;
+    }
+
+    ret = handleHttpReply(recvBuf);
+    if (likely(ret))
+    {
+        pollInAction = std::bind(&WebsocketClient::recvAction, this);
+        status = CONNECTED;
+        return POLL_RESULT_HANDSHAKE;
+    }
+
+    /* 握手失败 断开连接 */
+    return POLL_RESULT_CLOSE;
+}
+
+Socket::POLL_RESULT WebsocketClient::handShakeAction2()
+{
+    bool ret = TcpClient::recv(recvBuf);
+    if (unlikely(!ret))
+    {
+        return POLL_RESULT_CLOSE;
+    }
+
+    if (unlikely(std::string::npos == recvBuf.rfind("\r\n\r\n")))
+    {
+        /* HTTP 头以 \r\n\r\n 结束
+         * 没找到需要等待继续接收
+         */
+        return POLL_RESULT_READ;
+    }
+
+    ret = handleHttpRequest(recvBuf);
+    if (likely(ret))
+    {
+        pollInAction = std::bind(&WebsocketClient::recvAction, this);
+        recvBuf = "";
+        /* 握手完成 继续接收数据 */
+        return POLL_RESULT_HANDSHAKE;
+    }
+
+    return POLL_RESULT_CLOSE;
+}
+
+Socket::POLL_RESULT WebsocketClient::recvAction()
+{
+    bool ret = TcpClient::recv(recvBuf);
+    if (unlikely(!ret))
+    {
+        closeStatus = WebSocket::CLOSE_FORCE;
+        return POLL_RESULT_CLOSE;
+    }
+
+//    if (unlikely(recvBuf.empty()))
+//    {
+//        closeStatus = WebSocket::CLOSE_FORCE;
+//        return POLL_RESULT_CLOSE;
+//    }
+
+    return handleWSMsg(recvBuf);
 }
 
 std::string WebsocketClient::creatWSHeader(const uint64_t payloadLen, const uint8_t opcode, const bool fin)
@@ -302,7 +405,23 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
     while (true)
     {
         const char* ln = (char*)memchr(data, '\n', data_end - data);
-        if (!ln) return size;
+        if (!ln)
+        {
+            if (!host[0] || !wskey[0] || !upgrade_checked || !connection_checked || !wsversion_checked)
+            {
+                break;
+            }
+            std::string resp = "";
+            memcpy(wskey + 24, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", 36);
+            char accept_str[32];
+            accept_str[sha1base64((uint8_t*)wskey, 24 + 36, accept_str)] = 0;
+            resp += "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: ";
+            resp += "Upgrade\r\nSec-WebSocket-Accept: " + std::string(accept_str) + "\r\n";
+            resp += "\r\n";
+            TcpClient::send(resp);
+            log_debug("http update ws success 1");
+            return true;
+        }
         if (*--ln != '\r') break;
         if (request_uri[0] == 0)
         {
@@ -335,8 +454,7 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
                 resp += "Upgrade\r\nSec-WebSocket-Accept: " + std::string(accept_str) + "\r\n";
                 resp += "\r\n";
                 TcpClient::send(resp);
-                isWSUpdated = true;
-                log_debug("http update ws success");
+                log_debug("http update ws success 2");
                 return true;
             }
             const char* colon = (char*)memchr(data, ':', ln - data);
@@ -400,7 +518,6 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
 
     std::string resp400 = "HTTP/1.1 400 Bad Request\r\nSec-WebSocket-Version: 13\r\n\r\n";
     TcpClient::send(resp400);
-    closeStatus = WebSocket::CLOSE_COMPLETE;
     log_error("ws connect failed");
 
     return false;
@@ -408,10 +525,9 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
 
 bool WebsocketClient::handleHttpReply(std::string &wsMsg)
 {
-    std::string::size_type pos = wsMsg.find("\r\n\r\n");
-    if (std::string::npos == pos)
+    std::string::size_type pos = wsMsg.rfind("\r\n\r\n");
+    if (unlikely(std::string::npos == pos))
     {
-        closeStatus = WebSocket::CLOSE_COMPLETE;
         return false;
     }
 
@@ -428,7 +544,7 @@ bool WebsocketClient::handleHttpReply(std::string &wsMsg)
         const char* ln = (char*)memchr(data, '\n', data_end - data);
         if (!ln)
         {
-            isWSUpdated = true;
+            if (!upgrade_checked || !connection_checked || !accept_checked) break;
             wsMsg.erase(0, size + 4);
             return true;
         }
@@ -448,7 +564,6 @@ bool WebsocketClient::handleHttpReply(std::string &wsMsg)
             if (val_end == data)
             {
                 if (!upgrade_checked || !connection_checked || !accept_checked) break;
-                isWSUpdated = true;
                 wsMsg.erase(0, size + 4);
                 return true;
             }
@@ -478,16 +593,19 @@ bool WebsocketClient::handleHttpReply(std::string &wsMsg)
         data = ln + 2; // skip \r\n
     }
 
-    closeStatus = WebSocket::CLOSE_COMPLETE;
     log_error("ws connect failed");
 
     return false;
 }
 
-bool WebsocketClient::handleWSMsg(std::string &wsMsg)
+network::Socket::POLL_RESULT WebsocketClient::handleWSMsg(std::string &wsMsg)
 {
-    // we might read a little more bytes beyond size, which is okey
-    const char *data = wsMsg.data();
+    const unsigned int wsMsgLen = wsMsg.length();
+    if (unlikely(wsMsgLen < 2))
+    {
+        /* ws 帧头至少 2 个字节 */
+        return POLL_RESULT_READ;
+    }
 
     /*
      * 未分片消息:FIN取值1，opcode取值非0
@@ -496,38 +614,58 @@ bool WebsocketClient::handleWSMsg(std::string &wsMsg)
      *  2.中间0个或多个分片:FIN取值为，opcode取值0
      *  3.最后一个分片:FIN取值1，opcode取值0
      */
-    uint8_t opcode = data[0] & 15;
+    uint8_t opcode = wsMsg[0] & 15;
     if (WebSocket::CONT != opcode)
     {
         wsOpCode = opcode;/* 记录第一个分片类型 */
     }
-    bool fin = data[0] >> 7; //, control = opcode >> 3;
-    bool mask = data[1] >> 7;
 
-    uint64_t payloadLen = data[1] & 127;
+    log_debug("recv ws type:" << (int)wsOpCode);
+
+    bool fin = wsMsg[0] >> 7; //, control = opcode >> 3;
+    bool mask = wsMsg[1] >> 7;
+
+    uint64_t payloadLen = wsMsg[1] & 127;
     u_int64_t offset = 0;
     offset += 2;
     if (payloadLen == 126)
     {
-        payloadLen = be16toh(*(uint16_t*)(data + offset));
+        if (unlikely(wsMsgLen < offset + 2))
+        {
+            return POLL_RESULT_READ;
+        }
+        payloadLen = be16toh(*(uint16_t*)(wsMsg.c_str() + offset));
         offset += 2;
     }
     else if (payloadLen == 127)
     {
-        payloadLen = be64toh(*(uint64_t*)(data + offset)) & ~(1ULL << 63);
+        if (unlikely(wsMsgLen < offset + 8))
+        {
+            return POLL_RESULT_READ;
+        }
+        payloadLen = be64toh(*(uint64_t*)(wsMsg.c_str() + offset)) & ~(1ULL << 63);
         offset += 8;
     }
 
     uint8_t mask_key[4] = {0};
     if (mask)
     {
-        *(uint32_t*)mask_key = *(uint32_t*)(data + offset);
+        if (unlikely(wsMsgLen < offset + 4))
+        {
+            return POLL_RESULT_READ;
+        }
+        *(uint32_t*)mask_key = *(uint32_t*)(wsMsg.c_str() + offset);
         offset += 4;
     }
     //  if (data_end - data < (int64_t)pl_len) {
     //    if (size + (data + pl_len - data_end) > RecvBufSize) close(1009);
     //    return size;
     //  }
+
+    if (unlikely(wsMsgLen < offset + payloadLen))
+    {
+        return POLL_RESULT_READ;
+    }
 
     if (mask)
     {
@@ -537,27 +675,26 @@ bool WebsocketClient::handleWSMsg(std::string &wsMsg)
         }
     }
 
-//    log_debug("fin:" << fin << " mask:" << mask << " mask_key:" << *(u_int32_t *)mask_key << " payloadLen:" << payloadLen);
-
-    if (wsOpCode == network::WebSocket::CLOSE)
+    if (network::WebSocket::CLOSE == wsOpCode)
     {
         uint16_t statusCode = 1005;
         std::string reason = "";
         if (payloadLen >= 2)
         {
-            statusCode = be16toh(*(uint16_t*)(data + offset));
-            uint64_t reasonLen = (sizeof(reason) - 1 < payloadLen - 2)?(sizeof(reason) - 1):(payloadLen - 2);
-            reason.append((data + offset) + 2, reasonLen);
+            statusCode = be16toh(*(uint16_t*)(wsMsg.c_str() + offset));
+            reason.append((wsMsg.c_str() + offset) + 2, payloadLen - 2);
         }
         log_debug("ws recv close code:" << statusCode << " reason:" << reason);
 
-        recvBuf = "";
+        POLL_RESULT pr = POLL_RESULT_READ;
         switch (closeStatus)
         {
             case WebSocket::CLOSE_NONE:
             {
                 closeStatus = WebSocket::CLOSE_RECV;
-                recvBuf.append((data + offset), payloadLen);
+                sendPrepare(std::string(wsMsg.c_str() + offset, payloadLen), network::WebSocket::CLOSE);
+                closeSend();
+                pr = POLL_RESULT_SEND;
                 break;
             }
             case WebSocket::CLOSE_RECV:
@@ -569,6 +706,7 @@ bool WebsocketClient::handleWSMsg(std::string &wsMsg)
             {
                 /* 告知后续流程关闭连接 */
                 closeStatus = WebSocket::CLOSE_COMPLETE;
+                pr = POLL_RESULT_CLOSE;
                 break;
             }
             case WebSocket::CLOSE_FORCE:
@@ -587,13 +725,43 @@ bool WebsocketClient::handleWSMsg(std::string &wsMsg)
                 break;
             }
         }
+
+        wsMsg.erase(0, offset + payloadLen);
+        return pr;
+    }
+    else if (network::WebSocket::PING == wsOpCode)
+    {
+        log_debug("ws recv ping need reply pong");
+        sendPrepare(std::string(wsMsg.c_str() + offset, payloadLen), network::WebSocket::PONG);
+        wsMsg.erase(0, offset + payloadLen);
+        return POLL_RESULT_SEND;
+    }
+    else if (network::WebSocket::PONG == wsOpCode)
+    {
+        log_debug("ws recv pong");
+        wsMsg.erase(0, offset + payloadLen);
+        return POLL_RESULT_READ;
     }
     else
     {
-        recvBuf.append((data + offset), payloadLen);
+        if (0 < payloadLen)
+        {
+            partialWSFrame.append(wsMsg.c_str() + offset, payloadLen);
+            if (fin)
+            {
+                readyWSFrame = std::move(partialWSFrame);
+            }
+        }
+        wsMsg.erase(0, offset + payloadLen);
     }
 
-    return fin;
+    /* 没读到数据 或者 ws报文不完全 则继续读取 */
+    if (readyWSFrame.empty())
+    {
+        return POLL_RESULT_READ;
+    }
+
+    return POLL_RESULT_SUCCESS;
 }
 
 }

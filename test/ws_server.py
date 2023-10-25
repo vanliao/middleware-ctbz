@@ -28,6 +28,7 @@ async def server_recv(websocket):
         recv_text = await websocket.recv()
         print(recv_text)
         await asyncio.sleep(1)
+        # break;
 
 
 async def server_run(websocket, path):

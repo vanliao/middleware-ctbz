@@ -1,3 +1,4 @@
+#include <functional>
 #include "tinylog.h"
 #include "ssl_client.h"
 
@@ -13,30 +14,31 @@ SSLClient::SSLClient(const std::string &serverIP,
     verifyCA(verifyPeer), caFile(caFilePath), certFile(certFilePath), privateKeyFile(keyFilePath)
 {
     SSLCommon::initSSL();
+    pollOutAction = std::bind(&SSLClient::connectTCPAction, this);
 }
 
 SSLClient::SSLClient(const int clientFd):
     TcpClient(clientFd)
 {
-
+    pollOutAction = std::bind(&SSLClient::sendAction, this);
 }
 
-network::SSLClient::~SSLClient()
+SSLClient::~SSLClient()
 {
 }
 
 bool SSLClient::SSLconnect()
 {
     const SSL_METHOD  *pMethod = SSLv23_client_method();
-    if(NULL == pMethod)
+    if (unlikely(NULL == pMethod))
     {
         log_error("ssl client method failed");
         return false;
     }
 
-    /*初始化SSL上下文环境变量函数*/
+    /* 初始化SSL上下文环境变量函数 */
     sslCtx = SSL_CTX_new(pMethod);
-    if(NULL == sslCtx)
+    if (unlikely(NULL == sslCtx))
     {
         log_error("ssl ctx new failed");
         return false;
@@ -62,7 +64,7 @@ bool SSLClient::SSLconnect()
     }
     if (!caFile.empty())
     {
-        /*加载CA证书（对端证书需要用CA证书来验证）*/
+        /* 加载CA证书（对端证书需要用CA证书来验证）*/
         if(SSL_CTX_load_verify_locations(sslCtx, caFile.c_str(), NULL) !=1)
         {
             log_error("ssl set ca file failed");
@@ -78,7 +80,7 @@ bool SSLClient::SSLconnect()
 
     /*基于sslCtx产生一个新的ssl*/
     sslHandle = SSL_new(sslCtx);
-    if(NULL  == sslHandle)
+    if (unlikely(NULL  == sslHandle))
     {
         SSL_CTX_free(sslCtx);
         sslCtx = NULL;
@@ -90,12 +92,12 @@ bool SSLClient::SSLconnect()
 
     /*ssl握手*/
     int ret = SSL_connect(sslHandle);
-    if(ret < 0)
+    if(likely(ret < 0))
     {
         int sslErrCode = SSL_get_error(sslHandle, ret);
-        if (SSL_ERROR_WANT_WRITE == sslErrCode ||
+        if (likely(SSL_ERROR_WANT_WRITE == sslErrCode ||
             SSL_ERROR_WANT_READ == sslErrCode ||
-            SSL_ERROR_WANT_X509_LOOKUP == sslErrCode)
+            SSL_ERROR_WANT_X509_LOOKUP == sslErrCode))
         {
             status = SSLCONNECTING;
         }
@@ -129,8 +131,14 @@ bool SSLClient::recv(std::string &buf)
     {
         int ret = SSL_read(sslHandle, buffer, sizeof(buffer));
         log_debug("ssl recv len:" << ret);
-        if (0 > ret)
+        if (unlikely(ret <= 0))
         {
+            if (0 == ret)
+            {
+                buf = "";
+                return false;
+            }
+
             int sslErrCode = SSL_get_error(sslHandle, ret);
             if (SSL_ERROR_NONE == sslErrCode)
             {
@@ -151,15 +159,15 @@ bool SSLClient::recv(std::string &buf)
             {
                 /* 等同错误码 EAGAIN */
                 log_debug("ssl recv eagain:" << sslErrCode);
-                if (verifyCA)
-                {
-                    verifyCA = false;
-                    if (!verifyPeerCA())
-                    {
-                        buf = "";
-                        return false;
-                    }
-                }
+//                if (verifyCA)
+//                {
+//                    verifyCA = false;
+//                    if (!verifyPeerCA())
+//                    {
+//                        buf = "";
+//                        return false;
+//                    }
+//                }
                 break;
             }
             else
@@ -169,22 +177,17 @@ bool SSLClient::recv(std::string &buf)
                 return false;
             }
         }
-        else if (0 == ret)
-        {
-            buf = "";
-            return false;
-        }
         else
         {
-            if (verifyCA)
-            {
-                verifyCA = false;
-                if (!verifyPeerCA())
-                {
-                    buf = "";
-                    return false;
-                }
-            }
+//            if (verifyCA)
+//            {
+//                verifyCA = false;
+//                if (!verifyPeerCA())
+//                {
+//                    buf = "";
+//                    return false;
+//                }
+//            }
             buf.append(buffer, ret);
             if ((unsigned int)ret < sizeof(buffer))
             {
@@ -204,7 +207,7 @@ bool SSLClient::send(std::string &buf)
     while (1)
     {
         ret = SSL_write(sslHandle, buf.c_str(), len);
-        if (0 > ret)
+        if (unlikely(ret < 0))
         {
             int sslErrCode = SSL_get_error(sslHandle, ret);
             if (SSL_ERROR_WANT_WRITE == sslErrCode ||
@@ -213,7 +216,7 @@ bool SSLClient::send(std::string &buf)
             {
                 /* 等同错误码 EAGAIN */
                 log_debug("ssl send eagain:" << sslErrCode);
-                return false;
+                break;
             }
             else if (SSL_ERROR_ZERO_RETURN == sslErrCode)
             {
@@ -227,19 +230,43 @@ bool SSLClient::send(std::string &buf)
         }
         else
         {
+            buf.erase(0, ret);
             break;
         }
     }
 
-    buf.erase(0, ret);
-
-    if ((unsigned int)ret != len)
-    {
-        log_debug("ssl send incomplete:sendlen=" << ret << ", totallen=" << len);
-        return false;
-    }
+//    if ((unsigned int)ret != len)
+//    {
+//        log_debug("ssl send incomplete:sendlen=" << ret << ", totallen=" << len);
+//        return false;
+//    }
 
     return true;
+}
+
+Socket::POLL_RESULT SSLClient::pollIn()
+{
+    if (likely(recv(recvBuf)))
+    {
+        if (recvBuf.empty())
+        {
+            /* 接收成功 但接收缓存是空 则继续接收
+             * 也有可能SSL连接
+             */
+            return POLL_RESULT_READ;
+        }
+
+        /* 接收完成 */
+        return POLL_RESULT_SUCCESS;
+    }
+
+    /* 接收时遇到错误 关闭连接 */
+    return POLL_RESULT_CLOSE;
+}
+
+Socket::POLL_RESULT SSLClient::pollOut()
+{
+    return pollOutAction();
 }
 
 bool SSLClient::verifyPeerCA()
@@ -281,6 +308,54 @@ bool SSLClient::verifyPeerCA()
 
     X509_free(pX509Cert);
     return true;
+}
+
+Socket::POLL_RESULT SSLClient::connectTCPAction()
+{
+    if (unlikely(network::TcpClient::CONNECTING != status))
+    {
+        log_error("invaild tcp status");
+        /* 状态错误 关闭连接 */
+        return POLL_RESULT_CLOSE;
+    }
+
+    if (likely(SSLconnect()))
+    {
+        /* 之后收到写事件 执行SSL连接流程 */
+        pollOutAction = std::bind(&SSLClient::connectSSLAction, this);
+
+        /* SSL连接成功 需要继续监听写事件 等待SSL连接返回*/
+        return POLL_RESULT_SEND;
+    }
+
+    /* SSL连接失败 关闭连接 */
+    return POLL_RESULT_CLOSE;
+}
+
+Socket::POLL_RESULT SSLClient::connectSSLAction()
+{
+    status = CONNECTED;
+    /* 之后收到写事件 执行数据发送流程 */
+    pollOutAction = std::bind(&SSLClient::sendAction, this);
+    return POLL_RESULT_HANDSHAKE;
+}
+
+Socket::POLL_RESULT SSLClient::sendAction()
+{
+    if (likely(SSLClient::send(sendBuf)))
+    {
+        if (sendBuf.empty())
+        {
+            /* 发送完成 */
+            return POLL_RESULT_SUCCESS;
+        }
+
+        /* 还有数据 继续发送 */
+        return POLL_RESULT_SEND;
+    }
+
+    /* 发送时遇到错误 关闭连接 */
+    return POLL_RESULT_CLOSE;
 }
 
 }

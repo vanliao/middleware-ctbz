@@ -77,13 +77,14 @@ bool EpollCommunicator::connect()
         if (it.second)
         {
             unsigned int connID = it.first->first;
+            clt->connID = connID;
             log_debug("create connection success:" << connID);
             network::TcpClient *sock = dynamic_cast<network::TcpClient *>(clt.get());
             bool ret = sock->connect();
             if (ret)
             {
                 log_debug("connect succ");
-                struct epoll_event epEvt;
+                struct epoll_event epEvt = {0};
                 epEvt.data.fd = connID;
                 epEvt.events = EPOLLOUT;/* 不用EPOLLIN是为了在epoll wait处理的时候通知connectNotify */
                 int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, sock->fd, &epEvt);
@@ -97,7 +98,7 @@ bool EpollCommunicator::connect()
             else if (!ret && network::TcpClient::CONNECTING == sock->status)
             {
                 log_debug("connecting");
-                struct epoll_event epEvt;
+                struct epoll_event epEvt = {0};
                 epEvt.data.fd = connID;
                 epEvt.events = EPOLLOUT;
                 int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, sock->fd, &epEvt);
@@ -162,7 +163,7 @@ bool EpollCommunicator::sendWS(const int connID, const std::string &buf, const n
         if (NULL != clt)
         {
             clt->sendPrepare(buf, wsOpCode);
-            struct epoll_event epEvt;
+            struct epoll_event epEvt = {0};
             epEvt.data.fd = connID;
             epEvt.events = EPOLLOUT|EPOLLIN;
             int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
@@ -326,7 +327,7 @@ bool EpollCommunicator::startTcpSvr(EpollCommunicatorIF &obj)
                 network::TcpClient *clt = getTcpClient(connID);
                 if (NULL != clt)
                 {
-                    struct epoll_event epEvt;
+                    struct epoll_event epEvt = {0};
                     epEvt.data.fd = connID;
                     epEvt.events = EPOLLIN;
                     epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);

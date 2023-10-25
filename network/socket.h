@@ -17,6 +17,18 @@ public:
     bool setNonBlock(void);
 
 public:
+    enum POLL_RESULT
+    {
+        POLL_RESULT_SUCCESS,
+        POLL_RESULT_READ,
+        POLL_RESULT_SEND,
+        POLL_RESULT_HANDSHAKE,
+        POLL_RESULT_CLOSE,
+    };
+    virtual POLL_RESULT pollIn();
+    virtual POLL_RESULT pollOut();
+
+public:
     int fd;
     int type;
     int port;

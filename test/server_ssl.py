@@ -43,7 +43,8 @@ class server_ssl:
                 # 向客户端发送信息
                 response = b"{\"code\":1,\"data\":\"hijklmn\"}"
                 client_socket.send(response)
-                break
+                # break
+                time.sleep(1)
         except Exception as e:
             print(f"Error: {str(e)}")
         finally:

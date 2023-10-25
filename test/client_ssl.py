@@ -46,9 +46,10 @@ class client_ssl:
             # 将socket打包成SSL socket
             with context.wrap_socket(sock, server_side=False) as ssock:
                 ssock.connect(('192.168.216.135', 3336))
+                print("连接成功")
+                # time.sleep(1)
 
-                while True:
-                    time.sleep(1)
+                for i in range(10):
                     # 输入要发送的消息
                     # msg = input("Enter a message to send (or 'quit' to exit): ")
                     # if msg.lower() == 'quit':
@@ -61,7 +62,6 @@ class client_ssl:
                     # 接收并打印服务端返回的消息
                     response = ssock.recv(1024)
                     print(b"recv:" + response)
-                    break
 
 if __name__ == "__main__":
     while True:

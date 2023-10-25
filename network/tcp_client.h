@@ -12,6 +12,8 @@ public:
     TcpClient(const int clientFd);
     virtual ~TcpClient(void);
     bool connect();
+    POLL_RESULT pollIn(void);
+    POLL_RESULT pollOut(void);
 
 public:
     enum Status
@@ -23,6 +25,12 @@ public:
     };
     Status status;
     std::string sendBuf;
+    std::string recvBuf;
+
+public:
+    POLL_RESULT connectAction(void);
+    POLL_RESULT sendAction(void);
+    std::function<POLL_RESULT(void)> pollOutAction;
 
 protected:
     bool isPeer;

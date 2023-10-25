@@ -92,4 +92,14 @@ bool Socket::setNonBlock()
    return true;
 }
 
+Socket::POLL_RESULT Socket::pollIn()
+{
+    return POLL_RESULT_SUCCESS;
+}
+
+Socket::POLL_RESULT Socket::pollOut()
+{
+    return POLL_RESULT_SUCCESS;
+}
+
 }

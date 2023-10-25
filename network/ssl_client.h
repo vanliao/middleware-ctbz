@@ -19,9 +19,14 @@ public:
     bool SSLconnect();
     bool recv(std::string &buf);
     bool send(std::string &buf);
+    POLL_RESULT pollIn(void);
+    POLL_RESULT pollOut(void);
 
 private:
     bool verifyPeerCA(void);
+    POLL_RESULT connectTCPAction(void);
+    POLL_RESULT connectSSLAction(void);
+    POLL_RESULT sendAction(void);
 
 private:
     bool verifyCA;

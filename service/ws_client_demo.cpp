@@ -40,7 +40,12 @@ void WSClientDemo::recvNotify(unsigned int connID, std::string &buf)
     }
 
 //    model.sendWS(connID, "", network::WebSocket::PING);
-//    model.disconnect(connID);
+//    {
+//    static int count = 0;
+//    count++;
+//    if (0 == count % 5)
+//        model.disconnect(connID);
+//    }
 
     dev::WSDevDemo *dev = dynamic_cast<dev::WSDevDemo *>(ep->dev.get());
     if (dev)

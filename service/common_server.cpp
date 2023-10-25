@@ -390,6 +390,34 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
         exitflag = false;
     };
 
+    auto addEpollIn = [this](unsigned int connID, int fd)->void
+    {
+        struct epoll_event epEvt = {0};
+        epEvt.data.fd = connID;
+        epEvt.events = EPOLLIN;
+        int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, fd, &epEvt);
+        if (unlikely(0 != rc))
+        {
+            log_error("add epoll in failed:" << strerror(errno));
+            return;
+        }
+        return;
+    };
+
+    auto modifyEpollIn = [this](unsigned int connID, int fd)->void
+    {
+        struct epoll_event epEvt = {0};
+        epEvt.data.fd = connID;
+        epEvt.events = EPOLLIN;
+        int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, fd, &epEvt);
+        if (unlikely(0 != rc))
+        {
+            log_error("mod epoll in failed:" << strerror(errno));
+            return;
+        }
+        return;
+    };
+
     struct epoll_event waitEv[10];
     memset(waitEv, 0, 10*sizeof(struct epoll_event));
     while (!finish)
@@ -437,14 +465,37 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
                 log_debug("epoll out");
                 unsigned int connID = waitEv[i].data.fd;
                 network::TcpClient *clt = svr->getClient(connID);
-                if (NULL != clt)
+                if (likely((NULL != clt)))
                 {
-                    if (clt->send(clt->sendBuf))
+                    network::Socket::POLL_RESULT pr = clt->pollOut();
+                    switch (pr)
                     {
-                        struct epoll_event epEvt;
-                        epEvt.data.fd = connID;
-                        epEvt.events = EPOLLIN;
-                        epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+                    /* 发送数据成功 */
+                    case network::Socket::POLL_RESULT::POLL_RESULT_SUCCESS:
+                    {
+                        modifyEpollIn(connID, clt->fd);
+                        break;
+                    }
+                    case network::Socket::POLL_RESULT::POLL_RESULT_READ:
+                    case network::Socket::POLL_RESULT::POLL_RESULT_SEND:
+                    case network::Socket::POLL_RESULT::POLL_RESULT_HANDSHAKE:
+                    {
+                        break;
+                    }
+                    /* 出错 关闭连接 */
+                    case network::Socket::POLL_RESULT::POLL_RESULT_CLOSE:
+                    {
+                        log_error("epoll out failed");
+                        obj.closeNotify(connID);
+                        epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                        svr->close(connID);
+                        break;
+                    }
+                    default:
+                    {
+                        log_error("invalid poll result:" << pr);
+                        break;
+                    }
                     }
                 }
             }
@@ -455,17 +506,8 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
                 ret = svr->accept(connID);
                 if (ret)
                 {
-                    epEvt.data.fd = connID;
-                    epEvt.events = EPOLLIN;
-                    int rc = epoll_ctl(epollFd, EPOLL_CTL_ADD, svr->getClient(connID)->fd, &epEvt);
-                    if (0 != rc)
-                    {
-                        log_error("add tcp client fd to epoll failed:" << strerror(errno));
-                    }
-                    else
-                    {
-                        obj.connectNotify(connID);
-                    }
+                    addEpollIn(connID, svr->getClient(connID)->fd);
+                    obj.connectNotify(connID);
                 }
             }
             else
@@ -485,22 +527,37 @@ bool CommonServer::startTcpSvr(CommonServerIF &obj)
                 {
                     unsigned int connID = waitEv[i].data.fd;
                     network::TcpClient *clt = svr->getClient(connID);
-                    if (NULL != clt)
+                    if (likely(NULL != clt))
                     {
-                        std::string buf;
-                        if (clt->recv(buf))
+                        network::Socket::POLL_RESULT pr = clt->pollIn();
+                        switch (pr)
                         {
-                            if (0 != buf.size())
-                            {
-                                obj.recvNotify(connID, buf);
-                            }
-                            //else{}
+                        /* 接收数据成功 */
+                        case network::Socket::POLL_RESULT::POLL_RESULT_SUCCESS:
+                        {
+                            obj.recvNotify(connID, clt->recvBuf);
+                            clt->recvBuf = "";
+                            break;
                         }
-                        else
+                        case network::Socket::POLL_RESULT::POLL_RESULT_READ:
+                        case network::Socket::POLL_RESULT::POLL_RESULT_SEND:
+                        case network::Socket::POLL_RESULT::POLL_RESULT_HANDSHAKE:
+                        {
+                            break;
+                        }
+                        /* 出错 关闭连接 */
+                        case network::Socket::POLL_RESULT::POLL_RESULT_CLOSE:
                         {
                             obj.closeNotify(connID);
                             epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
                             svr->close(connID);
+                            break;
+                        }
+                        default:
+                        {
+                            log_error("invalid poll result:" << pr);
+                            break;
+                        }
                         }
                     }
                 }
@@ -544,6 +601,34 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
         log_error("add ws server fd to epoll failed:" << strerror(errno));
         return false;
     }
+
+    auto modifyEpollIn = [this](unsigned int connID, int fd)->void
+    {
+        struct epoll_event epEvt = {0};
+        epEvt.data.fd = connID;
+        epEvt.events = EPOLLIN;
+        int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, fd, &epEvt);
+        if (unlikely(0 != rc))
+        {
+            log_error("mod epoll in failed:" << strerror(errno));
+            return;
+        }
+        return;
+    };
+
+    auto modifyEpollOut = [this](unsigned int connID, int fd)->void
+    {
+        struct epoll_event epEvt = {0};
+        epEvt.data.fd = connID;
+        epEvt.events = EPOLLIN|EPOLLOUT;
+        int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, fd, &epEvt);
+        if (unlikely(0 != rc))
+        {
+            log_error("mod epoll out failed:" << strerror(errno));
+            return;
+        }
+        return;
+    };
 
     bool exitflag = true;
     auto exitEpoll = [this, &exitflag]()
@@ -601,38 +686,39 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
                 network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
                 if (NULL != clt)
                 {
-                    while (!clt->sendBuf.empty())
+                    network::Socket::POLL_RESULT pr = clt->pollOut();
+                    switch (pr)
                     {
-                        std::string &s = clt->sendBuf.front();
-                        if (clt->send(s))
-                        {
-                            clt->sendBuf.pop_front();
-                            if (clt->sendBuf.empty())
-                            {
-                                if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
-                                {
-                                    log_debug("epoll out send ws close msg and close ws");
-                                    obj.closeNotify(connID);
-                                    epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
-                                    svr->close(connID);
-                                }
-                                else
-                                {
-                                    struct epoll_event epEvt;
-                                    epEvt.data.fd = connID;
-                                    epEvt.events = EPOLLIN;
-                                    epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
-                                }
-                                break;
-                            }
-                            //else {} 继续发送
-                        }
-                        else
-                        {
-                            /* 发送失败,下次发送 */
-                            break;
-                        }
-                    }// while (!clt->sendBuf.empty())
+                    /* 发送数据成功 */
+                    case network::Socket::POLL_RESULT::POLL_RESULT_SUCCESS:
+                    {
+                        modifyEpollIn(connID, clt->fd);
+                        break;
+                    }
+                    case network::Socket::POLL_RESULT::POLL_RESULT_READ:
+                    case network::Socket::POLL_RESULT::POLL_RESULT_SEND:
+                    {
+                        break;
+                    }
+                    case network::Socket::POLL_RESULT::POLL_RESULT_HANDSHAKE:
+                    {
+                        break;
+                    }
+                    /* 出错 关闭连接 */
+                    case network::Socket::POLL_RESULT::POLL_RESULT_CLOSE:
+                    {
+                        log_debug("epoll out close connection");
+                        obj.closeNotify(connID);
+                        epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
+                        svr->close(connID);
+                        break;
+                    }
+                    default:
+                    {
+                        log_error("invalid poll result:" << pr);
+                        break;
+                    }
+                    }
                 }
             }
             else if (svr->fd == waitEv[i].data.fd)
@@ -648,10 +734,6 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
                     if (0 != rc)
                     {
                         log_error("add tcp client fd to epoll failed:" << strerror(errno));
-                    }
-                    else
-                    {
-                        obj.connectNotify(connID);
                     }
                 }
             }
@@ -672,69 +754,67 @@ bool CommonServer::startWSSvr(CommonServerIF &obj)
                 {
                     unsigned int connID = waitEv[i].data.fd;
                     network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(svr->getClient(connID));
-                    if (NULL != clt)
+                    if (likely(NULL != clt))
                     {
-                        std::string buf = "";
-                        if (clt->recv(buf))
+                        bool flag = true;
+                        do
                         {
-                            if (!buf.empty())
+                            network::Socket::POLL_RESULT pr = clt->pollIn();
+                            switch (pr)
                             {
-                                if (network::WebSocket::CLOSE_RECV == clt->closeStatus)
+                            /* 接收数据成功 */
+                            case network::Socket::POLL_RESULT::POLL_RESULT_SUCCESS:
+                            {
+                                obj.recvNotify(connID, clt->readyWSFrame);
+                                clt->readyWSFrame = "";
+                                if (clt->recvBuf.empty())
                                 {
-                                    log_debug("recv ws close and will send close rsp");
-                                    /* 发送 ws close 消息 */
-                                    sendWS(connID, buf, network::WebSocket::CLOSE);
-                                    clt->closeSend();
+                                    flag = false;
                                 }
-                                else if (network::WebSocket::PONG == clt->wsOpCode)
-                                {
-                                    /* 收到 ws pong 消息 不需要处理 */
-                                    log_debug("recv ws pong");
-                                }
-                                else if (network::WebSocket::PING == clt->wsOpCode)
-                                {
-                                    /* 发送 ws pong 消息 */
-                                    log_debug("recv ws ping and will send pong");
-                                    sendWS(connID, buf, network::WebSocket::PONG);
-                                }
-                                else
-                                {
-                                    obj.recvNotify(connID, buf);
-                                }
+                                break;
                             }
-                            else
+                            case network::Socket::POLL_RESULT::POLL_RESULT_READ:
                             {
-                                if (network::WebSocket::PONG == clt->wsOpCode)
-                                {
-                                    /* 收到 ws pong 消息 不需要处理 */
-                                    log_debug("recv ws pong");
-                                }
-                                else if(network::WebSocket::CLOSE_FORCE    == clt->closeStatus ||
-                                        network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
-                                {
-                                    log_debug("epoll in recv empty or recv close msg should close");
-                                    /* 收到 close 或者对端强制关闭 TCP */
-                                    obj.closeNotify(connID);
-                                    epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
-                                    svr->close(connID);
-                                }
-                                else
-                                {
-                                    log_error("epoll in recv empty ws close status " << clt->closeStatus);
-                                }
+                                flag = false;
+                                break;
                             }
-                        }
-                        else
-                        {
-                            /* 握手失败 */
-                            if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus)
+                            case network::Socket::POLL_RESULT::POLL_RESULT_SEND:
                             {
-                                log_debug("epoll in recv fail should close ws");
+                                modifyEpollOut(connID, clt->fd);
+                                if (clt->recvBuf.empty())
+                                {
+                                    flag = false;
+                                }
+                                break;
+                            }
+                            case network::Socket::POLL_RESULT::POLL_RESULT_HANDSHAKE:
+                            {
+                                /* WS 连接成功 */
+                                obj.connectNotify(connID);
+                                if (clt->recvBuf.empty())
+                                {
+                                    flag = false;
+                                }
+                                break;
+                            }
+                            /* 出错 关闭连接 */
+                            case network::Socket::POLL_RESULT::POLL_RESULT_CLOSE:
+                            {
+                                log_debug("epoll in close connection");
                                 obj.closeNotify(connID);
                                 epoll_ctl(epollFd, EPOLL_CTL_DEL, clt->fd, NULL);
                                 svr->close(connID);
+                                flag = false;
+                                break;
                             }
-                        }
+                            default:
+                            {
+                                log_error("invalid poll result:" << pr);
+                                flag = false;
+                                break;
+                            }
+                            }
+                        }while(flag);
                     }
                 }
                 else
