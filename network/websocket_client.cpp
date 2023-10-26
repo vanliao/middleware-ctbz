@@ -51,7 +51,7 @@ bool WebsocketClient::connectWS()
         wsConnReq += "Sec-WebSocket-Extensions: " + extensions + "\r\n";
     }
     wsConnReq += "\r\n";
-    TcpClient::send(wsConnReq);
+    send(wsConnReq);
     if (likely(wsConnReq.empty()))
     {
         log_debug("send http update ws success");
@@ -418,7 +418,7 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
             resp += "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: ";
             resp += "Upgrade\r\nSec-WebSocket-Accept: " + std::string(accept_str) + "\r\n";
             resp += "\r\n";
-            TcpClient::send(resp);
+            send(resp);
             log_debug("http update ws success 1");
             return true;
         }
@@ -453,7 +453,7 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
                 resp += "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: ";
                 resp += "Upgrade\r\nSec-WebSocket-Accept: " + std::string(accept_str) + "\r\n";
                 resp += "\r\n";
-                TcpClient::send(resp);
+                send(resp);
                 log_debug("http update ws success 2");
                 return true;
             }
@@ -517,7 +517,7 @@ bool WebsocketClient::handleHttpRequest(std::string &wsMsg)
     }
 
     std::string resp400 = "HTTP/1.1 400 Bad Request\r\nSec-WebSocket-Version: 13\r\n\r\n";
-    TcpClient::send(resp400);
+    send(resp400);
     log_error("ws connect failed");
 
     return false;
@@ -533,7 +533,7 @@ bool WebsocketClient::handleHttpReply(std::string &wsMsg)
 
     uint32_t size = pos;
     const char *data = wsMsg.data();
-    const char* data_end = data + size;
+    const char* data_end = data + size + 4;
     bool status_code_checked = false;
     bool upgrade_checked = false;
     bool connection_checked = false;

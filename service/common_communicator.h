@@ -13,7 +13,7 @@ class CommonCommunicatorIF;
 class CommonCommunicator : public network::EpollCommunicator
 {
 public:
-    CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type);
+    CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::CommunicateType type);
     virtual ~CommonCommunicator();
     bool open(void);
     bool send(const int connID, const std::string &buf);
@@ -36,7 +36,7 @@ protected:
 class CommonCommunicatorIF: public network::EpollCommunicatorIF
 {
 public:
-    CommonCommunicatorIF(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType svrtype):
+    CommonCommunicatorIF(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::CommunicateType svrtype):
         model(serverIP, serverPort, svrtype){};
     virtual ~CommonCommunicatorIF(){};
 
@@ -49,7 +49,7 @@ public:
 class Communicator : public CommonCommunicatorIF
 {
 public:
-    Communicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type);
+    Communicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::CommunicateType type);
     ~Communicator();
     virtual void procHbTimer(void);
     bool start(void);

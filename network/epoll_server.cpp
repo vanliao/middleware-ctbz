@@ -12,23 +12,36 @@ EpollServer::EpollServer(const std::string &serverIP, const int serverPort, cons
     epollFd = -1;
     svrType = type;
     finish = false;
-    if (TCP == type)
+
+    switch (type)
     {
-        sock = std::make_shared<TcpServer>(serverIP, serverPort);
-//        TcpServer *cvt = dynamic_cast<TcpServer*>(sock.get());
-    }
-    else if (SSL == type)
-    {
-        sock = std::make_shared<SSLServer>(serverIP, serverPort);
-    }
-    else if (WS == type)
-    {
-        sock = std::make_shared<WebsocketServer>(serverIP, serverPort);
-    }
-    else
+    case UDP:
     {
         sock = std::make_shared<UdpServer>(serverIP, serverPort);
+        break;
     }
+    case TCP:
+    {
+        sock = std::make_shared<TcpServer>(serverIP, serverPort);
+        break;
+    }
+    case SSL:
+    {
+        sock = std::make_shared<SSLServer>(serverIP, serverPort);
+        break;
+    }
+    case WS:
+    {
+        sock = std::make_shared<WebsocketServer>(serverIP, serverPort);
+        break;
+    }
+    case WSS:
+    {
+        sock = std::make_shared<SecWebsocketServer>(serverIP, serverPort);
+        break;
+    }
+    }
+
     return;
 }
 
@@ -53,17 +66,25 @@ bool EpollServer::start(EpollServerIF &obj)
     log_debug("epoll create fd " << epollFd);
 
     bool ret = true;
-    if (TCP == svrType || SSL == svrType)
+    switch (svrType)
     {
-        ret = startTcpSvr(obj);
-    }
-    else if (WS == svrType)
-    {
-        ret = startWSSvr(obj);
-    }
-    else
+    case UDP:
     {
         ret = startUdpSvr(obj);
+        break;
+    }
+    case TCP:
+    case SSL:
+    {
+        ret = startTcpSvr(obj);
+        break;
+    }
+    case WS:
+    case WSS:
+    {
+        ret = startWSSvr(obj);
+        break;
+    }
     }
 
     return ret;
@@ -79,14 +100,34 @@ void EpollServer::setSSLCAFile(const bool verifyPeer,
                                const std::string &certFilePath,
                                const std::string &keyFilePath)
 {
-    if (SSL == svrType)
+    switch (svrType)
+    {
+    case UDP:
+    case TCP:
+    {
+        break;
+    }
+    case SSL:
     {
         SSLServer *svr = dynamic_cast<SSLServer *>(sock.get());
         svr->setCAFile(verifyPeer, caFilePath, certFilePath, keyFilePath);
+        break;
     }
-    else
+    case WS:
+    {
+        break;
+    }
+    case WSS:
+    {
+        SecWebsocketServer *svr = dynamic_cast<SecWebsocketServer *>(sock.get());
+        svr->setCAFile(verifyPeer, caFilePath, certFilePath, keyFilePath);
+        break;
+    }
+    default:
     {
         log_error("set pem file only for ssl");
+        break;
+    }
     }
 
     return;

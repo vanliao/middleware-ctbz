@@ -20,6 +20,7 @@ private:
     ProcResult procDevMsg(rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg);
     ProcResult procMsgLogin(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg);
     ProcResult procMsgEcho(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg);
+    ProcResult procMsgEchoRsp(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg);
     ProcResult procEventDemo(const std::shared_ptr<msg::Msg> &msg, std::shared_ptr<msg::Msg> &outMsg);
 
 private:

@@ -25,5 +25,3 @@ async def ws_client(url):
         # time.sleep(1)
 
 asyncio.run(ws_client('ws://192.168.216.135:4444/login'))
-
-

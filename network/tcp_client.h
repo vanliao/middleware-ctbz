@@ -27,7 +27,7 @@ public:
     std::string sendBuf;
     std::string recvBuf;
 
-public:
+private:
     POLL_RESULT connectAction(void);
     POLL_RESULT sendAction(void);
     std::function<POLL_RESULT(void)> pollOutAction;

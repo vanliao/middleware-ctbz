@@ -6,6 +6,7 @@
 #include "tcp_client.h"
 #include "udp_client.h"
 #include "ssl_client.h"
+#include "sec_websocket_client.h"
 #include "epoll_server.h"
 
 namespace network {
@@ -15,14 +16,15 @@ class EpollCommunicatorIF;
 class EpollCommunicator
 {
 public:
-    enum ServerType
+    enum CommunicateType
     {
         UDP,
         TCP,
         SSL,
         WS,
+        WSS,
     };
-    EpollCommunicator(const std::string &serverIP, const int serverPort, const ServerType svrtype);
+    EpollCommunicator(const std::string &serverIP, const int serverPort, const CommunicateType svrtype);
     virtual ~EpollCommunicator();
     bool start(EpollCommunicatorIF &obj);
     void stop(void);
@@ -41,7 +43,7 @@ protected:
     bool startUdpSvr(EpollCommunicatorIF &obj);
 
 protected:
-    ServerType type;
+    CommunicateType type;
     int port;
     std::string ip;
     int epollFd;

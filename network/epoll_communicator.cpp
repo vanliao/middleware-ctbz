@@ -9,7 +9,7 @@
 
 namespace network {
 
-EpollCommunicator::EpollCommunicator(const std::string &serverIP, const int serverPort, const ServerType svrtype)
+EpollCommunicator::EpollCommunicator(const std::string &serverIP, const int serverPort, const CommunicateType svrtype)
     :type(svrtype), port(serverPort), ip(serverIP), epollFd(-1), finish(false),
      verifyCA(false), caFile(""), certFile(""), privateKeyFile("")
 {
@@ -58,7 +58,7 @@ void EpollCommunicator::stop()
 bool EpollCommunicator::connect()
 {
     std::shared_ptr<network::Socket> clt;
-    if (TCP == type || WS == type || SSL == type)
+    if (TCP == type || SSL == type || WS == type || WSS == type)
     {
         if (TCP == type)
         {
@@ -68,9 +68,13 @@ bool EpollCommunicator::connect()
         {
             clt = std::make_shared<network::SSLClient>(ip, port, verifyCA, caFile, certFile, privateKeyFile);
         }
-        else
+        else if (WS == type)
         {
             clt = std::make_shared<network::WebsocketClient>(ip, port);
+        }
+        else
+        {
+            clt = std::make_shared<network::SecWebsocketClient>(ip, port, verifyCA, caFile, certFile, privateKeyFile);
         }
         auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<network::Socket> >
                                  (api::getClientID(), clt));
@@ -157,7 +161,7 @@ bool EpollCommunicator::connect()
 
 bool EpollCommunicator::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode)
 {
-    if (WS == type)
+    if (WS == type || WSS == type)
     {
         network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
         if (NULL != clt)
@@ -192,9 +196,19 @@ network::TcpClient *EpollCommunicator::getTcpClient(const int connID)
     auto it = clients.find(connID);
     if (clients.end() != it)
     {
-        if (TCP == type || WS == type || SSL == type)
+        switch (type)
+        {
+        case UDP:
+        {
+            break;
+        }
+        case TCP:
+        case SSL:
+        case WS:
+        case WSS:
         {
             return dynamic_cast<network::TcpClient*>(it->second.get());
+        }
         }
     }
 
@@ -242,7 +256,7 @@ void EpollCommunicator::disconnect(const int connID)
             }
         }
     }
-    else if (WS == type)
+    else if (WS == type || WSS == type)
     {
         network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
         if (network::WebSocket::CLOSE_COMPLETE == clt->closeStatus ||

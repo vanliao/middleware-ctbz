@@ -3,6 +3,7 @@
 #include "tcp_server.h"
 #include "udp_server.h"
 #include "websocket_server.h"
+#include "sec_websocket_server.h"
 #include "ssl_server.h"
 
 namespace network {
@@ -26,6 +27,7 @@ public:
         TCP,
         SSL,
         WS,
+        WSS,
     };
 
     EpollServer(const std::string &serverIP, const int serverPort, const ServerType type);

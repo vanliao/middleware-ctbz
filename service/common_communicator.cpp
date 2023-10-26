@@ -9,7 +9,7 @@
 
 namespace service {
 
-CommonCommunicator::CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type):
+CommonCommunicator::CommonCommunicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::CommunicateType type):
         network::EpollCommunicator(serverIP, serverPort, type)
 {
     return;
@@ -53,7 +53,7 @@ bool CommonCommunicator::send(const int connID, const std::string &buf)
             log_error("mod event faild:" << strerror(errno));
         }
     }
-    else if (WS == type)
+    else if (WS == type || WSS == type)
     {
         network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
         if (NULL != clt)
@@ -106,17 +106,25 @@ bool CommonCommunicator::start(CommonCommunicatorIF &obj)
     }
 
     bool ret = true;
-    if (TCP == type || SSL == type)
+    switch (type)
     {
-        ret = startTcpSvr(obj);
-    }
-    else if (WS == type)
-    {
-        ret = startWSSvr(obj);
-    }
-    else
+    case UDP:
     {
         ret = startUdpSvr(obj);
+        break;
+    }
+    case TCP:
+    case SSL:
+    {
+        ret = startTcpSvr(obj);
+        break;
+    }
+    case WS:
+    case WSS:
+    {
+        ret = startWSSvr(obj);
+        break;
+    }
     }
 
     return ret;
@@ -163,17 +171,22 @@ bool CommonCommunicator::delExtenEvent(const int ev)
 
 dev::EndPoint *CommonCommunicator::getDev(const int connID)
 {
-    if (TCP == type || WS == type || SSL == type)
+    switch (type)
     {
-        network::TcpClient *clt = getTcpClient(connID);
-        return dynamic_cast<dev::EndPoint *>(clt);
-    }
-    else //UDP
+    case UDP:
     {
         network::UdpClient *clt = getUdpClient(connID);
         return dynamic_cast<dev::EndPoint *>(clt);
     }
-
+    case TCP:
+    case SSL:
+    case WS:
+    case WSS:
+    {
+        network::TcpClient *clt = getTcpClient(connID);
+        return dynamic_cast<dev::EndPoint *>(clt);
+    }
+    }
     return NULL;
 }
 
@@ -182,15 +195,23 @@ dev::EndPoint *CommonCommunicator::getFirstDev()
     auto it = clients.begin();
     if (clients.end() != it)
     {
-        if (TCP == type || WS == type || SSL == type)
+        switch (type)
         {
-            network::TcpClient *clt = dynamic_cast<network::TcpClient*>(it->second.get());
-            return dynamic_cast<dev::EndPoint *>(clt);
-        }
-        else
+        case UDP:
         {
             network::UdpClient *clt = dynamic_cast<network::UdpClient*>(it->second.get());
             return dynamic_cast<dev::EndPoint *>(clt);
+            break;
+        }
+        case TCP:
+        case SSL:
+        case WS:
+        case WSS:
+        {
+            network::TcpClient *clt = dynamic_cast<network::TcpClient*>(it->second.get());
+            return dynamic_cast<dev::EndPoint *>(clt);
+            break;
+        }
         }
     }
 
@@ -679,7 +700,7 @@ bool CommonCommunicator::startUdpSvr(CommonCommunicatorIF &obj)
     return exitflag;
 }
 
-Communicator::Communicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::ServerType type) :
+Communicator::Communicator(const std::string &serverIP, const int serverPort, const network::EpollCommunicator::CommunicateType type) :
     CommonCommunicatorIF(serverIP, serverPort, type)
 {
     notifyEvt = -1;
@@ -785,9 +806,9 @@ void Communicator::run()
     log_debug("event create fd " << notifyEvt);
 
     struct itimerspec new_value;
-    new_value.it_value.tv_sec = 10;
+    new_value.it_value.tv_sec = 1;
     new_value.it_value.tv_nsec = 0;
-    new_value.it_interval.tv_sec = 10;
+    new_value.it_interval.tv_sec = 1;
     new_value.it_interval.tv_nsec = 0;
     hbTimer = timerfd_create(CLOCK_MONOTONIC, 0);
     if (-1 == hbTimer)

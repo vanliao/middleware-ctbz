@@ -28,7 +28,6 @@ public:
     std::function<POLL_RESULT(void)> pollInAction;
     std::function<POLL_RESULT(void)> pollOutAction;
 
-private:
     std::string creatWSHeader(const uint64_t payloadLen, const uint8_t opcode, const bool fin = true);
     static uint32_t rol(uint32_t value, uint32_t bits);
     uint32_t sha1base64(uint8_t* in, uint64_t in_len, char* out);
@@ -44,6 +43,7 @@ public:
     std::string readyWSFrame;
     std::string partialWSFrame;
 
+protected:
     std::string uri;
     std::string host;
     std::string origin;

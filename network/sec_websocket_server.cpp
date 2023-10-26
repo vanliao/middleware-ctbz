@@ -1,24 +1,24 @@
 #include "tinylog.h"
-#include "ssl_server.h"
-#include "ssl_client.h"
+#include "sec_websocket_server.h"
+#include "sec_websocket_client.h"
 #include "api.h"
 
 namespace network {
 
-SSLServer::SSLServer(const std::string serverIP, const int serverPort) :
-    TcpServer(serverIP, serverPort), verifyCA(false), caFile(""), certFile(""), privateKeyFile("")
+SecWebsocketServer::SecWebsocketServer(const std::string serverIP, const int serverPort) :
+    WebsocketServer(serverIP, serverPort)
 {
     SSLCommon::initSSL();
 }
 
-SSLServer::~SSLServer(void)
+SecWebsocketServer::~SecWebsocketServer(void)
 {
 }
 
-void SSLServer::setCAFile(const bool verifyPeer,
-                          const std::string &caFilePath,
-                          const std::string &certFilePath,
-                          const std::string &keyFilePath)
+void SecWebsocketServer::setCAFile(const bool verifyPeer,
+                                   const std::string &caFilePath,
+                                   const std::string &certFilePath,
+                                   const std::string &keyFilePath)
 {
     verifyCA = verifyPeer;
     caFile = caFilePath;
@@ -26,7 +26,7 @@ void SSLServer::setCAFile(const bool verifyPeer,
     privateKeyFile = keyFilePath;
 }
 
-bool SSLServer::listen()
+bool SecWebsocketServer::listen()
 {
     if (certFile.empty() || privateKeyFile.empty())
     {
@@ -123,7 +123,7 @@ bool SSLServer::listen()
     return true;
 }
 
-bool SSLServer::accept(unsigned int &connID)
+bool SecWebsocketServer::accept(unsigned int &connID)
 {
     int sock;
     std::string ip;
@@ -155,20 +155,9 @@ bool SSLServer::accept(unsigned int &connID)
         return false;
     }
 
-//    if (verifyCA)
-//    {
-//        if (!verifyPeerCA(sslHandle))
-//        {
-//            close(sock);
-//            SSL_free(sslHandle);
-//            log_error("ssl verify ca failed");
-//            return false;
-//        }
-//    }
-
-    std::shared_ptr<TcpClient> clt = std::make_shared<SSLClient>(sock);
+    std::shared_ptr<TcpClient> clt = std::make_shared<SecWebsocketClient>(sock);
     auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<TcpClient> >(api::getClientID(), clt));
-    if (it.second)
+    if (likely(it.second))
     {
         clt->sslHandle = sslHandle;
         connID = it.first->first;
@@ -183,47 +172,6 @@ bool SSLServer::accept(unsigned int &connID)
     }
 
     return it.second;
-}
-
-bool SSLServer::verifyPeerCA(SSL *sslHandle)
-{
-    X509* pX509Cert = NULL;
-    X509_NAME *pX509Subject = NULL;
-    char szCommName[256]={0};
-    char szSubject[1024]={0};
-    char szIssuer[256]={0};
-
-    /*获取验证对端证书的结果*/
-    if(X509_V_OK != SSL_get_verify_result(sslHandle))
-    {
-        log_error("verify peer cert failed");
-        return false;
-    }
-
-    /*获取对端证书*/
-    pX509Cert = SSL_get_peer_certificate(sslHandle);
-    if(NULL == pX509Cert)
-    {
-        log_error("get peer cert failed");
-        return false;
-    }
-
-    /*获取证书使用者属性*/
-    pX509Subject = X509_get_subject_name(pX509Cert);
-    if( NULL == pX509Subject)
-    {
-        X509_free(pX509Cert);
-        log_error("get cert subject failed");
-        return false;
-    }
-
-    X509_NAME_oneline(pX509Subject, szSubject, sizeof(szSubject) -1);
-    X509_NAME_oneline(X509_get_issuer_name(pX509Cert), szIssuer, sizeof(szIssuer) -1);
-    X509_NAME_get_text_by_NID(pX509Subject, NID_commonName, szCommName, sizeof(szCommName)-1);
-    log_debug("cert info:" << szSubject << " " << szIssuer << " " << szCommName);
-
-    X509_free(pX509Cert);
-    return true;
 }
 
 }

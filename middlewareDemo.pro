@@ -17,7 +17,13 @@ SOURCES += \
     dev/nr_dev_demo.cpp \
     dev/ws_dev_demo.cpp \
     main/main_ssl_client_demo.cpp \
+    main/main_wss_client_demo.cpp \
+    main/main_wss_server_demo.cpp \
+    network/sec_websocket_client.cpp \
+    network/sec_websocket_server.cpp \
     service/ssl_client_demo.cpp \
+    service/wss_client_demo.cpp \
+    service/wss_server_demo.cpp \
     thirdparty/inifile/inifile.cpp \
     log/tinylog.cpp \
     log/tlog.c \
@@ -94,7 +100,13 @@ HEADERS += \
     dev/nr_dev_demo.h \
     dev/ws_dev_demo.h \
     main/main_ssl_client_demo.h \
+    main/main_wss_client_demo.h \
+    main/main_wss_server_demo.h \
+    network/sec_websocket_client.h \
+    network/sec_websocket_server.h \
     service/ssl_client_demo.h \
+    service/wss_client_demo.h \
+    service/wss_server_demo.h \
     thirdparty/inifile/inifile.h \
     lib/fcgi/fastcgi.h \
     lib/fcgi/fcgi_config.h \

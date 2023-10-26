@@ -66,7 +66,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
             return false;
         }
     }
-    else if (WS == svrType)
+    else if (WS == svrType || WSS == svrType)
     {
         network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
         if (NULL != svr)
@@ -132,7 +132,7 @@ bool CommonServer::send(const int connID, const std::string &buf)
 
 bool service::CommonServer::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode)
 {
-    if (WS == svrType)
+    if (WS == svrType || WSS == svrType)
     {
         network::WebsocketServer *svr = dynamic_cast<network::WebsocketServer*>(sock.get());
         if (NULL != svr)
@@ -190,7 +190,7 @@ void CommonServer::closeDev(const unsigned int connID)
             log_error("get tcp/ws server failed");
         }
     }
-    else if (WS == svrType)
+    else if (WS == svrType || WSS == svrType)
     {
         network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
         if (NULL != svr)
@@ -240,17 +240,25 @@ bool CommonServer::start(CommonServerIF &obj)
     }
 
     bool ret = true;
-    if (TCP == svrType || SSL == svrType)
+    switch (svrType)
     {
-        ret = startTcpSvr(obj);
-    }
-    else if (WS == svrType)
-    {
-        ret = startWSSvr(obj);
-    }
-    else
+    case UDP:
     {
         ret = startUdpSvr(obj);
+        break;
+    }
+    case TCP:
+    case SSL:
+    {
+        ret = startTcpSvr(obj);
+        break;
+    }
+    case WS:
+    case WSS:
+    {
+        ret = startWSSvr(obj);
+        break;
+    }
     }
 
     return ret;
@@ -297,57 +305,75 @@ bool CommonServer::delExtenEvent(const int ev)
 
 dev::EndPoint *CommonServer::getDev(const int connID)
 {
-    if (TCP == svrType || WS == svrType || SSL == svrType)
+    switch (svrType)
     {
-        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
-        network::TcpClient *clt = svr->getClient(connID);
-        return dynamic_cast<dev::EndPoint *>(clt);
-    }
-    else
+    case UDP:
     {
         network::UdpServer *svr = dynamic_cast<network::UdpServer*>(sock.get());
         network::UdpClient *clt = svr->getClient(connID);
         return dynamic_cast<dev::EndPoint *>(clt);
     }
-
+    case TCP:
+    case SSL:
+    case WS:
+    case WSS:
+    {
+        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
+        network::TcpClient *clt = svr->getClient(connID);
+        return dynamic_cast<dev::EndPoint *>(clt);
+    }
+    }
     return NULL;
 }
 
 dev::EndPoint *CommonServer::getFirstDev()
 {
-    if (TCP == svrType || WS == svrType || SSL == svrType)
+    switch (svrType)
     {
-        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
-        network::TcpClient *clt = svr->getClient();
-        return dynamic_cast<dev::EndPoint *>(clt);
-    }
-    else
+    case UDP:
     {
         network::UdpServer *svr = dynamic_cast<network::UdpServer*>(sock.get());
         network::UdpClient *clt = svr->getClient();
         return dynamic_cast<dev::EndPoint *>(clt);
     }
-
+    case TCP:
+    case SSL:
+    case WS:
+    case WSS:
+    {
+        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
+        network::TcpClient *clt = svr->getClient();
+        return dynamic_cast<dev::EndPoint *>(clt);
+    }
+    }
     return NULL;
 }
 
 void CommonServer::getAllDev(std::vector<unsigned int> &vec)
 {
-    if (TCP == svrType || WS == svrType || SSL == svrType)
+    switch (svrType)
     {
-        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
-        for (const auto &it : svr->clients)
-        {
-            vec.push_back(it.first);
-        }
-    }
-    else
+    case UDP:
     {
         network::UdpServer *svr = dynamic_cast<network::UdpServer*>(sock.get());
         for (const auto &it : svr->clients)
         {
             vec.push_back(it.first);
         }
+        break;
+    }
+    case TCP:
+    case SSL:
+    case WS:
+    case WSS:
+    {
+        network::TcpServer *svr = dynamic_cast<network::TcpServer*>(sock.get());
+        for (const auto &it : svr->clients)
+        {
+            vec.push_back(it.first);
+        }
+        break;
+    }
     }
 
     return;

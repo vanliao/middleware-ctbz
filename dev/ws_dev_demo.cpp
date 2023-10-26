@@ -15,6 +15,8 @@ WSDevDemo::WSDevDemo()
                     ("login", std::bind(&WSDevDemo::procMsgLogin, this, std::placeholders::_1,std::placeholders::_2)));
     msgCallback.insert(std::pair<std::string, std::function<Dev::ProcResult(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg)> >
                     ("echo", std::bind(&WSDevDemo::procMsgEcho, this, std::placeholders::_1,std::placeholders::_2)));
+    msgCallback.insert(std::pair<std::string, std::function<Dev::ProcResult(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg)> >
+                    ("echoRsp", std::bind(&WSDevDemo::procMsgEchoRsp, this, std::placeholders::_1,std::placeholders::_2)));
     /////
     evCallback.insert(std::pair<int, std::function<Dev::ProcResult(const std::shared_ptr<msg::Msg> &msg, std::shared_ptr<msg::Msg> &outMsg)> >
     (msg::type::cgi::MSG_TEST, std::bind(&WSDevDemo::procEventDemo, this, std::placeholders::_1,std::placeholders::_2)));
@@ -140,11 +142,10 @@ Dev::ProcResult WSDevDemo::procMsgEcho(const rapidjson::Document &doc, std::shar
 {
     log_debug("proc ws msg echo");
 
-    ProcResult pr = ProcResult::SENDTODEV;
     if (!doc.HasMember("data") || !doc["data"].IsString())
     {
         log_error("invalid json member:data");
-        return pr;
+        return ProcResult::NONE;
     }
 
     std::string data = doc["data"].GetString();
@@ -176,6 +177,33 @@ Dev::ProcResult WSDevDemo::procMsgEcho(const rapidjson::Document &doc, std::shar
         outMsg = std::make_shared<msg::Msg>();
         outMsg->raw = strBuf.GetString();
     }
+
+    return ProcResult::SENDTODEV;
+}
+
+Dev::ProcResult WSDevDemo::procMsgEchoRsp(const rapidjson::Document &doc, std::shared_ptr<msg::Msg> &outMsg)
+{
+    log_debug("proc ws msg echo rsp");
+
+    if (!doc.HasMember("status") || !doc["status"].IsString())
+    {
+        log_error("invalid json member:status");
+        return ProcResult::NONE;
+    }
+
+    std::string data = doc["status"].GetString();
+
+    rapidjson::StringBuffer strBuf;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(strBuf);
+    writer.StartObject();
+    writer.Key("msgType");
+    writer.String("echo");
+    writer.Key("data");
+    writer.String(data.c_str());
+    writer.EndObject();
+
+    outMsg = std::make_shared<msg::Msg>();
+    outMsg->raw = strBuf.GetString();
 
     return ProcResult::SENDTODEV;
 }

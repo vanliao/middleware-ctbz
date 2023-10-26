@@ -22,17 +22,18 @@ public:
     POLL_RESULT pollIn(void);
     POLL_RESULT pollOut(void);
 
-private:
     bool verifyPeerCA(void);
     POLL_RESULT connectTCPAction(void);
     POLL_RESULT connectSSLAction(void);
     POLL_RESULT sendAction(void);
 
-private:
+protected:
     bool verifyCA;
     std::string caFile;
     std::string certFile;
     std::string privateKeyFile;
+    std::function<POLL_RESULT(void)> pollInAction;
+    std::function<POLL_RESULT(void)> pollOutAction;
 };
 
 }

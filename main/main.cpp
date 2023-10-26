@@ -9,6 +9,8 @@
 #include "main_ws_client_demo.h"
 #include "main_ssl_server_demo.h"
 #include "main_ssl_client_demo.h"
+#include "main_wss_server_demo.h"
+#include "main_wss_client_demo.h"
 #include "rapidjson.h"
 #include "writer.h"
 #include "stringbuffer.h"
@@ -19,12 +21,14 @@
 
 void signalHandler(int /*signum*/)
 {
-    MainServerDemo::instance()->stop();
+//    MainServerDemo::instance()->stop();
 //    MainClientDemo::instance()->stop();
 //    MainWSServerDemo::instance()->stop();
 //    MainWSClientDemo::instance()->stop();
 //    MainSSLServerDemo::instance()->stop();
 //    MAINSSLClientDemo::instance()->stop();
+    MainWSSecServerDemo::instance()->stop();
+    MainWSSecClientDemo::instance()->stop();
     return;
 }
 
@@ -141,16 +145,17 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (MainServerDemo::instance()->readConfig(cfg))
-    {
-        MainServerDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "server demo read config failed" << std::endl;
-        log_debug("server demo read config failed");
-        return -1;
-    }
+//    ================================
+//    if (MainServerDemo::instance()->readConfig(cfg))
+//    {
+//        MainServerDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "server demo read config failed" << std::endl;
+//        log_debug("server demo read config failed");
+//        return -1;
+//    }
 
 //    if (MainClientDemo::instance()->readConfig(cfg))
 //    {
@@ -206,6 +211,29 @@ int main(int argc, char *argv[])
 //        log_debug("ssl client demo read config failed");
 //        return -1;
 //    }
+
+    if (MainWSSecServerDemo::instance()->readConfig(cfg))
+    {
+        MainWSSecServerDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "wss server demo read config failed" << std::endl;
+        log_debug("wss server demo read config failed");
+        return -1;
+    }
+
+    if (MainWSSecClientDemo::instance()->readConfig(cfg))
+    {
+        MainWSSecClientDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "wss client demo read config failed" << std::endl;
+        log_debug("wss client demo read config failed");
+        return -1;
+    }
+//    ================================
     jsonTest();
 
 //    std::string before = "123<>?:?!@#$%^&*(\"{}4adsfds,./adsa56789";
@@ -240,19 +268,23 @@ int main(int argc, char *argv[])
     ev->cmdType = 2;
     ev->result = 3;
     sleep(2);
-    MainServerDemo::instance()->addEvent(msg);
+//    MainServerDemo::instance()->addEvent(msg);
 //    MainClientDemo::instance()->addEvent(msg);
 //    MainWSServerDemo::instance()->addEvent(msg);
 //    MainWSClientDemo::instance()->addEvent(msg);
 //    MainSSLServerDemo::instance()->addEvent(msg);
 //    MAINSSLClientDemo::instance()->addEvent(msg);
+    MainWSSecServerDemo::instance()->addEvent(msg);
+    MainWSSecClientDemo::instance()->addEvent(msg);
 
-    MainServerDemo::instance()->loop();
+//    MainServerDemo::instance()->loop();
 //    MainClientDemo::instance()->loop();
 //    MainWSServerDemo::instance()->loop();
 //    MainWSClientDemo::instance()->loop();
 //    MainSSLServerDemo::instance()->loop();
 //    MAINSSLClientDemo::instance()->loop();
+    MainWSSecServerDemo::instance()->loop();
+    MainWSSecClientDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

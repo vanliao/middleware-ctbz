@@ -32,7 +32,7 @@ class server_ssl:
 
     def handle_client(self, client_socket, addr):
         try:
-            while True:
+            for i in range(10):
                 # 接收客户端信息
                 msg = client_socket.recv(1024).decode("utf-8")
                 if not msg:
@@ -44,7 +44,7 @@ class server_ssl:
                 response = b"{\"code\":1,\"data\":\"hijklmn\"}"
                 client_socket.send(response)
                 # break
-                time.sleep(1)
+                # time.sleep(1)
         except Exception as e:
             print(f"Error: {str(e)}")
         finally:
