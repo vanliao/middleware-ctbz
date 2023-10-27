@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Javascript Demo</title>
+<script>
+// 在这里写JavaScript代码
+console.log("Hello World!");
+
+// 证书是私制的 需要先使用浏览器访问 信任证书才能使用 JS 连接
+const socket = new WebSocket("wss://192.168.216.135:3338/wss")
+
+// const socket = new WebSocket("ws://192.168.216.135:4444/ws")
+socket.onmessage = function (event) 
+{
+	console.log("recv:" + event.data )
+	socket.send("{\"msgType\":\"echo\", \"data\":\"hello\"}");
+}
+socket.onopen = function (event) 
+{
+	console.log("连接开启");
+	socket.send("{\"msgType\":\"login\", \"password\":\"123456\"}")
+}
+socket.onclose = function (event) 
+{
+	console.log("连接被关闭");
+}
+</script>
+</head>
+<body>
+<p>文档内容</p>
+</body>
+</html>
