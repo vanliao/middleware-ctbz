@@ -30,7 +30,7 @@ public:
     void stop(void);
     bool connect(void);
     void disconnect(const int connID);
-    bool sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode);
+    virtual bool sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode) = 0;
     network::TcpClient *getTcpClient(const int connID);
     network::UdpClient *getUdpClient(const int connID);
     void setSSLCAFile(const bool verifyPeer,

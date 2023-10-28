@@ -23,12 +23,12 @@ void signalHandler(int /*signum*/)
 {
 //    MainServerDemo::instance()->stop();
 //    MainClientDemo::instance()->stop();
-//    MainWSServerDemo::instance()->stop();
+    MainWSServerDemo::instance()->stop();
 //    MainWSClientDemo::instance()->stop();
 //    MainSSLServerDemo::instance()->stop();
 //    MAINSSLClientDemo::instance()->stop();
     MainWSSecServerDemo::instance()->stop();
-    MainWSSecClientDemo::instance()->stop();
+//    MainWSSecClientDemo::instance()->stop();
     return;
 }
 
@@ -168,16 +168,16 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-//    if (MainWSServerDemo::instance()->readConfig(cfg))
-//    {
-//        MainWSServerDemo::instance()->start();
-//    }
-//    else
-//    {
-//        std::cout << "ws server demo read config failed" << std::endl;
-//        log_debug("ws server demo read config failed");
-//        return -1;
-//    }
+    if (MainWSServerDemo::instance()->readConfig(cfg))
+    {
+        MainWSServerDemo::instance()->start();
+    }
+    else
+    {
+        std::cout << "ws server demo read config failed" << std::endl;
+        log_debug("ws server demo read config failed");
+        return -1;
+    }
 
 //    if (MainWSClientDemo::instance()->readConfig(cfg))
 //    {
@@ -223,16 +223,16 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    if (MainWSSecClientDemo::instance()->readConfig(cfg))
-    {
-        MainWSSecClientDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "wss client demo read config failed" << std::endl;
-        log_debug("wss client demo read config failed");
-        return -1;
-    }
+//    if (MainWSSecClientDemo::instance()->readConfig(cfg))
+//    {
+//        MainWSSecClientDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "wss client demo read config failed" << std::endl;
+//        log_debug("wss client demo read config failed");
+//        return -1;
+//    }
 //    ================================
     jsonTest();
 
@@ -270,21 +270,21 @@ int main(int argc, char *argv[])
     sleep(2);
 //    MainServerDemo::instance()->addEvent(msg);
 //    MainClientDemo::instance()->addEvent(msg);
-//    MainWSServerDemo::instance()->addEvent(msg);
+    MainWSServerDemo::instance()->addEvent(msg);
 //    MainWSClientDemo::instance()->addEvent(msg);
 //    MainSSLServerDemo::instance()->addEvent(msg);
 //    MAINSSLClientDemo::instance()->addEvent(msg);
     MainWSSecServerDemo::instance()->addEvent(msg);
-    MainWSSecClientDemo::instance()->addEvent(msg);
+//    MainWSSecClientDemo::instance()->addEvent(msg);
 
 //    MainServerDemo::instance()->loop();
 //    MainClientDemo::instance()->loop();
-//    MainWSServerDemo::instance()->loop();
+    MainWSServerDemo::instance()->loop();
 //    MainWSClientDemo::instance()->loop();
 //    MainSSLServerDemo::instance()->loop();
 //    MAINSSLClientDemo::instance()->loop();
     MainWSSecServerDemo::instance()->loop();
-    MainWSSecClientDemo::instance()->loop();
+//    MainWSSecClientDemo::instance()->loop();
 
     log_debug("app stop");
     return 0;

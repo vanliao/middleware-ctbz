@@ -97,6 +97,38 @@ bool CommonCommunicator::send(const int connID, const std::string &buf)
     return true;
 }
 
+bool CommonCommunicator::sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode)
+{
+    if (WS == type || WSS == type)
+    {
+        network::WebsocketClient *clt = dynamic_cast<network::WebsocketClient *>(getTcpClient(connID));
+        if (NULL != clt)
+        {
+            clt->sendPrepare(buf, wsOpCode);
+            struct epoll_event epEvt = {0};
+            epEvt.data.fd = connID;
+            epEvt.events = EPOLLOUT|EPOLLIN;
+            int rc = epoll_ctl(epollFd, EPOLL_CTL_MOD, clt->fd, &epEvt);
+            if (0 != rc)
+            {
+                log_error("mod event faild:" << strerror(errno));
+            }
+        }
+        else
+        {
+            log_error("invalid ptr");
+            return false;
+        }
+    }
+    else
+    {
+        log_error("only send websocket msg");
+        return false;
+    }
+
+    return true;
+}
+
 bool CommonCommunicator::start(CommonCommunicatorIF &obj)
 {
     if (-1 == epollFd)

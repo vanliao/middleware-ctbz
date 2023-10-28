@@ -17,6 +17,7 @@ public:
     virtual ~CommonCommunicator();
     bool open(void);
     bool send(const int connID, const std::string &buf);
+    bool sendWS(const int connID, const std::string &buf, const network::WebSocket::OpCode wsOpCode);
     bool start(CommonCommunicatorIF &obj);
     bool addExtenEvent(const int ev);
     bool delExtenEvent(const int ev);
