@@ -7,14 +7,23 @@
 // 在这里写JavaScript代码
 console.log("Hello World!");
 
-// 证书是私制的 需要先使用浏览器访问 信任证书才能使用 JS 连接
-const socket = new WebSocket("wss://192.168.216.135:3338/wss")
+// 证书是私制的 需要先使用浏览器访问https://192.168.216.135:3338/wss 信任证书才能使用 JS 连接
+// const socket = new WebSocket("wss://192.168.216.135:3338/wss")
 
-// const socket = new WebSocket("ws://192.168.216.135:4444/ws")
+// 使用nginx转发ws, 连接nginx端口即可,方便隐藏ws对外端口
+// nginx 增加以下配置
+//         location = /ws/data {
+//                proxy_pass http://127.0.0.1:8089;
+//                proxy_set_header Upgrade $http_upgrade;
+//                proxy_set_header Connection Upgrade;
+//        }
+// const socket = new WebSocket("ws://192.168.216.135/ws/data")
+
+const socket = new WebSocket("ws://192.168.216.135:4444/ws/data")
 socket.onmessage = function (event) 
 {
 	console.log("recv:" + event.data )
-	socket.send("{\"msgType\":\"echo\", \"data\":\"hello\"}");
+	// socket.send("{\"msgType\":\"echo\", \"data\":\"hello\"}");
 }
 socket.onopen = function (event) 
 {
@@ -28,6 +37,6 @@ socket.onclose = function (event)
 </script>
 </head>
 <body>
-<p>文档内容</p>
+<p>websocket 调试</p>
 </body>
 </html>

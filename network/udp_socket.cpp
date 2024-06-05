@@ -121,7 +121,7 @@ bool UdpSocket::recv(std::string &buf)
     socklen_t len = sizeof(raddr);
 
     buf = "";
-    char buffer[8192];
+    char buffer[8192*6];
     while (1)
     {
         /* UDP必须一次性吧数据读取完,否则会丢弃 */

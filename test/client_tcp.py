@@ -13,4 +13,5 @@ def run(cnt):
         print(recvData)
 
 while True:
-    run(10)
+    run(1)
+    break;

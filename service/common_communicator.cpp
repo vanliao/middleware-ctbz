@@ -838,9 +838,9 @@ void Communicator::run()
     log_debug("event create fd " << notifyEvt);
 
     struct itimerspec new_value;
-    new_value.it_value.tv_sec = 1;
+    new_value.it_value.tv_sec = 10;
     new_value.it_value.tv_nsec = 0;
-    new_value.it_interval.tv_sec = 1;
+    new_value.it_interval.tv_sec = 10;
     new_value.it_interval.tv_nsec = 0;
     hbTimer = timerfd_create(CLOCK_MONOTONIC, 0);
     if (-1 == hbTimer)

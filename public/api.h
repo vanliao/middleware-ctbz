@@ -68,9 +68,9 @@ std::string encrypt_cbc(const std::string &plaintext, const std::string &skey, c
 
 std::string decrypt_cbc(const std::string &encrypttext, const std::string &skey, const std::string &siv);
 
-bool encrypt_base64(const unsigned char* in, int inlen, char* out, int* outlen, bool newline = false);
+bool encrypt_base64(const unsigned char* in, int inlen, char* out, int* outLen, bool newline = false);
 
-bool decrypt_base64(const char* in, int inlen, unsigned char* out, int* outlen, bool newline = false);
+bool decrypt_base64(const char* in, int inlen, unsigned char* out, int* outLen, bool newline = false);
 
 std::string getMd5Str(const char* data, int length);
 }

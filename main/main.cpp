@@ -27,7 +27,7 @@ void signalHandler(int /*signum*/)
 //    MainWSClientDemo::instance()->stop();
 //    MainSSLServerDemo::instance()->stop();
 //    MAINSSLClientDemo::instance()->stop();
-    MainWSSecServerDemo::instance()->stop();
+//    MainWSSecServerDemo::instance()->stop();
 //    MainWSSecClientDemo::instance()->stop();
     return;
 }
@@ -212,16 +212,16 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-    if (MainWSSecServerDemo::instance()->readConfig(cfg))
-    {
-        MainWSSecServerDemo::instance()->start();
-    }
-    else
-    {
-        std::cout << "wss server demo read config failed" << std::endl;
-        log_debug("wss server demo read config failed");
-        return -1;
-    }
+//    if (MainWSSecServerDemo::instance()->readConfig(cfg))
+//    {
+//        MainWSSecServerDemo::instance()->start();
+//    }
+//    else
+//    {
+//        std::cout << "wss server demo read config failed" << std::endl;
+//        log_debug("wss server demo read config failed");
+//        return -1;
+//    }
 
 //    if (MainWSSecClientDemo::instance()->readConfig(cfg))
 //    {
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 //    MainWSClientDemo::instance()->addEvent(msg);
 //    MainSSLServerDemo::instance()->addEvent(msg);
 //    MAINSSLClientDemo::instance()->addEvent(msg);
-    MainWSSecServerDemo::instance()->addEvent(msg);
+//    MainWSSecServerDemo::instance()->addEvent(msg);
 //    MainWSSecClientDemo::instance()->addEvent(msg);
 
 //    MainServerDemo::instance()->loop();
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 //    MainWSClientDemo::instance()->loop();
 //    MainSSLServerDemo::instance()->loop();
 //    MAINSSLClientDemo::instance()->loop();
-    MainWSSecServerDemo::instance()->loop();
+//    MainWSSecServerDemo::instance()->loop();
 //    MainWSSecClientDemo::instance()->loop();
 
     log_debug("app stop");

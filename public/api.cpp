@@ -472,7 +472,7 @@ unsigned int getClientID()
 {
     static std::atomic<unsigned int> clientID(100001);
     unsigned int id = clientID.fetch_add(1);
-    if (100000 > id)	/* 翻转 */
+    while (100000 > id)     /* 翻转 */
     {
         unsigned int id1 = id + 1;
         clientID.compare_exchange_strong(id1, 100001);
@@ -525,7 +525,7 @@ std::string encrypt_cbc(const std::string &plaintext, const std::string &skey, c
     AES_cbc_encrypt(aes_input, enc_out, inputslength, &enc_key, iv, AES_ENCRYPT);
 
     char enc_outBase64[8192] = {0};
-    int enc_outBase64Len = 0;
+    int enc_outBase64Len = sizeof(enc_outBase64);
     encrypt_base64(enc_out, encslength, enc_outBase64, &enc_outBase64Len);
 
 //    AES_KEY dec_key;
@@ -583,7 +583,7 @@ std::string decrypt_cbc(const std::string &encrypttext, const std::string &skey,
     return ss.str();
 }
 
-bool encrypt_base64(const unsigned char* in, int inlen, char* out, int* outlen, bool newline)
+bool encrypt_base64(const unsigned char* in, int inlen, char* out, int* outLen, bool newline)
 {
     BIO* b64 = BIO_new(BIO_f_base64());
     BIO* bmem = BIO_new(BIO_s_mem());
@@ -598,8 +598,8 @@ bool encrypt_base64(const unsigned char* in, int inlen, char* out, int* outlen, 
         BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL); // ignore newlines, write everything in one line
     }
 
-    *outlen = BIO_write(b64, in, inlen);
-    if (*outlen <= 0 || *outlen != inlen)
+    int wLen = BIO_write(b64, in, inlen);
+    if (wLen <= 0 || wLen != inlen)
     {
         return false;
     }
@@ -607,13 +607,23 @@ bool encrypt_base64(const unsigned char* in, int inlen, char* out, int* outlen, 
     BIO_flush(b64);
     BUF_MEM* buf = nullptr;
     BIO_get_mem_ptr(b64, &buf);
-    *outlen = buf->length;
-    memcpy(out, buf->data, *outlen);
+    int bufLen = buf->length;
+
+    bool ret = true;
+    if (*outLen < bufLen)
+    {
+        ret = false;
+    }
+    else
+    {
+        memcpy(out, buf->data, bufLen);
+        *outLen = bufLen;
+    }
     BIO_free_all(b64);
-    return true;
+    return ret;
 }
 
-bool decrypt_base64(const char* in, int inlen, unsigned char* out, int* outlen, bool newline)
+bool decrypt_base64(const char* in, int inlen, unsigned char* out, int* outLen, bool newline)
 {
     BIO* b64 = BIO_new(BIO_f_base64());
     BIO* bmem = BIO_new_mem_buf(in, inlen);
@@ -628,8 +638,8 @@ bool decrypt_base64(const char* in, int inlen, unsigned char* out, int* outlen, 
         BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL); // ignore newlines, write everything in one line
     }
 
-    *outlen = BIO_read(b64, out, inlen);
-    if (*outlen <= 0)
+    *outLen = BIO_read(b64, out, inlen);
+    if (*outLen <= 0)
     {
         return false;
     }
