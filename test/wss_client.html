@@ -23,6 +23,7 @@ const socket = new WebSocket("ws://192.168.216.135:4444/ws/data")
 socket.onmessage = function (event) 
 {
 	console.log("recv:" + event.data )
+	socket.close()
 	// socket.send("{\"msgType\":\"echo\", \"data\":\"hello\"}");
 }
 socket.onopen = function (event) 
@@ -34,6 +35,14 @@ socket.onclose = function (event)
 {
 	console.log("连接被关闭");
 }
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+ 
+sleep(500).then(() => { location.reload(); });
+
+
 </script>
 </head>
 <body>

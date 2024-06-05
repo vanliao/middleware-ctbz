@@ -48,7 +48,7 @@ protected:
     std::string ip;
     int epollFd;
     bool finish;
-    std::map<int, std::shared_ptr<network::Socket> > clients;
+    std::map<unsigned int, std::shared_ptr<network::Socket> > clients;
     bool verifyCA;
     std::string caFile;
     std::string certFile;
