@@ -58,20 +58,6 @@ namespace nr {
 
 }
 
-class NrParameterInfo
-{
-public:
-    NrParameterInfo() {};
-    ~NrParameterInfo() {};
-
-public:
-    std::string name;
-    std::string value;
-    std::string type;
-    std::string restriction;
-    std::string writable;
-};
-
 class Msg
 {
 public:

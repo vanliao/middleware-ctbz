@@ -18,6 +18,7 @@
 #include "error/en.h"
 #include "cgi_db.h"
 #include "api.h"
+#include "tinylog.h"
 
 void signalHandler(int /*signum*/)
 {
@@ -110,6 +111,18 @@ void jsonTest(void)
             log_debug("RFSwitch is " << (*it)["RFSwitch"].GetInt());
         }
     }
+}
+
+void logTest(void)
+{
+    tlog_log *log = tlog_open("another.log", 100, 8, 0, TLOG_NOCOMPRESS);
+    for (int i = 0; i < 10; i++)
+    {
+        std::string text = "This is a separate log stream.\n";
+        tlog_write(log, (char *)text.c_str(), text.length());
+    }
+    tlog_close(log);
+    return;
 }
 
 int main(int argc, char *argv[])
@@ -234,7 +247,9 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 //    ================================
-    jsonTest();
+//    jsonTest();
+//    ================================
+//    logTest();
 
 //    std::string before = "123<>?:?!@#$%^&*(\"{}4adsfds,./adsa56789";
     std::string before = "admin";
