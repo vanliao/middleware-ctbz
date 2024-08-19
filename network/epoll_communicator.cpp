@@ -77,7 +77,7 @@ bool EpollCommunicator::connect()
             clt = std::make_shared<network::SecWebsocketClient>(ip, port, verifyCA, caFile, certFile, privateKeyFile);
         }
         auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<network::Socket> >
-                                 (api::getClientID(), clt));
+                      (api::getClientID(std::bind(&EpollCommunicator::checkClientKey, this, std::placeholders::_1)), clt));
         if (it.second)
         {
             unsigned int connID = it.first->first;
@@ -129,7 +129,7 @@ bool EpollCommunicator::connect()
     {
         clt = std::make_shared<network::UdpClient>(ip, port);
         auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<network::Socket> >
-                                 (api::getClientID(), clt));
+                      (api::getClientID(std::bind(&EpollCommunicator::checkClientKey, this, std::placeholders::_1)), clt));
         if (it.second)
         {
             unsigned int connID = it.first->first;
@@ -206,6 +206,18 @@ void EpollCommunicator::setSSLCAFile(const bool verifyPeer,
     caFile = caFilePath;
     certFile = certFilePath;
     privateKeyFile = keyFilePath;
+}
+
+bool EpollCommunicator::checkClientKey(unsigned int cltID)
+{
+    auto it = clients.find(cltID);
+    if (clients.end() != it)
+    {
+        /* id 已存在 */
+        return false;
+    }
+
+    return true;
 }
 
 void EpollCommunicator::disconnect(const int connID)

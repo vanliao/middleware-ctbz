@@ -20,6 +20,7 @@ public:
     bool send(std::string &/*buf*/);
     TcpClient *getClient(const unsigned int connID);
     TcpClient *getClient(void);
+    bool checkClientKey(unsigned int cltID);
 public:
     std::map<unsigned int, std::shared_ptr<TcpClient> > clients;
 };

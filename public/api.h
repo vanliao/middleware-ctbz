@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace api {
 
@@ -62,7 +63,7 @@ int make_socket_non_blocking(int sfd);
 
 uint64_t get_current_timestamp();
 
-unsigned int getClientID();
+unsigned int getClientID(std::function<bool (unsigned int)> checkFunc);
 
 std::string encrypt_cbc(const std::string &plaintext, const std::string &skey, const std::string &siv);
 

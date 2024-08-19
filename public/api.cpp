@@ -468,15 +468,24 @@ uint64_t get_current_timestamp()
                      std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-unsigned int getClientID()
+unsigned int getClientID(std::function<bool(unsigned int cltID)> checkFunc)
 {
     static std::atomic<unsigned int> clientID(100001);
     unsigned int id = clientID.fetch_add(1);
-    while (100000 > id)     /* 翻转 */
+
+    while (1)
     {
-        unsigned int id1 = id + 1;
-        clientID.compare_exchange_strong(id1, 100001);
-        id = clientID.fetch_add(1);
+        while (100000 > id)     /* 翻转 */
+        {
+            unsigned int id1 = id + 1;
+            clientID.compare_exchange_strong(id1, 100001);
+            id = clientID.fetch_add(1);
+        }
+
+        if (checkFunc(id))
+        {
+            break;
+        }
     }
 
     return id;

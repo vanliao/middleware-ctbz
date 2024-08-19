@@ -48,7 +48,8 @@ bool TcpServer::accept(unsigned int &connID)
     }
 
     std::shared_ptr<TcpClient> clt = std::make_shared<TcpClient>(sock);
-    auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<TcpClient> >(api::getClientID(), clt));
+    auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<TcpClient> >(
+                  api::getClientID(std::bind(&TcpServer::checkClientKey, this, std::placeholders::_1)), clt));
     if (it.second)
     {
         connID = it.first->first;
@@ -102,6 +103,18 @@ TcpClient *TcpServer::getClient()
     }
 
     return NULL;
+}
+
+bool TcpServer::checkClientKey(unsigned int cltID)
+{
+    auto it = clients.find(cltID);
+    if (clients.end() != it)
+    {
+        /* id 已存在 */
+        return false;
+    }
+
+    return true;
 }
 
 }

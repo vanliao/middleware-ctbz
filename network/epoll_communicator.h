@@ -37,6 +37,7 @@ public:
                       const std::string &caFilePath,
                       const std::string &certFilePath,
                       const std::string &keyFilePath);
+    bool checkClientKey(unsigned int cltID);
 
 protected:
     bool startTcpSvr(EpollCommunicatorIF &obj);

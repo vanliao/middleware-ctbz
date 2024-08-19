@@ -18,6 +18,7 @@ public:
     void close(const int connID);
     UdpClient *getClient(const unsigned int connID);
     UdpClient *getClient(void);
+    bool checkClientKey(unsigned int cltID);
 public:
     std::map<unsigned int, std::shared_ptr<UdpClient> > clients;
     std::map<std::string, unsigned int> clientAddrs;

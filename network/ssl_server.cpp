@@ -167,7 +167,8 @@ bool SSLServer::accept(unsigned int &connID)
 //    }
 
     std::shared_ptr<TcpClient> clt = std::make_shared<SSLClient>(sock);
-    auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<TcpClient> >(api::getClientID(), clt));
+    auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<TcpClient> >(
+                  api::getClientID(std::bind(&TcpServer::checkClientKey, this, std::placeholders::_1)), clt));
     if (it.second)
     {
         clt->sslHandle = sslHandle;

@@ -38,7 +38,7 @@ bool UdpServer::accept(std::string &buf, unsigned int &connID)
     auto it = clientAddrs.find(ss.str());
     if (clientAddrs.end() == it)
     {
-        unsigned int cltID = api::getClientID();
+        unsigned int cltID = api::getClientID(std::bind(&UdpServer::checkClientKey, this, std::placeholders::_1));
         clientAddrs.emplace(ss.str(), cltID);
         std::shared_ptr<UdpClient> clt = std::make_shared<UdpClient>(fd, remoteAddr, remotePort);
         auto it = clients.insert(std::pair<unsigned int, std::shared_ptr<UdpClient> >(cltID, clt));
@@ -99,6 +99,18 @@ UdpClient *network::UdpServer::getClient(void)
     }
 
     return NULL;
+}
+
+bool UdpServer::checkClientKey(unsigned int cltID)
+{
+    auto it = clients.find(cltID);
+    if (clients.end() != it)
+    {
+        /* id 已存在 */
+        return false;
+    }
+
+    return true;
 }
 
 }
