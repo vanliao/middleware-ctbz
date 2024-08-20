@@ -15,9 +15,6 @@ public:
     static CgiDB *instance(void);
     bool readConfig(inifile::IniFileHelper &cfg);
     bool authentication(const std::string &user, DBAuthentification &auth);
-    bool getShortCutMenu(std::vector<DBShortcutMenu> &menu);
-    bool getUserInfo(std::vector<DBUser> &userInfo, const std::string userName);
-    bool getMenu(std::map<int, db::DBMenu> &menuInfo);
 
 private:
     CgiDB();
